@@ -5,8 +5,11 @@ import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
-import { ArrowsOut, ArrowsIn, ArrowsClockwise } from '@phosphor-icons/react'
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { ArrowsOut, ArrowsIn, ArrowsClockwise, Circle, Tree, Rows } from '@phosphor-icons/react'
 import { cn } from '@/lib/utils'
+
+export type GraphLayout = 'force' | 'tree' | 'radial' | 'grid'
 
 interface GraphVisualizationProps {
   data: GraphData
@@ -19,6 +22,7 @@ export function GraphVisualization({ data, onNodeClick, selectedNodeId }: GraphV
   const containerRef = useRef<HTMLDivElement>(null)
   const [dimensions, setDimensions] = useState({ width: 800, height: 600 })
   const [zoom, setZoom] = useState(1)
+  const [layout, setLayout] = useState<GraphLayout>('force')
 
   useEffect(() => {
     const updateDimensions = () => {
@@ -52,18 +56,70 @@ export function GraphVisualization({ data, onNodeClick, selectedNodeId }: GraphV
 
     svg.call(zoomBehavior)
 
-    const simulation = d3.forceSimulation(data.nodes as any)
-      .force('link', d3.forceLink(data.links)
-        .id((d: any) => d.id)
-        .distance(80))
-      .force('charge', d3.forceManyBody().strength(-300))
-      .force('center', d3.forceCenter(width / 2, height / 2))
-      .force('collision', d3.forceCollide().radius(30))
-
     const colorMap = {
       object: 'oklch(0.69 0.134 210.42)',
       array: 'oklch(0.53 0.197 264.05)',
       primitive: 'oklch(0.64 0.15 163.23)'
+    }
+
+    let simulation: d3.Simulation<any, any> | null = null
+
+    if (layout === 'force') {
+      simulation = d3.forceSimulation(data.nodes as any)
+        .force('link', d3.forceLink(data.links)
+          .id((d: any) => d.id)
+          .distance(80))
+        .force('charge', d3.forceManyBody().strength(-300))
+        .force('center', d3.forceCenter(width / 2, height / 2))
+        .force('collision', d3.forceCollide().radius(30))
+    } else if (layout === 'tree') {
+      const root = d3.stratify<GraphNode>()
+        .id(d => d.id)
+        .parentId(d => {
+          const link = data.links.find(l => l.target === d.id)
+          return link ? link.source : null
+        })(data.nodes as any)
+
+      const treeLayout = d3.tree<any>().size([width - 100, height - 100])
+      const treeData = treeLayout(root)
+
+      treeData.descendants().forEach(d => {
+        const node = data.nodes.find(n => n.id === d.id)
+        if (node) {
+          node.x = d.x + 50
+          node.y = d.y + 50
+        }
+      })
+    } else if (layout === 'radial') {
+      const root = d3.stratify<GraphNode>()
+        .id(d => d.id)
+        .parentId(d => {
+          const link = data.links.find(l => l.target === d.id)
+          return link ? link.source : null
+        })(data.nodes as any)
+
+      const radialLayout = d3.tree<any>()
+        .size([2 * Math.PI, Math.min(width, height) / 2 - 100])
+        .separation((a, b) => (a.parent == b.parent ? 1 : 2) / a.depth)
+
+      const radialData = radialLayout(root)
+
+      radialData.descendants().forEach(d => {
+        const node = data.nodes.find(n => n.id === d.id)
+        if (node) {
+          node.x = d.y * Math.cos(d.x - Math.PI / 2) + width / 2
+          node.y = d.y * Math.sin(d.x - Math.PI / 2) + height / 2
+        }
+      })
+    } else if (layout === 'grid') {
+      const columns = Math.ceil(Math.sqrt(data.nodes.length))
+      const cellWidth = width / columns
+      const cellHeight = height / Math.ceil(data.nodes.length / columns)
+
+      data.nodes.forEach((node, i) => {
+        node.x = (i % columns) * cellWidth + cellWidth / 2
+        node.y = Math.floor(i / columns) * cellHeight + cellHeight / 2
+      })
     }
 
     const link = g.append('g')
@@ -78,9 +134,11 @@ export function GraphVisualization({ data, onNodeClick, selectedNodeId }: GraphV
       .data(data.nodes)
       .join('g')
       .attr('cursor', 'pointer')
-      .call(d3.drag<any, GraphNode>()
+
+    if (layout === 'force') {
+      node.call(d3.drag<any, GraphNode>()
         .on('start', (event, d: any) => {
-          if (!event.active) simulation.alphaTarget(0.3).restart()
+          if (!event.active) simulation?.alphaTarget(0.3).restart()
           d.fx = d.x
           d.fy = d.y
         })
@@ -89,14 +147,16 @@ export function GraphVisualization({ data, onNodeClick, selectedNodeId }: GraphV
           d.fy = event.y
         })
         .on('end', (event, d: any) => {
-          if (!event.active) simulation.alphaTarget(0)
+          if (!event.active) simulation?.alphaTarget(0)
           d.fx = null
           d.fy = null
         }))
-      .on('click', (event, d) => {
-        event.stopPropagation()
-        onNodeClick?.(d.id)
-      })
+    }
+
+    node.on('click', (event, d) => {
+      event.stopPropagation()
+      onNodeClick?.(d.id)
+    })
 
     node.append('circle')
       .attr('r', (d) => Math.max(8, Math.min(20, 8 + d.size * 2)))
@@ -114,20 +174,42 @@ export function GraphVisualization({ data, onNodeClick, selectedNodeId }: GraphV
       .attr('font-weight', '500')
       .attr('fill', 'currentColor')
 
-    simulation.on('tick', () => {
+    if (layout === 'force' && simulation) {
+      simulation.on('tick', () => {
+        link
+          .attr('x1', (d: any) => d.source.x)
+          .attr('y1', (d: any) => d.source.y)
+          .attr('x2', (d: any) => d.target.x)
+          .attr('y2', (d: any) => d.target.y)
+
+        node.attr('transform', (d: any) => `translate(${d.x},${d.y})`)
+      })
+    } else {
       link
-        .attr('x1', (d: any) => d.source.x)
-        .attr('y1', (d: any) => d.source.y)
-        .attr('x2', (d: any) => d.target.x)
-        .attr('y2', (d: any) => d.target.y)
+        .attr('x1', (d: any) => {
+          const source = data.nodes.find(n => n.id === d.source)
+          return source?.x || 0
+        })
+        .attr('y1', (d: any) => {
+          const source = data.nodes.find(n => n.id === d.source)
+          return source?.y || 0
+        })
+        .attr('x2', (d: any) => {
+          const target = data.nodes.find(n => n.id === d.target)
+          return target?.x || 0
+        })
+        .attr('y2', (d: any) => {
+          const target = data.nodes.find(n => n.id === d.target)
+          return target?.y || 0
+        })
 
       node.attr('transform', (d: any) => `translate(${d.x},${d.y})`)
-    })
+    }
 
     return () => {
-      simulation.stop()
+      simulation?.stop()
     }
-  }, [data, dimensions, selectedNodeId, onNodeClick])
+  }, [data, dimensions, selectedNodeId, onNodeClick, layout])
 
   const handleZoomIn = () => {
     const svg = d3.select(svgRef.current!)
@@ -158,7 +240,7 @@ export function GraphVisualization({ data, onNodeClick, selectedNodeId }: GraphV
   return (
     <TooltipProvider>
       <Card className="p-4 space-y-4">
-        <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center justify-between gap-2 flex-wrap">
           <div>
             <h2 className="text-sm font-semibold">Graph Visualization</h2>
             <p className="text-xs text-muted-foreground mt-0.5">
@@ -166,33 +248,79 @@ export function GraphVisualization({ data, onNodeClick, selectedNodeId }: GraphV
             </p>
           </div>
           
-          <div className="flex gap-2">
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button size="sm" variant="outline" onClick={handleZoomIn}>
-                  <ArrowsOut size={16} />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>Zoom in</TooltipContent>
-            </Tooltip>
+          <div className="flex gap-2 items-center flex-wrap">
+            <Tabs value={layout} onValueChange={(v) => setLayout(v as GraphLayout)}>
+              <TabsList className="bg-muted/80 p-1 rounded-lg h-8">
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <TabsTrigger value="force" className="gap-1 text-xs h-6 px-2 data-[state=active]:bg-primary/10 data-[state=active]:text-primary rounded-md">
+                      <Circle size={14} weight="duotone" />
+                      <span className="hidden sm:inline">Force</span>
+                    </TabsTrigger>
+                  </TooltipTrigger>
+                  <TooltipContent>Force-directed layout</TooltipContent>
+                </Tooltip>
+                
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <TabsTrigger value="tree" className="gap-1 text-xs h-6 px-2 data-[state=active]:bg-primary/10 data-[state=active]:text-primary rounded-md">
+                      <Tree size={14} weight="duotone" />
+                      <span className="hidden sm:inline">Tree</span>
+                    </TabsTrigger>
+                  </TooltipTrigger>
+                  <TooltipContent>Hierarchical tree layout</TooltipContent>
+                </Tooltip>
+                
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <TabsTrigger value="radial" className="gap-1 text-xs h-6 px-2 data-[state=active]:bg-primary/10 data-[state=active]:text-primary rounded-md">
+                      <Circle size={14} weight="duotone" />
+                      <span className="hidden sm:inline">Radial</span>
+                    </TabsTrigger>
+                  </TooltipTrigger>
+                  <TooltipContent>Radial tree layout</TooltipContent>
+                </Tooltip>
+                
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <TabsTrigger value="grid" className="gap-1 text-xs h-6 px-2 data-[state=active]:bg-primary/10 data-[state=active]:text-primary rounded-md">
+                      <Rows size={14} weight="duotone" />
+                      <span className="hidden sm:inline">Grid</span>
+                    </TabsTrigger>
+                  </TooltipTrigger>
+                  <TooltipContent>Grid layout</TooltipContent>
+                </Tooltip>
+              </TabsList>
+            </Tabs>
             
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button size="sm" variant="outline" onClick={handleZoomOut}>
-                  <ArrowsIn size={16} />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>Zoom out</TooltipContent>
-            </Tooltip>
-            
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button size="sm" variant="outline" onClick={handleReset}>
-                  <ArrowsClockwise size={16} />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>Reset view</TooltipContent>
-            </Tooltip>
+            <div className="flex gap-1">
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button size="sm" variant="outline" onClick={handleZoomIn} className="h-8 w-8 p-0 rounded-lg">
+                    <ArrowsOut size={14} />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Zoom in</TooltipContent>
+              </Tooltip>
+              
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button size="sm" variant="outline" onClick={handleZoomOut} className="h-8 w-8 p-0 rounded-lg">
+                    <ArrowsIn size={14} />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Zoom out</TooltipContent>
+              </Tooltip>
+              
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button size="sm" variant="outline" onClick={handleReset} className="h-8 w-8 p-0 rounded-lg">
+                    <ArrowsClockwise size={14} />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Reset view</TooltipContent>
+              </Tooltip>
+            </div>
           </div>
         </div>
 

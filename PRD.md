@@ -1,22 +1,43 @@
 # Planning Guide
 
-A professional, powerful developer tool for visualizing, exploring, analyzing structured data across multiple formats (JSON, YAML, JSONL, CSV) with advanced graph analytics, interactive exploration, comprehensive search capabilities, and beautiful data visualization. Enhanced with premium UI/UX featuring glassmorphic design, sophisticated animations, and delightful micro-interactions.
+A professional, powerful developer tool for exploring, visualizing, and analyzing structured data across multiple formats (JSON, YAML, JSONL, CSV) with advanced graph analytics, multiple layout options, flexible file input methods, interactive exploration, comprehensive search capabilities, and beautiful data visualization. Enhanced with premium UI/UX featuring glassmorphic design, sophisticated animations, and delightful micro-interactions.
 
 **Experience Qualities**:
-1. **Versatile** - Supports JSON, YAML, JSONL, CSV formats with auto-detection, flexible parsing, and intelligent format conversion
-2. **Powerful** - Graph visualization, advanced analytics, regex search, multi-modal data exploration with comprehensive metrics and insights
+1. **Versatile** - Supports JSON, YAML, JSONL, CSV formats with auto-detection, flexible file/URL loading, and intelligent format conversion
+2. **Powerful** - Multiple graph layouts, advanced analytics, regex search, multi-modal data exploration with comprehensive metrics and insights
 3. **Beautiful** - Refined glassmorphic design, smooth animations, gradient accents, and professional polish that delights users
 
 **Complexity Level**: Complex Application (advanced functionality with rich state management)
-  - Highly sophisticated features (multi-format parsing, graph visualization with D3 force simulation, advanced search with regex/path modes, comprehensive analytics, dual visualization modes) with extensive state persistence and real-time coordination
+  - Highly sophisticated features (multi-format parsing, graph visualization with D3 force/tree/radial/grid layouts, file/URL input, advanced search with regex/path modes, comprehensive analytics, dual visualization modes) with extensive state persistence and real-time coordination
 
 ## Essential Features
+
+### Flexible File Input & Loading
+- **Functionality**: Load data from local files (drag & drop or browse), URLs with CORS support, or direct paste with automatic format detection
+- **Purpose**: Provide maximum flexibility for data input from any source - files, APIs, remote endpoints, or clipboard
+- **Trigger**: User selects file input mode (file or URL) in the Load Data panel
+- **Progression**: Select input mode → Choose file/enter URL → Auto-detect format from extension/content → Load data → Set format tab → Display in textarea → Ready to parse
+- **Success criteria**: Files load instantly; URLs fetch with loading state; format auto-detected accurately; drag & drop works smoothly; errors shown clearly; supports .json, .yaml, .jsonl, .csv, .json5 files
+
+### Automatic Format Detection
+- **Functionality**: Intelligently detect data format from file extension, URL path, and content structure analysis
+- **Purpose**: Eliminate manual format selection and reduce user friction when loading data
+- **Trigger**: File or URL loaded into the application
+- **Progression**: Data loaded → Check file extension → Analyze content structure → Detect format → Set appropriate format tab → Notify user
+- **Success criteria**: 95%+ accuracy on format detection; handles edge cases (no extension, ambiguous content); provides format in toast notification
+
+### Multiple Graph Layout Options
+- **Functionality**: Four distinct graph visualization layouts - Force-directed (physics), Tree (hierarchical), Radial (circular hierarchy), Grid (organized rows)
+- **Purpose**: Enable users to view data structure in the most meaningful way for their use case and data shape
+- **Trigger**: User selects layout from tabs in graph view
+- **Progression**: Parse data → Switch to graph view → Select layout (force/tree/radial/grid) → Re-render graph with new layout → Maintain zoom/pan state → Update legend
+- **Success criteria**: Smooth transitions between layouts; each layout clearly shows structure; force has physics simulation; tree shows hierarchy; radial shows depth; grid shows organization
 
 ### Multi-Format Data Input & Parsing
 - **Functionality**: Accept JSON, YAML, JSONL (line-delimited JSON), CSV, and JSON5 with auto-detection, format conversion, and comprehensive error reporting
 - **Purpose**: Handle diverse data sources from APIs, logs, configs, databases, and exports with intelligent parsing
-- **Trigger**: User selects format tab and pastes/types data
-- **Progression**: Select format → Paste data → Auto-detect/validate → Parse with timing metrics → Build tree structure → Generate graph → Calculate analytics → Display results
+- **Trigger**: User selects format tab and pastes/types/loads data
+- **Progression**: Select format → Load/paste data → Auto-detect/validate → Parse with timing metrics → Build tree structure → Generate graph → Calculate analytics → Display results
 - **Success criteria**: All formats parse correctly; JSONL handles streaming logs; CSV converts to structured objects; parse time shown; invalid input shows format-specific errors with suggestions
 
 ### JSONL (Line-Delimited JSON) Support
@@ -41,11 +62,11 @@ A professional, powerful developer tool for visualizing, exploring, analyzing st
 - **Success criteria**: All nesting levels accessible, smooth expand/collapse animations, clear visual hierarchy, instant path copying
 
 ### Graph Visualization with D3
-- **Functionality**: Interactive force-directed graph showing data structure relationships with zoom, pan, drag, and node selection
-- **Purpose**: Visualize data structure relationships and hierarchy in a spatial, intuitive way
-- **Trigger**: Switch to graph view tab after parsing
-- **Progression**: Switch to graph → Render force-directed layout → Drag nodes → Zoom/pan → Click nodes to select → Highlight connections → View node details
-- **Success criteria**: Smooth physics simulation, responsive interactions, clear node/edge differentiation, synchronized selection with tree view
+- **Functionality**: Interactive graph with multiple layouts (force-directed, tree, radial, grid) showing data structure relationships with zoom, pan, drag, and node selection
+- **Purpose**: Visualize data structure relationships and hierarchy in a spatial, intuitive way with layout options for different analysis needs
+- **Trigger**: Switch to graph view tab after parsing, select layout option
+- **Progression**: Switch to graph → Select layout (force/tree/radial/grid) → Render with selected layout → Drag nodes (force mode) → Zoom/pan → Click nodes to select → Highlight connections → View node details
+- **Success criteria**: Smooth physics simulation in force mode; clear hierarchical tree layout; radial shows depth beautifully; grid organizes uniformly; responsive interactions; clear node/edge differentiation; synchronized selection with tree view; layout switcher intuitive
 
 ### Advanced Search & Filtering
 - **Functionality**: Multi-mode search (text, regex, path) with case sensitivity, whole word matching, and type filtering across all data
@@ -83,13 +104,13 @@ A professional, powerful developer tool for visualizing, exploring, analyzing st
 - **Success criteria**: Smooth 300ms color transitions, all elements adapt properly, preference persisted, graph colors update
 
 ## Edge Case Handling
-- **Empty Input**: Show helpful quick start guide with examples for all supported formats (JSON, YAML, JSONL, CSV)
+- **Empty Input**: Show helpful quick start guide with examples for all supported formats (JSON, YAML, JSONL, CSV) and file/URL loading options
 - **Invalid Syntax**: Display detailed error message with line/column numbers and format-specific fix suggestions with inline highlighting
 - **JSONL Line Errors**: Show which line failed to parse, allow partial success for valid lines
 - **CSV Header Issues**: Detect missing/duplicate headers, provide suggestions for malformed CSV
 - **Mixed Format Detection**: Auto-detect format and guide user to correct tab with intelligent suggestions
-- **Very Large Files**: Handle large documents gracefully with virtual scrolling, performance monitoring, warnings (10k+ nodes, 1000+ JSONL records)
-- **Deep Nesting**: Smart initial expansion, expand-all with progress, performance warnings for deep structures (20+ levels)
+- **Very Large Files**: Handle large documents gracefully with virtual scrolling, performance monitoring, warnings (10k+ nodes, 1000+ JSONL records); warn before loading massive files from URL
+- **Deep Nesting**: Smart initial expansion, expand-all with progress, performance warnings for deep structures (20+ levels); tree layout handles deep hierarchies
 - **Special Characters**: Properly escape and display unicode, emojis, and special chars in values across all views and formats
 - **Circular References**: Detect and display warning (JSON only, as YAML can have anchors/aliases)
 - **Malformed Formatting**: Provide comprehensive lint errors with helpful fix suggestions and error locations
@@ -97,9 +118,13 @@ A professional, powerful developer tool for visualizing, exploring, analyzing st
 - **Mobile Interactions**: Handle touch gestures for graph manipulation, prevent zoom conflicts, optimize for small screens with responsive tabs
 - **Complex Regex**: Catch and display regex syntax errors with helpful messages in search
 - **Empty Search Results**: Show "No results found" state with suggestion to adjust filters
-- **Graph Rendering**: Handle disconnected nodes, self-loops, and performance for large graphs (500+ nodes)
+- **Graph Rendering**: Handle disconnected nodes, self-loops, and performance for large graphs (500+ nodes); optimize layouts for various graph shapes
 - **Path Edge Cases**: Handle special characters in keys, numeric indices, and deeply nested paths correctly
 - **Format Conversion**: Handle edge cases when converting between formats (YAML anchors, CSV special chars)
+- **URL Loading**: Handle CORS errors gracefully with helpful message; show loading state; timeout after 30s; validate URL format
+- **File Size Limits**: Warn for files >10MB; show progress for large file reading
+- **Layout Switching**: Preserve selection when switching between graph layouts; smooth transitions
+- **Drag & Drop**: Highlight drop zone on drag over; prevent page navigation on drop; accept only valid file types
 
 ## Design Direction
 The design should feel premium, sophisticated, and powerful - like a professional data analytics platform with studio-quality polish. Modern glassmorphic UI with subtle backdrop blur, layered depth through shadows and gradients, and refined spacing that breathes. Professional monospace typography for code with multi-color syntax highlighting. Smooth theme transitions (350ms) between light and dark modes that extend seamlessly to all visualizations. Gradient accents on buttons and headers that catch the eye. Rounded corners (12px) throughout for modern feel. Layered information architecture where complexity is progressively revealed. Interactive visualizations that respond fluidly with micro-animations and hover states. Premium feel through attention to detail - from animated gradients to smooth scale transforms.
@@ -198,10 +223,11 @@ Premium, purposeful animations that provide visual feedback, guide attention, an
   - Micro-interactions subtle but noticeable (100-150ms)
 
 ## Component Selection
-- **Components**: 
+- **Component Selection**: 
   - Card with glassmorphic effects (backdrop-blur, semi-transparent) for all major content areas
-  - Tabs with rounded pills for format switching (JSON/YAML/JSONL/CSV/JSON5) and view modes (Tree/Graph)
+  - Tabs with rounded pills for format switching (JSON/YAML/JSONL/CSV/JSON5), view modes (Tree/Graph), and graph layouts (Force/Tree/Radial/Grid)
   - Textarea with monospace styling and rounded corners for data entry
+  - Input for URL entry with validation
   - Badge with color coding and semi-transparent backgrounds for type indicators
   - Button with gradient backgrounds, rounded corners (12px), scale transforms, and icon support
   - ScrollArea with custom styled scrollbars for tree view and analytics panels
@@ -212,11 +238,12 @@ Premium, purposeful animations that provide visual feedback, guide attention, an
   - Switch with smooth toggle animation for boolean options
   - DropdownMenu with rounded corners, shadow-xl, and hover states for tools
   - Progress bars with rounded ends and gradient fills for distributions
-  - Custom D3 SVG for graph visualization with smooth transitions
+  - Custom D3 SVG for graph visualization with smooth transitions and multiple layouts
   
 - **Customizations**: 
   - Custom Tree component with recursive rendering, path tracking, and smooth animations
-  - Custom Graph component with D3 force-directed layout and theme-aware colors
+  - Custom Graph component with D3 force/tree/radial/grid layouts and theme-aware colors
+  - File Input component with drag & drop, file browse, and URL loading
   - Advanced Search component with multi-mode support and glassmorphic styling
   - Graph Analytics Panel with tabbed metrics and premium design
   - Stats Panel with gradient metric cards and animated progress bars
@@ -225,20 +252,27 @@ Premium, purposeful animations that provide visual feedback, guide attention, an
   - Interactive node selection synchronized across views with smooth highlights
   - Format selector with 5 format options in responsive grid
   - Premium header with app logo icon and gradient text
+  - Layout switcher with 4 graph layout options and tooltips
+  - Automatic format detection from file extension and content
   
 - **States**: 
   - Buttons: Default, Hover (scale 1.05 + glow), Active (scale 0.98), Disabled (opacity 50%), Loading (spinner)
   - Tree Nodes: Collapsed, Expanded (smooth height), Matched (highlighted background), Selected (accent border + glow), Hover (background shift)
-  - Graph Nodes: Normal, Hover (scale + glow), Selected (thick border + glow), Dragging (elevated shadow)
+  - Graph Nodes: Normal, Hover (scale + glow), Selected (thick border + glow), Dragging (elevated shadow - force mode only)
+  - Graph Layouts: Force (physics simulation), Tree (hierarchical), Radial (circular), Grid (organized) with smooth transitions
   - Search Modes: Text (default icon), Regex (code icon), Path (path icon) with active state styling
   - Views: Tree (hierarchical list), Graph (spatial visualization) with smooth transition
   - Input: Empty (placeholder), Valid (success subtle glow), Invalid (error border + shake), Formatting (loading overlay)
   - Theme: Light (bright gradients), Dark (rich with glow), Transitioning (smooth 350ms morph)
   - Cards: Default (subtle shadow), Hover (shadow-2xl + border glow + scale 1.01)
+  - File Input: Default, Drag Over (border highlight), Loading (spinner), Error (red border)
+  - URL Input: Empty, Valid URL, Loading (disabled + spinner), Error (validation message)
   
 - **Icon Selection** (Phosphor Icons, duotone weight): 
   - Sparkle for app branding
   - Graph/TreeStructure for view mode switching
+  - Circle/Tree/Rows for graph layout options
+  - Upload/Link for file input modes
   - MagnifyingGlass for search
   - Code for regex mode
   - Path for path search mode
@@ -254,7 +288,7 @@ Premium, purposeful animations that provide visual feedback, guide attention, an
   - Sun/Moon for theme toggle with rotation
   - TextAlignLeft/Minus for format/minify
   - Gear for settings
-  - ArrowsOut/ArrowsIn for expand/collapse
+  - ArrowsOut/ArrowsIn/ArrowsClockwise for zoom controls
   
 - **Spacing**: 
   - Consistent Tailwind spacing with breathing room: gap-8 for major sections, gap-6 for panels, gap-4 for related groups, gap-3 for options, gap-2 for tight elements

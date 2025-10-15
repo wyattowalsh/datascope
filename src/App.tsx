@@ -37,6 +37,7 @@ import { LintErrorsDisplay } from '@/components/LintErrorsDisplay'
 import { GraphVisualization } from '@/components/GraphVisualization'
 import { GraphAnalyticsPanel } from '@/components/GraphAnalyticsPanel'
 import { AdvancedSearch, SearchOptions } from '@/components/AdvancedSearch'
+import { FileInput } from '@/components/FileInput'
 import { parseData, buildTree, calculateStats, getPathString, advancedSearchNodes, TreeNode, ValueType, DataFormat } from '@/lib/parser'
 import { formatJSON, minifyJSON, formatYAML, formatJSONL, lintJSON, FormatOptions, LintError } from '@/lib/formatter'
 import { buildGraph, analyzeGraph, GraphData, GraphAnalytics } from '@/lib/graph-analyzer'
@@ -269,6 +270,13 @@ function App() {
     setFormat(type)
   }, [setInputValue])
 
+  const handleFileLoaded = useCallback((data: string, detectedFormat?: DataFormat) => {
+    setInputValue(data)
+    if (detectedFormat) {
+      setFormat(detectedFormat)
+    }
+  }, [setInputValue])
+
   const handleFormat = useCallback((options: FormatOptions) => {
     let result
     if (format === 'json' || format === 'json5') {
@@ -347,7 +355,7 @@ function App() {
                   </div>
                   <div>
                     <h1 className="text-xl md:text-2xl lg:text-3xl font-semibold tracking-tight bg-gradient-to-br from-foreground via-foreground to-foreground/60 bg-clip-text">
-                      Data Visualizer Pro
+                      Data Explorer
                     </h1>
                     <p className="text-xs md:text-sm text-muted-foreground">
                       Parse, explore, analyze structured data • JSON, YAML, JSONL, CSV
@@ -623,6 +631,8 @@ function App() {
                 </>
               )}
               
+              <FileInput onDataLoaded={handleFileLoaded} />
+              
               {!parsedData && (
                 <Card className="p-8 space-y-6 shadow-xl border-border/40 bg-gradient-to-br from-card/50 to-muted/30 backdrop-blur-sm">
                   <div className="flex items-center gap-3 text-foreground/80">
@@ -634,31 +644,31 @@ function App() {
                   <div className="space-y-3 text-sm text-muted-foreground leading-relaxed">
                     <div className="flex items-start gap-3 p-4 rounded-xl bg-background/50 border border-border/40 transition-all duration-200 hover:border-primary/30 hover:bg-background/70 group">
                       <span className="text-primary font-bold flex-shrink-0 text-base">1.</span>
-                      <p className="group-hover:text-foreground/80 transition-colors">Select a format (JSON, YAML, JSONL, CSV) and paste your data</p>
+                      <p className="group-hover:text-foreground/80 transition-colors">Load data from file, URL, or paste directly</p>
                     </div>
                     <div className="flex items-start gap-3 p-4 rounded-xl bg-background/50 border border-border/40 transition-all duration-200 hover:border-primary/30 hover:bg-background/70 group">
                       <span className="text-primary font-bold flex-shrink-0 text-base">2.</span>
-                      <p className="group-hover:text-foreground/80 transition-colors">Click "Parse Data" to visualize structure & analytics</p>
+                      <p className="group-hover:text-foreground/80 transition-colors">Auto-detection or select format (JSON, YAML, JSONL, CSV)</p>
                     </div>
                     <div className="flex items-start gap-3 p-4 rounded-xl bg-background/50 border border-border/40 transition-all duration-200 hover:border-primary/30 hover:bg-background/70 group">
                       <span className="text-primary font-bold flex-shrink-0 text-base">3.</span>
-                      <p className="group-hover:text-foreground/80 transition-colors">Use Tools menu for formatting, minifying, & prettifying</p>
+                      <p className="group-hover:text-foreground/80 transition-colors">Click "Parse Data" to visualize structure & analytics</p>
                     </div>
                     <div className="flex items-start gap-3 p-4 rounded-xl bg-background/50 border border-border/40 transition-all duration-200 hover:border-primary/30 hover:bg-background/70 group">
                       <span className="text-primary font-bold flex-shrink-0 text-base">4.</span>
-                      <p className="group-hover:text-foreground/80 transition-colors">Advanced search with regex, path queries, & type filters</p>
+                      <p className="group-hover:text-foreground/80 transition-colors">Use Tools menu for formatting, minifying, & prettifying</p>
                     </div>
                     <div className="flex items-start gap-3 p-4 rounded-xl bg-background/50 border border-border/40 transition-all duration-200 hover:border-primary/30 hover:bg-background/70 group">
                       <span className="text-primary font-bold flex-shrink-0 text-base">5.</span>
-                      <p className="group-hover:text-foreground/80 transition-colors">Switch between tree & graph visualization modes</p>
+                      <p className="group-hover:text-foreground/80 transition-colors">Advanced search with regex, path queries, & type filters</p>
                     </div>
                     <div className="flex items-start gap-3 p-4 rounded-xl bg-background/50 border border-border/40 transition-all duration-200 hover:border-primary/30 hover:bg-background/70 group">
                       <span className="text-primary font-bold flex-shrink-0 text-base">6.</span>
-                      <p className="group-hover:text-foreground/80 transition-colors">Explore comprehensive analytics, metrics, & insights</p>
+                      <p className="group-hover:text-foreground/80 transition-colors">Explore multiple graph layouts: force, tree, radial, grid</p>
                     </div>
                     <div className="flex items-start gap-3 p-4 rounded-xl bg-background/50 border border-border/40 transition-all duration-200 hover:border-primary/30 hover:bg-background/70 group">
                       <span className="text-primary font-bold flex-shrink-0 text-base">7.</span>
-                      <p className="group-hover:text-foreground/80 transition-colors">JSONL support for streaming logs & line-delimited data</p>
+                      <p className="group-hover:text-foreground/80 transition-colors">Comprehensive analytics, metrics, & insights</p>
                     </div>
                   </div>
                 </Card>
