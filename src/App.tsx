@@ -41,6 +41,7 @@ import { FileInput } from '@/components/FileInput'
 import { parseData, buildTree, calculateStats, getPathString, advancedSearchNodes, TreeNode, ValueType, DataFormat } from '@/lib/parser'
 import { formatJSON, minifyJSON, formatYAML, formatJSONL, lintJSON, FormatOptions, LintError } from '@/lib/formatter'
 import { buildGraph, analyzeGraph, GraphData, GraphAnalytics } from '@/lib/graph-analyzer'
+import { gtmDataParsed, gtmFileLoaded, gtmViewChanged, gtmSearchPerformed, gtmFormatAction } from '@/lib/analytics'
 import { toast } from 'sonner'
 
 const EXAMPLE_JSON = `{
@@ -151,6 +152,11 @@ function App() {
   
   const { theme, toggleTheme } = useTheme()
 
+  const handleViewModeChange = useCallback((newMode: 'tree' | 'graph') => {
+    setViewMode(newMode)
+    gtmViewChanged(newMode)
+  }, [])
+
   const handleParse = useCallback(() => {
     const result = parseData(inputValue || '', format)
     
@@ -176,6 +182,7 @@ function App() {
         setShowLintErrors(false)
       }
       
+      gtmDataParsed(format, true)
       toast.success(`${result.format?.toUpperCase()} parsed successfully`)
     } else {
       setParsedData(null)
@@ -185,6 +192,7 @@ function App() {
       setError(result.error || 'Failed to parse')
       setLintErrors([])
       setShowLintErrors(false)
+      gtmDataParsed(format, false)
       toast.error('Parse failed')
     }
   }, [inputValue, format])
@@ -275,6 +283,7 @@ function App() {
     if (detectedFormat) {
       setFormat(detectedFormat)
     }
+    gtmFileLoaded('file', detectedFormat)
   }, [setInputValue])
 
   const handleFormat = useCallback((options: FormatOptions) => {
@@ -292,6 +301,7 @@ function App() {
     
     if (result.success && result.formatted) {
       setInputValue(result.formatted)
+      gtmFormatAction('format', format)
       toast.success(`${format.toUpperCase()} formatted successfully`)
       handleParse()
     } else {
@@ -304,6 +314,7 @@ function App() {
       const result = minifyJSON(inputValue || '')
       if (result.success && result.formatted) {
         setInputValue(result.formatted)
+        gtmFormatAction('minify', format)
         toast.success('JSON minified successfully')
         handleParse()
       } else {
@@ -333,8 +344,14 @@ function App() {
         return count + nodeCount
       }, 0)
     }
-    return countNodes(filteredNodes)
-  }, [filteredNodes])
+    const count = countNodes(filteredNodes)
+    
+    if (searchOptions.searchTerm && count > 0) {
+      gtmSearchPerformed(searchOptions.searchMode, count)
+    }
+    
+    return count
+  }, [filteredNodes, searchOptions])
 
   useEffect(() => {
     if (inputValue) {
@@ -345,19 +362,19 @@ function App() {
   return (
     <TooltipProvider>
       <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 transition-all duration-[350ms] ease-out">
-        <header className="sticky top-0 z-20 bg-background/90 backdrop-blur-xl border-b border-border/40 shadow-sm transition-all duration-300">
+        <header className="sticky top-0 z-20 bg-background/95 backdrop-blur-xl border-b border-border/50 shadow-sm transition-all duration-300">
           <div className="max-w-[1800px] mx-auto px-4 md:px-6 lg:px-8 py-6">
             <div className="flex items-center justify-between gap-4">
               <div className="space-y-1.5">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-xl bg-gradient-to-br from-primary/20 to-accent/20 backdrop-blur-sm">
-                    <Sparkle size={24} weight="duotone" className="text-primary" />
+                  <div className="p-2.5 rounded-xl bg-gradient-to-br from-primary/20 via-primary/15 to-accent/20 backdrop-blur-sm shadow-lg shadow-primary/10">
+                    <Sparkle size={28} weight="duotone" className="text-primary" />
                   </div>
                   <div>
-                    <h1 className="text-xl md:text-2xl lg:text-3xl font-semibold tracking-tight bg-gradient-to-br from-foreground via-foreground to-foreground/60 bg-clip-text">
-                      Data Explorer
+                    <h1 className="text-xl md:text-2xl lg:text-3xl font-semibold tracking-tight bg-gradient-to-r from-foreground via-primary/90 to-accent/80 bg-clip-text text-transparent">
+                      DataScope
                     </h1>
-                    <p className="text-xs md:text-sm text-muted-foreground">
+                    <p className="text-xs md:text-sm text-muted-foreground/90">
                       Parse, explore, analyze structured data • JSON, YAML, JSONL, CSV
                     </p>
                   </div>
@@ -370,7 +387,7 @@ function App() {
                     variant="outline"
                     size="icon"
                     onClick={toggleTheme}
-                    className="flex-shrink-0 h-10 w-10 rounded-xl hover:scale-105 transition-all duration-200 hover:border-primary/50 hover:bg-primary/5"
+                    className="flex-shrink-0 h-10 w-10 rounded-xl hover:scale-105 transition-all duration-200 hover:border-primary/50 hover:bg-primary/10 hover:shadow-lg hover:shadow-primary/20"
                   >
                     {theme === 'light' ? (
                       <Moon size={20} weight="duotone" className="transition-transform duration-300" />
@@ -390,29 +407,29 @@ function App() {
         <div className="max-w-[1800px] mx-auto p-4 md:p-6 lg:p-8">
           <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 lg:gap-8">
             <div className="xl:col-span-2 space-y-6">
-              <Card className="p-6 space-y-5 shadow-xl border-border/40 bg-card/50 backdrop-blur-sm transition-all duration-300 hover:shadow-2xl hover:border-border/60">
+              <Card className="p-6 space-y-5 shadow-xl border-border/50 bg-card/60 backdrop-blur-sm transition-all duration-300 hover:shadow-2xl hover:border-border/70 hover:bg-card/70">
                 <div className="flex items-center justify-between gap-3 flex-wrap">
                   <Tabs value={format} onValueChange={(v) => setFormat(v as DataFormat)} className="w-full sm:w-auto">
-                    <TabsList className="grid grid-cols-2 sm:grid-cols-5 bg-muted/80 p-1 rounded-xl">
-                      <TabsTrigger value="json" className="gap-1.5 data-[state=active]:bg-primary/10 data-[state=active]:text-primary data-[state=active]:shadow-sm transition-all duration-200 rounded-lg">
+                    <TabsList className="grid grid-cols-2 sm:grid-cols-5 bg-muted/80 p-1 rounded-xl shadow-inner">
+                      <TabsTrigger value="json" className="gap-1.5 data-[state=active]:bg-gradient-to-br data-[state=active]:from-primary/15 data-[state=active]:to-primary/10 data-[state=active]:text-primary data-[state=active]:shadow-md transition-all duration-200 rounded-lg">
                         <File size={16} weight="duotone" />
-                        <span className="text-xs sm:text-sm">JSON</span>
+                        <span className="text-xs sm:text-sm font-medium">JSON</span>
                       </TabsTrigger>
-                      <TabsTrigger value="yaml" className="gap-1.5 data-[state=active]:bg-primary/10 data-[state=active]:text-primary data-[state=active]:shadow-sm transition-all duration-200 rounded-lg">
+                      <TabsTrigger value="yaml" className="gap-1.5 data-[state=active]:bg-gradient-to-br data-[state=active]:from-primary/15 data-[state=active]:to-primary/10 data-[state=active]:text-primary data-[state=active]:shadow-md transition-all duration-200 rounded-lg">
                         <FileCode size={16} weight="duotone" />
-                        <span className="text-xs sm:text-sm">YAML</span>
+                        <span className="text-xs sm:text-sm font-medium">YAML</span>
                       </TabsTrigger>
-                      <TabsTrigger value="jsonl" className="gap-1.5 data-[state=active]:bg-primary/10 data-[state=active]:text-primary data-[state=active]:shadow-sm transition-all duration-200 rounded-lg">
+                      <TabsTrigger value="jsonl" className="gap-1.5 data-[state=active]:bg-gradient-to-br data-[state=active]:from-primary/15 data-[state=active]:to-primary/10 data-[state=active]:text-primary data-[state=active]:shadow-md transition-all duration-200 rounded-lg">
                         <ListBullets size={16} weight="duotone" />
-                        <span className="text-xs sm:text-sm">JSONL</span>
+                        <span className="text-xs sm:text-sm font-medium">JSONL</span>
                       </TabsTrigger>
-                      <TabsTrigger value="csv" className="gap-1.5 data-[state=active]:bg-primary/10 data-[state=active]:text-primary data-[state=active]:shadow-sm transition-all duration-200 rounded-lg">
+                      <TabsTrigger value="csv" className="gap-1.5 data-[state=active]:bg-gradient-to-br data-[state=active]:from-primary/15 data-[state=active]:to-primary/10 data-[state=active]:text-primary data-[state=active]:shadow-md transition-all duration-200 rounded-lg">
                         <FileCsv size={16} weight="duotone" />
-                        <span className="text-xs sm:text-sm">CSV</span>
+                        <span className="text-xs sm:text-sm font-medium">CSV</span>
                       </TabsTrigger>
-                      <TabsTrigger value="json5" className="gap-1.5 data-[state=active]:bg-primary/10 data-[state=active]:text-primary data-[state=active]:shadow-sm transition-all duration-200 rounded-lg">
+                      <TabsTrigger value="json5" className="gap-1.5 data-[state=active]:bg-gradient-to-br data-[state=active]:from-primary/15 data-[state=active]:to-primary/10 data-[state=active]:text-primary data-[state=active]:shadow-md transition-all duration-200 rounded-lg">
                         <Table size={16} weight="duotone" />
-                        <span className="text-xs sm:text-sm">JSON5</span>
+                        <span className="text-xs sm:text-sm font-medium">JSON5</span>
                       </TabsTrigger>
                     </TabsList>
                   </Tabs>
@@ -422,7 +439,7 @@ function App() {
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <DropdownMenuTrigger asChild>
-                            <Button size="sm" variant="outline" className="gap-2 hover:border-primary/50 transition-all duration-200 rounded-lg hover:bg-primary/5">
+                            <Button size="sm" variant="outline" className="gap-2 hover:border-primary/50 transition-all duration-200 rounded-lg hover:bg-primary/10 hover:shadow-md hover:shadow-primary/20">
                               <File size={16} weight="duotone" />
                               <span className="hidden sm:inline">Examples</span>
                             </Button>
@@ -454,7 +471,7 @@ function App() {
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <DropdownMenuTrigger asChild>
-                            <Button size="sm" variant="outline" className="gap-2 hover:border-primary/50 transition-all duration-200 rounded-lg hover:bg-primary/5">
+                            <Button size="sm" variant="outline" className="gap-2 hover:border-primary/50 transition-all duration-200 rounded-lg hover:bg-primary/10 hover:shadow-md hover:shadow-primary/20">
                               <Gear size={16} weight="duotone" />
                               <span className="hidden sm:inline">Tools</span>
                             </Button>
@@ -481,7 +498,7 @@ function App() {
                     <Button 
                       onClick={handleParse} 
                       size="sm" 
-                      className="shadow-md hover:shadow-lg transition-all duration-200 hover:scale-105 bg-gradient-to-r from-primary to-primary/80 rounded-lg font-medium"
+                      className="shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 bg-gradient-to-r from-primary via-primary to-primary/80 rounded-lg font-medium hover:from-primary/90 hover:via-primary hover:to-primary/70"
                     >
                       Parse Data
                     </Button>
@@ -492,7 +509,7 @@ function App() {
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}
                   placeholder={`Paste your ${format.toUpperCase()} data here...`}
-                  className="font-mono text-sm min-h-[240px] md:min-h-[280px] resize-y transition-all duration-200 focus:ring-2 focus:ring-primary/30 border-border/40 hover:border-border/60 rounded-xl bg-muted/30 focus:bg-background"
+                  className="font-mono text-sm min-h-[240px] md:min-h-[280px] resize-y transition-all duration-200 focus:ring-2 focus:ring-primary/30 border-border/50 hover:border-border/70 rounded-xl bg-muted/40 focus:bg-background shadow-inner"
                 />
 
                 {showLintErrors && lintErrors.length > 0 && (
@@ -513,17 +530,17 @@ function App() {
 
               {parsedData && (
                 <>
-                  <Card className="p-6 space-y-5 shadow-xl border-border/40 bg-card/50 backdrop-blur-sm transition-all duration-300 hover:shadow-2xl hover:border-border/60">
+                  <Card className="p-6 space-y-5 shadow-xl border-border/50 bg-card/60 backdrop-blur-sm transition-all duration-300 hover:shadow-2xl hover:border-border/70 hover:bg-card/70">
                     <div className="flex items-center justify-between gap-3 flex-wrap">
-                      <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as 'tree' | 'graph')}>
-                        <TabsList className="bg-muted/80 p-1 rounded-xl">
-                          <TabsTrigger value="tree" className="gap-2 data-[state=active]:bg-primary/10 data-[state=active]:text-primary data-[state=active]:shadow-sm transition-all duration-200 rounded-lg">
+                      <Tabs value={viewMode} onValueChange={(v) => handleViewModeChange(v as 'tree' | 'graph')}>
+                        <TabsList className="bg-muted/80 p-1 rounded-xl shadow-inner">
+                          <TabsTrigger value="tree" className="gap-2 data-[state=active]:bg-gradient-to-br data-[state=active]:from-primary/15 data-[state=active]:to-primary/10 data-[state=active]:text-primary data-[state=active]:shadow-md transition-all duration-200 rounded-lg">
                             <TreeStructure size={16} weight="duotone" />
-                            <span className="hidden sm:inline">Tree View</span>
+                            <span className="hidden sm:inline font-medium">Tree View</span>
                           </TabsTrigger>
-                          <TabsTrigger value="graph" className="gap-2 data-[state=active]:bg-primary/10 data-[state=active]:text-primary data-[state=active]:shadow-sm transition-all duration-200 rounded-lg">
+                          <TabsTrigger value="graph" className="gap-2 data-[state=active]:bg-gradient-to-br data-[state=active]:from-primary/15 data-[state=active]:to-primary/10 data-[state=active]:text-primary data-[state=active]:shadow-md transition-all duration-200 rounded-lg">
                             <Graph size={16} weight="duotone" />
-                            <span className="hidden sm:inline">Graph View</span>
+                            <span className="hidden sm:inline font-medium">Graph View</span>
                           </TabsTrigger>
                         </TabsList>
                       </Tabs>
@@ -536,7 +553,7 @@ function App() {
                                 size="sm"
                                 variant="outline"
                                 onClick={handleExpandAll}
-                                className="hover:border-primary/50 transition-all duration-200 hover:scale-105 rounded-lg hover:bg-primary/5"
+                                className="hover:border-primary/50 transition-all duration-200 hover:scale-105 rounded-lg hover:bg-primary/10 hover:shadow-md hover:shadow-primary/20"
                               >
                                 <ArrowsOut size={16} weight="duotone" />
                                 <span className="hidden sm:inline ml-2">Expand All</span>
@@ -551,7 +568,7 @@ function App() {
                                 size="sm"
                                 variant="outline"
                                 onClick={handleCollapseAll}
-                                className="hover:border-primary/50 transition-all duration-200 hover:scale-105 rounded-lg hover:bg-primary/5"
+                                className="hover:border-primary/50 transition-all duration-200 hover:scale-105 rounded-lg hover:bg-primary/10 hover:shadow-md hover:shadow-primary/20"
                               >
                                 <ArrowsIn size={16} weight="duotone" />
                                 <span className="hidden sm:inline ml-2">Collapse All</span>
@@ -566,7 +583,7 @@ function App() {
                     {viewMode === 'tree' && (
                       <>
                         {selectedPath.length > 0 && (
-                          <div className="flex items-center gap-2 p-3.5 bg-gradient-to-r from-muted/70 to-muted/50 rounded-xl border border-border/40 backdrop-blur-sm transition-all duration-200 hover:border-primary/30 group">
+                          <div className="flex items-center gap-2 p-3.5 bg-gradient-to-r from-muted/70 via-muted/60 to-muted/50 rounded-xl border border-border/50 backdrop-blur-sm transition-all duration-200 hover:border-primary/40 hover:shadow-md hover:shadow-primary/10 group">
                             <code className="flex-1 text-xs font-mono truncate text-foreground/90 group-hover:text-foreground transition-colors">
                               {getPathString(selectedPath, 'dot')}
                             </code>
@@ -587,7 +604,7 @@ function App() {
 
                         <Separator className="bg-gradient-to-r from-transparent via-border/60 to-transparent" />
 
-                        <ScrollArea className="h-[500px] md:h-[560px] rounded-xl border border-border/20">
+                        <ScrollArea className="h-[500px] md:h-[560px] rounded-xl border border-border/30 shadow-inner">
                           <div className="p-2">
                             <TreeView
                               nodes={filteredNodes}
@@ -601,7 +618,7 @@ function App() {
                     )}
 
                     {viewMode === 'graph' && graphData && (
-                      <div className="rounded-xl border border-border/20 overflow-hidden">
+                      <div className="rounded-xl border border-border/30 overflow-hidden shadow-inner">
                         <GraphVisualization 
                           data={graphData}
                           onNodeClick={handleGraphNodeClick}
@@ -634,39 +651,39 @@ function App() {
               <FileInput onDataLoaded={handleFileLoaded} />
               
               {!parsedData && (
-                <Card className="p-8 space-y-6 shadow-xl border-border/40 bg-gradient-to-br from-card/50 to-muted/30 backdrop-blur-sm">
+                <Card className="p-8 space-y-6 shadow-xl border-border/50 bg-gradient-to-br from-card/60 to-muted/40 backdrop-blur-sm">
                   <div className="flex items-center gap-3 text-foreground/80">
-                    <div className="p-2.5 rounded-xl bg-primary/10">
+                    <div className="p-2.5 rounded-xl bg-gradient-to-br from-primary/20 to-accent/20">
                       <ChartBar size={24} weight="duotone" className="text-primary" />
                     </div>
                     <h3 className="text-lg font-semibold">Quick Start Guide</h3>
                   </div>
                   <div className="space-y-3 text-sm text-muted-foreground leading-relaxed">
-                    <div className="flex items-start gap-3 p-4 rounded-xl bg-background/50 border border-border/40 transition-all duration-200 hover:border-primary/30 hover:bg-background/70 group">
+                    <div className="flex items-start gap-3 p-4 rounded-xl bg-background/60 border border-border/50 transition-all duration-200 hover:border-primary/40 hover:bg-background/80 hover:shadow-md hover:shadow-primary/10 group">
                       <span className="text-primary font-bold flex-shrink-0 text-base">1.</span>
                       <p className="group-hover:text-foreground/80 transition-colors">Load data from file, URL, or paste directly</p>
                     </div>
-                    <div className="flex items-start gap-3 p-4 rounded-xl bg-background/50 border border-border/40 transition-all duration-200 hover:border-primary/30 hover:bg-background/70 group">
+                    <div className="flex items-start gap-3 p-4 rounded-xl bg-background/60 border border-border/50 transition-all duration-200 hover:border-primary/40 hover:bg-background/80 hover:shadow-md hover:shadow-primary/10 group">
                       <span className="text-primary font-bold flex-shrink-0 text-base">2.</span>
                       <p className="group-hover:text-foreground/80 transition-colors">Auto-detection or select format (JSON, YAML, JSONL, CSV)</p>
                     </div>
-                    <div className="flex items-start gap-3 p-4 rounded-xl bg-background/50 border border-border/40 transition-all duration-200 hover:border-primary/30 hover:bg-background/70 group">
+                    <div className="flex items-start gap-3 p-4 rounded-xl bg-background/60 border border-border/50 transition-all duration-200 hover:border-primary/40 hover:bg-background/80 hover:shadow-md hover:shadow-primary/10 group">
                       <span className="text-primary font-bold flex-shrink-0 text-base">3.</span>
                       <p className="group-hover:text-foreground/80 transition-colors">Click "Parse Data" to visualize structure & analytics</p>
                     </div>
-                    <div className="flex items-start gap-3 p-4 rounded-xl bg-background/50 border border-border/40 transition-all duration-200 hover:border-primary/30 hover:bg-background/70 group">
+                    <div className="flex items-start gap-3 p-4 rounded-xl bg-background/60 border border-border/50 transition-all duration-200 hover:border-primary/40 hover:bg-background/80 hover:shadow-md hover:shadow-primary/10 group">
                       <span className="text-primary font-bold flex-shrink-0 text-base">4.</span>
                       <p className="group-hover:text-foreground/80 transition-colors">Use Tools menu for formatting, minifying, & prettifying</p>
                     </div>
-                    <div className="flex items-start gap-3 p-4 rounded-xl bg-background/50 border border-border/40 transition-all duration-200 hover:border-primary/30 hover:bg-background/70 group">
+                    <div className="flex items-start gap-3 p-4 rounded-xl bg-background/60 border border-border/50 transition-all duration-200 hover:border-primary/40 hover:bg-background/80 hover:shadow-md hover:shadow-primary/10 group">
                       <span className="text-primary font-bold flex-shrink-0 text-base">5.</span>
                       <p className="group-hover:text-foreground/80 transition-colors">Advanced search with regex, path queries, & type filters</p>
                     </div>
-                    <div className="flex items-start gap-3 p-4 rounded-xl bg-background/50 border border-border/40 transition-all duration-200 hover:border-primary/30 hover:bg-background/70 group">
+                    <div className="flex items-start gap-3 p-4 rounded-xl bg-background/60 border border-border/50 transition-all duration-200 hover:border-primary/40 hover:bg-background/80 hover:shadow-md hover:shadow-primary/10 group">
                       <span className="text-primary font-bold flex-shrink-0 text-base">6.</span>
                       <p className="group-hover:text-foreground/80 transition-colors">Explore multiple graph layouts: force, tree, radial, grid</p>
                     </div>
-                    <div className="flex items-start gap-3 p-4 rounded-xl bg-background/50 border border-border/40 transition-all duration-200 hover:border-primary/30 hover:bg-background/70 group">
+                    <div className="flex items-start gap-3 p-4 rounded-xl bg-background/60 border border-border/50 transition-all duration-200 hover:border-primary/40 hover:bg-background/80 hover:shadow-md hover:shadow-primary/10 group">
                       <span className="text-primary font-bold flex-shrink-0 text-base">7.</span>
                       <p className="group-hover:text-foreground/80 transition-colors">Comprehensive analytics, metrics, & insights</p>
                     </div>

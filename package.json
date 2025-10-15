@@ -1,8 +1,10 @@
 {
-    "name": "spark-template",
+    "name": "datascope",
     "private": true,
-    "version": "0.0.0",
+    "version": "1.0.0",
     "type": "module",
+    "homepage": "https://datascope.w4w.dev",
+    "description": "Professional data explorer and visualization tool for JSON, YAML, JSONL, and CSV with advanced graph analytics",
     "scripts": {
         "dev": "vite",
         "kill": "fuser -k 5000/tcp",

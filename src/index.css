@@ -54,6 +54,16 @@
       transform: scale(1);
     }
   }
+
+  @keyframes gradient-shift {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+  }
+
+  .animate-gradient {
+    background-size: 200% 200%;
+    animation: gradient-shift 8s ease infinite;
+  }
 }
 
 :root {
@@ -92,12 +102,13 @@
   --syntax-key: oklch(0.44 0.14 264.05);
   --syntax-bracket: oklch(0.54 0.025 252.73);
   
-  --radius: 0.625rem;
+  --radius: 0.75rem;
   
   --shadow-sm: 0 1px 2px 0 oklch(0 0 0 / 0.05);
   --shadow: 0 2px 8px -2px oklch(0 0 0 / 0.08);
   --shadow-lg: 0 8px 24px -4px oklch(0 0 0 / 0.12);
   --shadow-xl: 0 16px 48px -8px oklch(0 0 0 / 0.16);
+  --shadow-2xl: 0 24px 64px -12px oklch(0 0 0 / 0.20);
 }
 
 .dark {
@@ -136,10 +147,11 @@
   --syntax-key: oklch(0.70 0.17 265);
   --syntax-bracket: oklch(0.60 0.032 250);
   
-  --shadow-sm: 0 1px 2px 0 oklch(0 0 0 / 0.2);
-  --shadow: 0 2px 8px -2px oklch(0 0 0 / 0.4);
-  --shadow-lg: 0 8px 24px -4px oklch(0 0 0 / 0.5);
-  --shadow-xl: 0 16px 48px -8px oklch(0 0 0 / 0.6);
+  --shadow-sm: 0 1px 2px 0 oklch(0 0 0 / 0.3);
+  --shadow: 0 2px 8px -2px oklch(0 0 0 / 0.5);
+  --shadow-lg: 0 8px 24px -4px oklch(0 0 0 / 0.6);
+  --shadow-xl: 0 16px 48px -8px oklch(0 0 0 / 0.7);
+  --shadow-2xl: 0 24px 64px -12px oklch(0 0 0 / 0.8);
 }
 
 @theme {

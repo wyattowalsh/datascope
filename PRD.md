@@ -1,6 +1,6 @@
 # Planning Guide
 
-A professional, powerful developer tool for exploring, visualizing, and analyzing structured data across multiple formats (JSON, YAML, JSONL, CSV) with advanced graph analytics, multiple layout options, flexible file input methods, interactive exploration, comprehensive search capabilities, and beautiful data visualization. Enhanced with premium UI/UX featuring glassmorphic design, sophisticated animations, and delightful micro-interactions.
+A professional, powerful developer tool for exploring, visualizing, and analyzing structured data across multiple formats (JSON, YAML, JSONL, CSV) with advanced graph analytics, multiple layout options, flexible file input methods, interactive exploration, comprehensive search capabilities, and beautiful data visualization. Enhanced with premium UI/UX featuring glassmorphic design, sophisticated animations, and delightful micro-interactions. Deployed at https://datascope.w4w.dev
 
 **Experience Qualities**:
 1. **Versatile** - Supports JSON, YAML, JSONL, CSV formats with auto-detection, flexible file/URL loading, and intelligent format conversion

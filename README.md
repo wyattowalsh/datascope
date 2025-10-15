@@ -1,6 +1,8 @@
-# 🔍 Data Explorer
+# 🔍 DataScope
 
 A professional, powerful tool for exploring, visualizing, and analyzing structured data across multiple formats with advanced graph analytics and beautiful visualizations.
+
+**🌐 Live Demo**: [https://datascope.w4w.dev](https://datascope.w4w.dev)
 
 ## ✨ Features
 
@@ -67,6 +69,65 @@ A professional, powerful tool for exploring, visualizing, and analyzing structur
 - **Tree**: Best for understanding hierarchical structure
 - **Radial**: Best for visualizing depth and nested relationships
 - **Grid**: Best for systematic data review
+
+## 🚢 Deployment
+
+DataScope is deployed on Vercel at [datascope.w4w.dev](https://datascope.w4w.dev).
+
+### Vercel Setup
+
+The project includes:
+- `vercel.json` - Deployment configuration
+- `.github/workflows/deploy.yml` - CI/CD pipeline
+- `DEPLOYMENT.md` - Detailed deployment guide
+
+### Environment Variables
+
+Optional environment variables (see `.env.example`):
+- `VITE_APP_NAME` - Application name
+- `VITE_APP_URL` - Production URL
+- `VITE_GTM_ID` - Google Tag Manager ID
+
+### Analytics
+
+Integrated with Google Tag Manager (GTM-KDKW33HQ) for:
+- Page view tracking
+- Data parse events
+- File load tracking
+- View mode changes
+- Search analytics
+- Format actions
+
+## 🛠️ Development
+
+```bash
+# Install dependencies
+npm install
+
+# Start development server
+npm run dev
+
+# Build for production
+npm run build
+
+# Preview production build
+npm run preview
+
+# Run linter
+npm run lint
+```
+
+## 📦 Tech Stack
+
+- **Framework**: React 19 + TypeScript
+- **Build Tool**: Vite
+- **Styling**: Tailwind CSS v4
+- **UI Components**: Radix UI + shadcn
+- **Visualization**: D3.js
+- **Icons**: Phosphor Icons
+- **State**: React Hooks + useKV (persistent state)
+- **Analytics**: Google Tag Manager
+- **Deployment**: Vercel
 
 ## 📄 License
 
