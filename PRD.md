@@ -1,6 +1,6 @@
 # Planning Guide
 
-A professional, powerful developer tool for exploring, visualizing, and analyzing structured data across multiple formats (JSON, YAML, JSONL, CSV) with advanced graph analytics, multiple layout options, flexible file input methods, interactive exploration, comprehensive search capabilities, and beautiful data visualization. Enhanced with premium UI/UX featuring glassmorphic design, sophisticated animations, and delightful micro-interactions. Deployed at https://datascope.w4w.dev
+A professional, powerful developer tool for exploring, visualizing, and analyzing structured data across multiple formats (JSON, YAML, JSONL, CSV) with advanced graph analytics, multiple layout options, flexible file input methods, interactive exploration, comprehensive search capabilities, beautiful data visualization, AI-powered insights, data transformation engine, schema generation, comparison tools, keyboard shortcuts, and persistent history. Enhanced with premium UI/UX featuring glassmorphic design, sophisticated animations, and delightful micro-interactions. Deployed at https://datascope.w4w.dev
 
 **Experience Qualities**:
 1. **Versatile** - Supports JSON, YAML, JSONL, CSV formats with auto-detection, flexible file/URL loading, and intelligent format conversion
@@ -96,6 +96,55 @@ A professional, powerful developer tool for exploring, visualizing, and analyzin
 - **Progression**: Click format → Select indent preference + sort option → Apply formatting → Update display → Show lint errors if any → Provide fix suggestions
 - **Success criteria**: Proper indentation, optional key sorting, maintains data integrity, helpful lint messages, format-specific optimizations
 
+### Data Export & Download
+- **Functionality**: Export parsed data in multiple formats (JSON, YAML, CSV, JSONL) with prettify and sort options
+- **Purpose**: Enable users to download processed data in their preferred format for use in other tools
+- **Trigger**: Click Export button after parsing data
+- **Progression**: Open export dialog → Select format → Configure options (prettify, sort keys) → Download file → Receive confirmation
+- **Success criteria**: Supports all major formats; maintains data integrity; generates proper filenames; handles edge cases (CSV requires arrays)
+
+### JSON Schema Generation
+- **Functionality**: Automatically generate JSON Schema (Draft-07) from parsed data with type inference and format detection
+- **Purpose**: Document data structure, enable validation, provide schema for API contracts
+- **Trigger**: Expand Advanced Tools panel when data is parsed
+- **Progression**: Parse data → Infer types → Detect formats (email, URI, date) → Generate schema → Display with copy option → User copies schema
+- **Success criteria**: Accurate type detection; identifies string formats; handles nested objects and arrays; proper Draft-07 compliance; one-click copy
+
+### Data Transformation Engine
+- **Functionality**: Apply JavaScript transformations to data with built-in examples (extract keys, filter, map, flatten)
+- **Purpose**: Enable users to reshape, filter, and transform data without leaving the app
+- **Trigger**: Expand Advanced Tools panel, write/select transformation code
+- **Progression**: Select example or write code → Preview transformation → Apply to main view → Data updates → Re-analyze
+- **Success criteria**: Safe execution; helpful examples; error handling; preview before apply; updates entire visualization pipeline
+
+### Data Comparison & Diff
+- **Functionality**: Compare current data with another dataset, showing added, removed, modified, and unchanged properties
+- **Purpose**: Identify differences between versions, API responses, or configurations
+- **Trigger**: Expand Advanced Tools panel, paste comparison data
+- **Progression**: Paste JSON → Compare → Show metrics (added/removed/modified/unchanged) → Display detailed diff with color coding → Explore changes
+- **Success criteria**: Accurate path-based comparison; clear visual distinction; handles nested objects; shows change summary; scrollable diff view
+
+### AI-Powered Data Insights
+- **Functionality**: Automatically analyze data structure and provide intelligent insights, warnings, and recommendations
+- **Purpose**: Help users understand their data quality, structure, and potential issues at a glance
+- **Trigger**: Automatic analysis when data is parsed successfully
+- **Progression**: Parse data → Analyze structure → Detect patterns/issues → Generate insights → Display categorized recommendations (tips/warnings/info/trends)
+- **Success criteria**: Detects deep nesting, null prevalence, schema consistency, data types, array structures; provides actionable recommendations; color-coded by insight type
+
+### Keyboard Shortcuts
+- **Functionality**: Comprehensive keyboard shortcuts for all major actions with discoverable shortcut panel
+- **Purpose**: Enable power users to work efficiently without mouse interaction
+- **Trigger**: Press '?' to open shortcuts dialog, use shortcuts anywhere in app
+- **Progression**: Learn shortcuts → Use hotkeys → Increase productivity → Access shortcuts reference anytime
+- **Success criteria**: Ctrl+P parse, Ctrl+E export, Ctrl+K search, Ctrl+1/2 view switch, E/C expand/collapse, ? show help; all shortcuts work reliably; dialog shows complete reference
+
+### Data History & Restore
+- **Functionality**: Automatically save recent datasets with timestamps, quick restore, and history management
+- **Purpose**: Allow users to quickly switch between recent datasets without re-loading
+- **Trigger**: Automatic save on parse/load, manual restore from history panel
+- **Progression**: Parse/load data → Auto-save to history → View history panel → Restore previous dataset → Clear individual items or all
+- **Success criteria**: Saves last 10 datasets; shows timestamp and format; one-click restore; clear all option; persists across sessions
+
 ### Light/Dark Mode Toggle
 - **Functionality**: Switch between light and dark themes with persistent preference and smooth transitions
 - **Purpose**: Reduce eye strain and match user's environment preference
@@ -125,6 +174,10 @@ A professional, powerful developer tool for exploring, visualizing, and analyzin
 - **File Size Limits**: Warn for files >10MB; show progress for large file reading
 - **Layout Switching**: Preserve selection when switching between graph layouts; smooth transitions
 - **Drag & Drop**: Highlight drop zone on drag over; prevent page navigation on drop; accept only valid file types
+- **Export Edge Cases**: Validate data structure before export (CSV/JSONL require arrays); handle export errors gracefully; warn about data loss in format conversion
+- **Schema Generation**: Handle recursive/circular structures in schema; support all JSON types; detect common string formats
+- **Transformation Errors**: Catch and display JavaScript errors; prevent infinite loops; sandbox execution; validate result
+- **Comparison Parsing**: Handle invalid comparison JSON; validate structures are comparable; show helpful error messages
 
 ## Design Direction
 The design should feel premium, sophisticated, and powerful - like a professional data analytics platform with studio-quality polish. Modern glassmorphic UI with subtle backdrop blur, layered depth through shadows and gradients, and refined spacing that breathes. Professional monospace typography for code with multi-color syntax highlighting. Smooth theme transitions (350ms) between light and dark modes that extend seamlessly to all visualizations. Gradient accents on buttons and headers that catch the eye. Rounded corners (12px) throughout for modern feel. Layered information architecture where complexity is progressively revealed. Interactive visualizations that respond fluidly with micro-animations and hover states. Premium feel through attention to detail - from animated gradients to smooth scale transforms.
@@ -269,7 +322,7 @@ Premium, purposeful animations that provide visual feedback, guide attention, an
   - URL Input: Empty, Valid URL, Loading (disabled + spinner), Error (validation message)
   
 - **Icon Selection** (Phosphor Icons, duotone weight): 
-  - Sparkle for app branding
+  - Custom DataScope logo (magnifying glass with bar chart) for app branding
   - Graph/TreeStructure for view mode switching
   - Circle/Tree/Rows for graph layout options
   - Upload/Link for file input modes
@@ -289,6 +342,13 @@ Premium, purposeful animations that provide visual feedback, guide attention, an
   - TextAlignLeft/Minus for format/minify
   - Gear for settings
   - ArrowsOut/ArrowsIn/ArrowsClockwise for zoom controls
+  - Download for export functionality
+  - Toolbox for advanced tools panel
+  - BracketsAngle for schema generation
+  - ClipboardText for data transformation
+  - GitDiff for data comparison
+  - Play for running transformations
+  - Check/X for diff indicators
   
 - **Spacing**: 
   - Consistent Tailwind spacing with breathing room: gap-8 for major sections, gap-6 for panels, gap-4 for related groups, gap-3 for options, gap-2 for tight elements

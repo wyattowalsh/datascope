@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useMemo } from 'react'
+import { useState, useCallback, useEffect, useMemo, useRef } from 'react'
 import { useKV } from '@github/spark/hooks'
 import { useTheme } from '@/hooks/use-theme'
 import { 
@@ -19,8 +19,11 @@ import {
   Table,
   ListBullets,
   FileCsv,
-  Sparkle
+  Download,
+  Toolbox,
+  Keyboard
 } from '@phosphor-icons/react'
+import logoSvg from '@/assets/images/logo.svg'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Textarea } from '@/components/ui/textarea'
@@ -38,6 +41,13 @@ import { GraphVisualization } from '@/components/GraphVisualization'
 import { GraphAnalyticsPanel } from '@/components/GraphAnalyticsPanel'
 import { AdvancedSearch, SearchOptions } from '@/components/AdvancedSearch'
 import { FileInput } from '@/components/FileInput'
+import { ExportDialog } from '@/components/ExportDialog'
+import { SchemaExtractor } from '@/components/SchemaExtractor'
+import { DataTransformer } from '@/components/DataTransformer'
+import { DataComparator } from '@/components/DataComparator'
+import { ShortcutsDialog, useKeyboardShortcuts } from '@/components/ShortcutsDialog'
+import { InsightsPanel } from '@/components/InsightsPanel'
+import { DataHistory, saveToHistory } from '@/components/DataHistory'
 import { parseData, buildTree, calculateStats, getPathString, advancedSearchNodes, TreeNode, ValueType, DataFormat } from '@/lib/parser'
 import { formatJSON, minifyJSON, formatYAML, formatJSONL, lintJSON, FormatOptions, LintError } from '@/lib/formatter'
 import { buildGraph, analyzeGraph, GraphData, GraphAnalytics } from '@/lib/graph-analyzer'
@@ -137,11 +147,16 @@ function App() {
   const [copiedPath, setCopiedPath] = useState(false)
   const [expandedPaths, setExpandedPaths] = useState<Set<string>>(new Set())
   const [showFormatDialog, setShowFormatDialog] = useState(false)
+  const [showExportDialog, setShowExportDialog] = useState(false)
+  const [showShortcutsDialog, setShowShortcutsDialog] = useState(false)
   const [lintErrors, setLintErrors] = useState<LintError[]>([])
   const [showLintErrors, setShowLintErrors] = useState(false)
   const [graphData, setGraphData] = useState<GraphData | null>(null)
   const [graphAnalytics, setGraphAnalytics] = useState<GraphAnalytics | null>(null)
   const [viewMode, setViewMode] = useState<'tree' | 'graph'>('tree')
+  const [toolsExpanded, setToolsExpanded] = useState(false)
+  const searchInputRef = useRef<HTMLInputElement>(null)
+  const [history, setHistory] = useKV<any[]>('data-history', [])
   const [searchOptions, setSearchOptions] = useState<SearchOptions>({
     searchTerm: '',
     searchMode: 'text',
@@ -182,6 +197,8 @@ function App() {
         setShowLintErrors(false)
       }
       
+      saveToHistory(inputValue || '', format, setHistory)
+      
       gtmDataParsed(format, true)
       toast.success(`${result.format?.toUpperCase()} parsed successfully`)
     } else {
@@ -195,7 +212,7 @@ function App() {
       gtmDataParsed(format, false)
       toast.error('Parse failed')
     }
-  }, [inputValue, format])
+  }, [inputValue, format, setHistory])
 
   const stats = parsedData ? calculateStats(parsedData) : null
 
@@ -283,8 +300,9 @@ function App() {
     if (detectedFormat) {
       setFormat(detectedFormat)
     }
+    saveToHistory(data, detectedFormat || format, setHistory)
     gtmFileLoaded('file', detectedFormat)
-  }, [setInputValue])
+  }, [setInputValue, format, setHistory])
 
   const handleFormat = useCallback((options: FormatOptions) => {
     let result
@@ -330,6 +348,26 @@ function App() {
     setSelectedPath(pathArray.length === 1 && pathArray[0] === '' ? [] : pathArray)
   }, [])
 
+  const handleTransformedData = useCallback((transformedData: any) => {
+    setParsedData(transformedData)
+    const nodes = buildTree(transformedData)
+    setTreeNodes(nodes)
+    setExpandedPaths(new Set())
+    
+    const graph = buildGraph(transformedData)
+    setGraphData(graph)
+    
+    const analytics = analyzeGraph(graph)
+    setGraphAnalytics(analytics)
+    
+    toast.success('Data updated with transformation')
+  }, [])
+
+  const handleHistoryRestore = useCallback((data: string, historyFormat: string) => {
+    setInputValue(data)
+    setFormat(historyFormat as DataFormat)
+  }, [setInputValue])
+
   const filteredNodes = useMemo(() => {
     return advancedSearchNodes(treeNodes, searchOptions)
   }, [treeNodes, searchOptions])
@@ -359,6 +397,20 @@ function App() {
     }
   }, [])
 
+  useKeyboardShortcuts({
+    focusSearch: () => searchInputRef.current?.focus(),
+    parseData: handleParse,
+    exportData: () => parsedData && setShowExportDialog(true),
+    toggleTheme: toggleTheme,
+    showShortcuts: () => setShowShortcutsDialog(true),
+    switchToTree: () => parsedData && setViewMode('tree'),
+    switchToGraph: () => parsedData && setViewMode('graph'),
+    expandAll: () => parsedData && handleExpandAll(),
+    collapseAll: () => parsedData && handleCollapseAll(),
+    formatData: () => setShowFormatDialog(true),
+    minifyData: handleMinify,
+  })
+
   return (
     <TooltipProvider>
       <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 transition-all duration-[350ms] ease-out">
@@ -367,8 +419,8 @@ function App() {
             <div className="flex items-center justify-between gap-4">
               <div className="space-y-1.5">
                 <div className="flex items-center gap-3">
-                  <div className="p-2.5 rounded-xl bg-gradient-to-br from-primary/20 via-primary/15 to-accent/20 backdrop-blur-sm shadow-lg shadow-primary/10">
-                    <Sparkle size={28} weight="duotone" className="text-primary" />
+                  <div className="p-2 rounded-xl bg-gradient-to-br from-[#f4a261]/20 via-[#f4a261]/15 to-[#f4a261]/10 backdrop-blur-sm shadow-lg shadow-[#f4a261]/10">
+                    <img src={logoSvg} alt="DataScope Logo" className="w-9 h-9" />
                   </div>
                   <div>
                     <h1 className="text-xl md:text-2xl lg:text-3xl font-semibold tracking-tight bg-gradient-to-r from-foreground via-primary/90 to-accent/80 bg-clip-text text-transparent">
@@ -381,25 +433,43 @@ function App() {
                 </div>
               </div>
               
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    onClick={toggleTheme}
-                    className="flex-shrink-0 h-10 w-10 rounded-xl hover:scale-105 transition-all duration-200 hover:border-primary/50 hover:bg-primary/10 hover:shadow-lg hover:shadow-primary/20"
-                  >
-                    {theme === 'light' ? (
-                      <Moon size={20} weight="duotone" className="transition-transform duration-300" />
-                    ) : (
-                      <Sun size={20} weight="duotone" className="transition-transform duration-300" />
-                    )}
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent side="bottom" className="font-medium">
-                  <p>Toggle {theme === 'light' ? 'dark' : 'light'} mode</p>
-                </TooltipContent>
-              </Tooltip>
+              <div className="flex gap-2 items-center">
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={() => setShowShortcutsDialog(true)}
+                      className="flex-shrink-0 h-10 w-10 rounded-xl hover:scale-105 transition-all duration-200 hover:border-primary/50 hover:bg-primary/10 hover:shadow-lg hover:shadow-primary/20"
+                    >
+                      <Keyboard size={20} weight="duotone" className="transition-transform duration-300" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom" className="font-medium">
+                    <p>Keyboard shortcuts (?)</p>
+                  </TooltipContent>
+                </Tooltip>
+
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={toggleTheme}
+                      className="flex-shrink-0 h-10 w-10 rounded-xl hover:scale-105 transition-all duration-200 hover:border-primary/50 hover:bg-primary/10 hover:shadow-lg hover:shadow-primary/20"
+                    >
+                      {theme === 'light' ? (
+                        <Moon size={20} weight="duotone" className="transition-transform duration-300" />
+                      ) : (
+                        <Sun size={20} weight="duotone" className="transition-transform duration-300" />
+                      )}
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom" className="font-medium">
+                    <p>Toggle {theme === 'light' ? 'dark' : 'light'} mode</p>
+                  </TooltipContent>
+                </Tooltip>
+              </div>
             </div>
           </div>
         </header>
@@ -494,6 +564,18 @@ function App() {
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
+
+                    {parsedData && (
+                      <Button 
+                        onClick={() => setShowExportDialog(true)} 
+                        size="sm"
+                        variant="outline"
+                        className="gap-2 hover:border-accent/50 transition-all duration-200 rounded-lg hover:bg-accent/10 hover:shadow-md hover:shadow-accent/20"
+                      >
+                        <Download size={16} weight="duotone" />
+                        <span className="hidden sm:inline">Export</span>
+                      </Button>
+                    )}
 
                     <Button 
                       onClick={handleParse} 
@@ -640,15 +722,41 @@ function App() {
                     resultCount={searchResultCount}
                   />
 
+                  {stats && <InsightsPanel stats={stats} data={parsedData} />}
+
                   {stats && <StatsPanel stats={stats} />}
 
                   {graphAnalytics && (
                     <GraphAnalyticsPanel analytics={graphAnalytics} />
                   )}
+
+                  <Card className="p-6 space-y-4 shadow-xl border-border/50 bg-card/60 backdrop-blur-sm">
+                    <Button
+                      onClick={() => setToolsExpanded(!toolsExpanded)}
+                      variant="outline"
+                      className="w-full gap-2 hover:border-accent/50 transition-all duration-200 rounded-lg hover:bg-accent/10"
+                    >
+                      <Toolbox size={20} weight="duotone" />
+                      Advanced Tools
+                      <span className="ml-auto text-xs text-muted-foreground">
+                        {toolsExpanded ? 'Hide' : 'Show'}
+                      </span>
+                    </Button>
+                    
+                    {toolsExpanded && (
+                      <div className="space-y-4 animate-in slide-in-from-top-2 duration-300">
+                        <SchemaExtractor data={parsedData} />
+                        <DataTransformer data={parsedData} onTransformed={handleTransformedData} />
+                        <DataComparator data={parsedData} />
+                      </div>
+                    )}
+                  </Card>
                 </>
               )}
               
               <FileInput onDataLoaded={handleFileLoaded} />
+
+              <DataHistory onRestore={handleHistoryRestore} />
               
               {!parsedData && (
                 <Card className="p-8 space-y-6 shadow-xl border-border/50 bg-gradient-to-br from-card/60 to-muted/40 backdrop-blur-sm">
@@ -699,7 +807,51 @@ function App() {
           onOpenChange={setShowFormatDialog}
           onApply={handleFormat}
         />
+
+        <ExportDialog
+          open={showExportDialog}
+          onOpenChange={setShowExportDialog}
+          data={parsedData}
+          currentFormat={format}
+        />
+
+        <ShortcutsDialog
+          open={showShortcutsDialog}
+          onOpenChange={setShowShortcutsDialog}
+        />
       </div>
+
+      <footer className="max-w-[1800px] mx-auto px-4 md:px-6 lg:px-8 py-8 mt-12">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-4 p-6 rounded-2xl bg-gradient-to-br from-muted/50 to-muted/30 border border-border/30">
+          <div className="flex items-center gap-3">
+            <img src={logoSvg} alt="DataScope" className="w-8 h-8 opacity-80" />
+            <div className="text-sm text-muted-foreground">
+              <strong className="text-foreground">DataScope</strong> • Professional data analytics & visualization
+            </div>
+          </div>
+          <div className="flex items-center gap-4 text-sm text-muted-foreground">
+            <a 
+              href="https://github.com" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="hover:text-primary transition-colors"
+            >
+              GitHub
+            </a>
+            <span>•</span>
+            <a 
+              href="https://datascope.w4w.dev" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="hover:text-primary transition-colors"
+            >
+              Docs
+            </a>
+            <span>•</span>
+            <span>© 2024 DataScope</span>
+          </div>
+        </div>
+      </footer>
     </TooltipProvider>
   )
 }
