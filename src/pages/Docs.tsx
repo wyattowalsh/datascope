@@ -4,7 +4,26 @@ import { marked } from 'marked'
 import { useKV } from '@github/spark/hooks'
 
 const docContent: Record<string, string> = {
-  'index': `# Welcome to DataScope
+  'index': `# DataScope Documentation
+
+Welcome to the comprehensive documentation for DataScope - your professional data visualization and analytics platform.
+
+## What is DataScope?
+
+DataScope is a powerful, user-friendly web application for exploring, visualizing, and analyzing structured data. It supports JSON, YAML, JSONL, and CSV formats with intelligent parsing, interactive visualizations, and comprehensive analytics.
+
+## Quick Navigation
+
+- **[Getting Started](#getting-started)** - Installation and basic usage
+- **[Features](#features)** - Comprehensive feature guide
+- **[Architecture](#architecture)** - Technical architecture and design
+- **[API Reference](#api)** - Developer API documentation
+- **[Development](#development)** - Contributing and development guide
+- **[Changelog](#changelog)** - Version history and updates
+- **[Deployment](#deployment)** - Deployment instructions
+- **[Security](#security)** - Security policies and reporting
+
+## Welcome to DataScope
 
 ## Introduction
 
@@ -303,7 +322,7 @@ spark-template/
 │   ├── lib/
 │   │   ├── parser.ts           # Data parsing logic
 │   │   ├── formatter.ts        # Formatting utilities
-│   │   ├── graph-analyzer.ts   # Graph algorithms
+│   │   ���── graph-analyzer.ts   # Graph algorithms
 │   │   └── utils.ts            # Shared utilities
 │   └── pages/
 │       └── Docs.tsx            # Documentation page
@@ -695,7 +714,357 @@ docs: update API reference
 **Solution**: Implement virtualization or pagination
 
 **Issue**: Memory leaks
-**Solution**: Clean up effects and event listeners`
+**Solution**: Clean up effects and event listeners`,
+
+  'changelog': `# Changelog
+
+## Version 2.6.0 - Enhanced UX Update (2024-03-21)
+
+### 🚀 New Features
+
+#### Quick Actions Panel
+- One-click access to Prettify, Minify, Validate, Copy All, and Export operations
+- Action history tracking shows recent operations
+- Tooltips and visual feedback for each action
+- Disabled states when no data is present
+- Glassmorphic design consistent with app theme
+
+#### Data Validation
+- Real-time quality scoring (0-100 scale)
+- Comprehensive issue detection:
+  - Deep nesting warnings (>20 levels)
+  - Empty objects and arrays
+  - Duplicate keys detection
+  - Invalid numeric keys
+  - Mixed array types
+  - Whitespace issues in strings
+  - Invalid numbers (Infinity, NaN)
+- Categorized issues: Errors, Warnings, Info
+- Actionable suggestions for each issue
+- Scrollable issue list with path references
+
+#### Quick View Panel
+- Live preview of selected tree nodes
+- Type-specific rendering:
+  - Strings: Show length and formatted text
+  - Numbers: Integer/Float detection with formatting
+  - Booleans: Clear visual representation
+  - Arrays: Item count and JSON preview
+  - Objects: Key count and structured preview
+- One-click copy functionality
+- Current path display
+- Type badges with color coding
+
+#### Favorites/Bookmarks System
+- Save important data paths for quick access
+- Persistent storage using useKV
+- Features:
+  - One-click navigation to bookmarked paths
+  - Path copying
+  - Individual or bulk removal
+  - Prevents duplicate bookmarks
+  - Shows depth level for each favorite
+- Hover interactions reveal action buttons
+- Empty state with helpful instructions
+
+#### Smart Suggestions Panel
+- Context-aware recommendations based on data structure
+- Analyzes data to suggest:
+  - Graph visualization for complex structures (>20 nodes)
+  - Search functionality for arrays
+  - Data transformation for nested arrays
+  - Analytics for objects with many keys
+  - Export options
+- Maximum 4 suggestions shown at once
+- Actionable buttons for each suggestion
+- Adapts to current data characteristics
+
+#### Enhanced Export Options
+- **New Formats**: TypeScript interface generation, Plain text export
+- **Custom Filenames**: Name your exports with custom or auto-generated names
+- **Advanced Options**:
+  - Configurable indent size (2 or 4 spaces)
+  - Include metadata (timestamp, format, size)
+  - Flatten nested objects for CSV export
+  - Improved CSV handling for objects and arrays
+- **Better UX**: Larger dialog, organized layout, format descriptions
+
+### 💎 Improvements
+
+#### User Experience
+- More intuitive sidebar organization
+- New features prioritized at top of sidebar
+- Better visual hierarchy with consistent spacing
+- Enhanced empty states with helpful guidance
+- Improved tooltips throughout
+
+#### Performance
+- Optimized memoization in new components
+- Efficient re-rendering strategies
+- Lazy calculation of suggestions and validations
+
+#### Design Consistency
+- All new panels follow glassmorphic design language
+- Consistent use of Phosphor icons (duotone weight)
+- Harmonized color coding for types
+- Smooth hover transitions (200ms)
+- Proper spacing and alignment
+
+#### Code Quality
+- TypeScript strict mode compliance
+- Proper type safety across all new components
+- Consistent use of useKV for persistence
+- Modular, maintainable component structure
+- Following established patterns from existing codebase
+
+### 📝 Documentation
+
+#### Updated Documentation
+- Comprehensive export guide in docs
+- Security policies integrated
+- Deployment instructions included
+- Changelog accessible from docs
+- AGENTS.md updated with all new features
+
+## Version 2.5.0 - Graph Analytics (2024-03-15)
+
+### Features
+- Added 2D and 3D graph visualizations
+- Four graph layout options (Force, Tree, Radial, Grid)
+- Graph analytics panel with centrality metrics
+- Interactive node selection and highlighting
+
+## Version 2.0.0 - Multi-Format Support (2024-03-01)
+
+### Features
+- YAML format support
+- JSONL (line-delimited JSON) support
+- CSV parsing and visualization
+- Automatic format detection
+- Advanced search with regex
+
+## Version 1.0.0 - Initial Release (2024-02-01)
+
+### Features
+- JSON parsing and visualization
+- Tree view with expand/collapse
+- Basic statistics panel
+- Export to JSON
+- Dark/light theme support`,
+
+  'deployment': `# Deployment Guide
+
+This document provides instructions for deploying DataScope to Vercel.
+
+## Prerequisites
+
+- Vercel account with deployment access
+- Git repository connected to Vercel
+- Node.js 18+ for local testing
+
+## Deployment Configuration
+
+### Build Settings
+
+- **Framework**: Vite
+- **Build Command**: \`npm run build\`
+- **Output Directory**: \`dist\`
+- **Install Command**: \`npm install\`
+- **Node Version**: 18.x (recommended)
+
+### Environment Variables
+
+No environment variables are required for basic deployment.
+
+### Custom Domain Setup
+
+1. In Vercel dashboard, go to your project settings
+2. Navigate to "Domains"
+3. Add custom domain: \`datascope.w4w.dev\`
+4. Configure DNS records as instructed by Vercel:
+   - Type: CNAME
+   - Name: datascope
+   - Value: cname.vercel-dns.com
+
+### Google Tag Manager Integration
+
+The application includes Google Tag Manager (GTM) integration with ID: \`GTM-KDKW33HQ\`
+
+GTM is loaded in two places for complete coverage:
+1. **Head script**: Async loading in \`<head>\` tag
+2. **Noscript fallback**: Iframe fallback in \`<body>\` for users with JavaScript disabled
+
+No additional configuration needed - GTM will automatically track:
+- Page views
+- Navigation events
+- User interactions (as configured in GTM dashboard)
+
+## Deployment Steps
+
+### Automatic Deployment (Recommended)
+
+1. Push changes to your main branch
+2. Vercel will automatically build and deploy
+3. Monitor deployment at vercel.com/dashboard
+
+### Manual Deployment
+
+\`\`\`bash
+# Install Vercel CLI
+npm i -g vercel
+
+# Login to Vercel
+vercel login
+
+# Deploy to production
+vercel --prod
+\`\`\`
+
+## Performance Optimizations
+
+The deployment includes:
+
+- **Asset Caching**: Static assets cached for 1 year with immutable headers
+- **Security Headers**: 
+  - X-Content-Type-Options: nosniff
+  - X-Frame-Options: DENY
+  - X-XSS-Protection: enabled
+  - Referrer-Policy: strict-origin-when-cross-origin
+- **SPA Routing**: All routes rewrite to index.html for client-side routing
+- **Clean URLs**: Trailing slashes removed for consistency
+
+## Testing Deployment
+
+After deployment, verify:
+
+1. ✅ Site loads at https://datascope.w4w.dev
+2. ✅ All data formats parse correctly (JSON, YAML, JSONL, CSV)
+3. ✅ Theme toggle works (light/dark mode)
+4. ✅ File upload and URL loading function
+5. ✅ Graph visualizations render properly
+6. ✅ GTM tracking fires (check browser Network tab for gtm.js)
+
+## Troubleshooting
+
+### Build Fails
+- Check Node.js version (must be 18+)
+- Verify all dependencies are in package.json
+- Run \`npm run build\` locally to identify issues
+
+### 404 Errors on Routes
+- Verify rewrites configuration in vercel.json
+- Ensure all routes redirect to /index.html
+
+### GTM Not Tracking
+- Verify GTM container ID is GTM-KDKW33HQ
+- Check browser console for GTM errors
+- Test with Google Tag Assistant extension
+
+### Domain Not Resolving
+- Verify DNS CNAME record points to cname.vercel-dns.com
+- Allow up to 48 hours for DNS propagation
+- Use DNS checker tool to verify propagation
+
+## Monitoring
+
+Monitor your deployment:
+- **Vercel Analytics**: Built-in analytics in Vercel dashboard
+- **GTM Dashboard**: Track user behavior and conversions
+- **Error Tracking**: Check Vercel function logs for runtime errors
+
+## Support
+
+For deployment issues:
+1. Check Vercel documentation: https://vercel.com/docs
+2. Review build logs in Vercel dashboard
+3. Test locally with \`npm run build && npm run preview\``,
+
+  'security': `# Security Policy
+
+## Reporting Security Issues
+
+If you believe you have found a security vulnerability in DataScope, please report it to us through coordinated disclosure.
+
+**Please do not report security vulnerabilities through public GitHub issues, discussions, or pull requests.**
+
+Instead, please send an email to opensource-security[@]github.com.
+
+Please include as much of the information listed below as you can to help us better understand and resolve the issue:
+
+- The type of issue (e.g., buffer overflow, SQL injection, or cross-site scripting)
+- Full paths of source file(s) related to the manifestation of the issue
+- The location of the affected source code (tag/branch/commit or direct URL)
+- Any special configuration required to reproduce the issue
+- Step-by-step instructions to reproduce the issue
+- Proof-of-concept or exploit code (if possible)
+- Impact of the issue, including how an attacker might exploit the issue
+
+This information will help us triage your report more quickly.
+
+## Security Best Practices
+
+DataScope follows security best practices:
+
+### Data Handling
+- **Local-First**: All data processing happens in your browser
+- **No Server Storage**: Your data never leaves your device
+- **No External Requests**: Data is not sent to external servers (except optional LLM features)
+- **Persistent Storage**: Uses browser's local storage only
+
+### Input Validation
+- Sanitizes user input before parsing
+- Validates URLs before fetching
+- Handles CORS errors gracefully
+- Limits file sizes to prevent DoS
+- Catches and safely displays parse errors
+
+### Code Execution
+- JavaScript transformations run in isolated context
+- Prevents infinite loops in user code
+- Validates transformation results
+- Doesn't expose sensitive data in errors
+
+### Dependencies
+- Regular security audits (\`npm audit\`)
+- Dependencies kept updated
+- Only browser-compatible packages
+- No deprecated packages
+
+### Privacy
+- No sensitive data logging
+- Analytics anonymized (GTM)
+- No user tracking beyond aggregated analytics
+- No cookies for authentication
+
+## Supported Versions
+
+| Version | Supported          |
+| ------- | ------------------ |
+| 2.6.x   | :white_check_mark: |
+| 2.5.x   | :white_check_mark: |
+| < 2.0   | :x:                |
+
+## Known Security Considerations
+
+### Client-Side Processing
+DataScope processes all data client-side. While this enhances privacy, users should:
+- Not paste sensitive credentials or keys into the application
+- Be cautious when loading data from untrusted URLs
+- Verify data sources before import
+
+### Browser Storage
+Data persisted via useKV is stored in browser's IndexedDB. This data:
+- Remains on your device only
+- Can be cleared via browser settings
+- Is not encrypted at rest (relies on OS/browser security)
+
+## Safe Harbor Policy
+
+See [GitHub's Safe Harbor Policy](https://docs.github.com/en/site-policy/security-policies/github-bug-bounty-program-legal-safe-harbor#1-safe-harbor-terms)
+
+## Contact
+
+For security concerns, contact: opensource-security[@]github.com`
 }
 
 export function Docs({ onBackToApp }: { onBackToApp?: () => void } = {}) {

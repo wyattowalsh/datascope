@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Book, List, X, FileText, Code, Stack, Package, Wrench } from '@phosphor-icons/react'
+import { Book, List, X, FileText, Code, Stack, Package, Wrench, ClockCounterClockwise, CloudArrowUp, ShieldCheck } from '@phosphor-icons/react'
 import { Button } from '@/components/ui/button'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
@@ -19,6 +19,9 @@ const pages: DocsPage[] = [
   { id: 'architecture', title: 'Architecture', icon: Package },
   { id: 'api', title: 'API Reference', icon: Code },
   { id: 'development', title: 'Development', icon: Wrench },
+  { id: 'changelog', title: 'Changelog', icon: ClockCounterClockwise },
+  { id: 'deployment', title: 'Deployment', icon: CloudArrowUp },
+  { id: 'security', title: 'Security', icon: ShieldCheck },
 ]
 
 interface DocsLayoutProps {
