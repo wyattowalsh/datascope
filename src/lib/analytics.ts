@@ -34,7 +34,7 @@ export const gtmFileLoaded = (method: 'file' | 'url' | 'paste', format?: string)
   })
 }
 
-export const gtmViewChanged = (viewMode: 'tree' | 'graph', layoutType?: string) => {
+export const gtmViewChanged = (viewMode: 'tree' | 'graph' | 'graph3d', layoutType?: string) => {
   gtmEvent('view_changed', {
     view_mode: viewMode,
     layout_type: layoutType,

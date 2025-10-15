@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { ArrowsOut, ArrowsIn, ArrowsClockwise, Circle, Tree, Rows } from '@phosphor-icons/react'
+import { ArrowsOut, ArrowsIn, ArrowsClockwise, Circle, Tree, Rows, Graph } from '@phosphor-icons/react'
 import { cn } from '@/lib/utils'
 
 export type GraphLayout = 'force' | 'tree' | 'radial' | 'grid'
@@ -239,23 +239,31 @@ export function GraphVisualization({ data, onNodeClick, selectedNodeId }: GraphV
 
   return (
     <TooltipProvider>
-      <Card className="p-4 space-y-4">
-        <div className="flex items-center justify-between gap-2 flex-wrap">
-          <div>
-            <h2 className="text-sm font-semibold">Graph Visualization</h2>
-            <p className="text-xs text-muted-foreground mt-0.5">
-              Interactive structure map
-            </p>
+      <Card className="p-4 space-y-4 bg-gradient-to-br from-card/90 to-card/70 backdrop-blur-xl border-border/50 shadow-2xl relative overflow-hidden group">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+        
+        <div className="flex items-center justify-between gap-2 flex-wrap relative z-10">
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-xl bg-gradient-to-br from-primary/20 to-accent/20 shadow-lg">
+              <Graph size={20} weight="duotone" className="text-primary" />
+            </div>
+            <div>
+              <h2 className="text-sm font-bold bg-gradient-to-r from-foreground to-primary bg-clip-text text-transparent">
+                2D Graph Visualization
+              </h2>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Interactive structure map with multiple layouts
+              </p>
+            </div>
           </div>
-          
           <div className="flex gap-2 items-center flex-wrap">
             <Tabs value={layout} onValueChange={(v) => setLayout(v as GraphLayout)}>
-              <TabsList className="bg-muted/80 p-1 rounded-lg h-8">
+              <TabsList className="bg-muted/80 p-1 rounded-xl shadow-inner h-9">
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <TabsTrigger value="force" className="gap-1 text-xs h-6 px-2 data-[state=active]:bg-primary/10 data-[state=active]:text-primary rounded-md">
+                    <TabsTrigger value="force" className="gap-1.5 text-xs h-7 px-3 data-[state=active]:bg-gradient-to-br data-[state=active]:from-primary/15 data-[state=active]:to-primary/10 data-[state=active]:text-primary data-[state=active]:shadow-md transition-all duration-200 rounded-lg">
                       <Circle size={14} weight="duotone" />
-                      <span className="hidden sm:inline">Force</span>
+                      <span className="hidden sm:inline font-medium">Force</span>
                     </TabsTrigger>
                   </TooltipTrigger>
                   <TooltipContent>Force-directed layout</TooltipContent>
@@ -263,9 +271,9 @@ export function GraphVisualization({ data, onNodeClick, selectedNodeId }: GraphV
                 
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <TabsTrigger value="tree" className="gap-1 text-xs h-6 px-2 data-[state=active]:bg-primary/10 data-[state=active]:text-primary rounded-md">
+                    <TabsTrigger value="tree" className="gap-1.5 text-xs h-7 px-3 data-[state=active]:bg-gradient-to-br data-[state=active]:from-primary/15 data-[state=active]:to-primary/10 data-[state=active]:text-primary data-[state=active]:shadow-md transition-all duration-200 rounded-lg">
                       <Tree size={14} weight="duotone" />
-                      <span className="hidden sm:inline">Tree</span>
+                      <span className="hidden sm:inline font-medium">Tree</span>
                     </TabsTrigger>
                   </TooltipTrigger>
                   <TooltipContent>Hierarchical tree layout</TooltipContent>
@@ -273,9 +281,9 @@ export function GraphVisualization({ data, onNodeClick, selectedNodeId }: GraphV
                 
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <TabsTrigger value="radial" className="gap-1 text-xs h-6 px-2 data-[state=active]:bg-primary/10 data-[state=active]:text-primary rounded-md">
+                    <TabsTrigger value="radial" className="gap-1.5 text-xs h-7 px-3 data-[state=active]:bg-gradient-to-br data-[state=active]:from-primary/15 data-[state=active]:to-primary/10 data-[state=active]:text-primary data-[state=active]:shadow-md transition-all duration-200 rounded-lg">
                       <Circle size={14} weight="duotone" />
-                      <span className="hidden sm:inline">Radial</span>
+                      <span className="hidden sm:inline font-medium">Radial</span>
                     </TabsTrigger>
                   </TooltipTrigger>
                   <TooltipContent>Radial tree layout</TooltipContent>
@@ -283,9 +291,9 @@ export function GraphVisualization({ data, onNodeClick, selectedNodeId }: GraphV
                 
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <TabsTrigger value="grid" className="gap-1 text-xs h-6 px-2 data-[state=active]:bg-primary/10 data-[state=active]:text-primary rounded-md">
+                    <TabsTrigger value="grid" className="gap-1.5 text-xs h-7 px-3 data-[state=active]:bg-gradient-to-br data-[state=active]:from-primary/15 data-[state=active]:to-primary/10 data-[state=active]:text-primary data-[state=active]:shadow-md transition-all duration-200 rounded-lg">
                       <Rows size={14} weight="duotone" />
-                      <span className="hidden sm:inline">Grid</span>
+                      <span className="hidden sm:inline font-medium">Grid</span>
                     </TabsTrigger>
                   </TooltipTrigger>
                   <TooltipContent>Grid layout</TooltipContent>
@@ -293,11 +301,11 @@ export function GraphVisualization({ data, onNodeClick, selectedNodeId }: GraphV
               </TabsList>
             </Tabs>
             
-            <div className="flex gap-1">
+            <div className="flex gap-1.5">
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button size="sm" variant="outline" onClick={handleZoomIn} className="h-8 w-8 p-0 rounded-lg">
-                    <ArrowsOut size={14} />
+                  <Button size="sm" variant="outline" onClick={handleZoomIn} className="h-9 w-9 p-0 rounded-xl hover:scale-105 transition-all duration-200 hover:border-primary/50 hover:bg-primary/10 hover:shadow-lg hover:shadow-primary/20">
+                    <ArrowsOut size={16} weight="duotone" />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>Zoom in</TooltipContent>
@@ -305,8 +313,8 @@ export function GraphVisualization({ data, onNodeClick, selectedNodeId }: GraphV
               
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button size="sm" variant="outline" onClick={handleZoomOut} className="h-8 w-8 p-0 rounded-lg">
-                    <ArrowsIn size={14} />
+                  <Button size="sm" variant="outline" onClick={handleZoomOut} className="h-9 w-9 p-0 rounded-xl hover:scale-105 transition-all duration-200 hover:border-primary/50 hover:bg-primary/10 hover:shadow-lg hover:shadow-primary/20">
+                    <ArrowsIn size={16} weight="duotone" />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>Zoom out</TooltipContent>
@@ -314,8 +322,8 @@ export function GraphVisualization({ data, onNodeClick, selectedNodeId }: GraphV
               
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button size="sm" variant="outline" onClick={handleReset} className="h-8 w-8 p-0 rounded-lg">
-                    <ArrowsClockwise size={14} />
+                  <Button size="sm" variant="outline" onClick={handleReset} className="h-9 w-9 p-0 rounded-xl hover:scale-105 transition-all duration-200 hover:border-primary/50 hover:bg-primary/10 hover:shadow-lg hover:shadow-primary/20">
+                    <ArrowsClockwise size={16} weight="duotone" />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>Reset view</TooltipContent>
@@ -324,34 +332,34 @@ export function GraphVisualization({ data, onNodeClick, selectedNodeId }: GraphV
           </div>
         </div>
 
-        <div className="flex flex-wrap gap-2">
-          <Badge variant="outline" className="bg-accent/10 text-accent border-accent/20">
-            <span className="w-2 h-2 rounded-full bg-accent mr-1.5" />
+        <div className="flex flex-wrap gap-2 relative z-10">
+          <Badge variant="outline" className="bg-accent/10 text-accent border-accent/30 shadow-sm">
+            <span className="w-2 h-2 rounded-full bg-accent mr-1.5 shadow-sm shadow-accent/50" />
             Objects
           </Badge>
-          <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">
-            <span className="w-2 h-2 rounded-full bg-primary mr-1.5" />
+          <Badge variant="outline" className="bg-primary/10 text-primary border-primary/30 shadow-sm">
+            <span className="w-2 h-2 rounded-full bg-primary mr-1.5 shadow-sm shadow-primary/50" />
             Arrays
           </Badge>
-          <Badge variant="outline" className="bg-syntax-string/10 text-syntax-string border-syntax-string/20">
-            <span className="w-2 h-2 rounded-full bg-syntax-string mr-1.5" />
+          <Badge variant="outline" className="bg-syntax-string/10 text-syntax-string border-syntax-string/30 shadow-sm">
+            <span className="w-2 h-2 rounded-full bg-syntax-string mr-1.5 shadow-sm shadow-syntax-string/50" />
             Values
           </Badge>
         </div>
 
         <div
           ref={containerRef}
-          className="relative border border-border rounded-lg overflow-hidden bg-muted/20"
+          className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-muted/30 to-muted/10 shadow-2xl shadow-primary/10 ring-1 ring-border/50 transition-all duration-300 hover:shadow-primary/20 relative z-10"
           style={{ height: '500px' }}
         >
           <svg
             ref={svgRef}
             width={dimensions.width}
             height={dimensions.height}
-            className="bg-background"
+            className="bg-background/50"
           />
           
-          <div className="absolute bottom-3 right-3 px-2 py-1 bg-background/80 backdrop-blur-sm border border-border rounded text-xs font-mono">
+          <div className="absolute bottom-3 right-3 px-3 py-1.5 bg-background/90 backdrop-blur-md border border-border/50 rounded-xl text-xs font-mono shadow-lg">
             Zoom: {(zoom * 100).toFixed(0)}%
           </div>
         </div>

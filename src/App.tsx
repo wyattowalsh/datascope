@@ -21,7 +21,8 @@ import {
   FileCsv,
   Download,
   Toolbox,
-  Keyboard
+  Keyboard,
+  Cube
 } from '@phosphor-icons/react'
 import logoSvg from '@/assets/images/logo.svg'
 import { Button } from '@/components/ui/button'
@@ -38,6 +39,7 @@ import { StatsPanel } from '@/components/StatsPanel'
 import { FormatOptionsDialog } from '@/components/FormatOptionsDialog'
 import { LintErrorsDisplay } from '@/components/LintErrorsDisplay'
 import { GraphVisualization } from '@/components/GraphVisualization'
+import { Graph3DVisualization } from '@/components/Graph3DVisualization'
 import { GraphAnalyticsPanel } from '@/components/GraphAnalyticsPanel'
 import { AdvancedSearch, SearchOptions } from '@/components/AdvancedSearch'
 import { FileInput } from '@/components/FileInput'
@@ -153,7 +155,7 @@ function App() {
   const [showLintErrors, setShowLintErrors] = useState(false)
   const [graphData, setGraphData] = useState<GraphData | null>(null)
   const [graphAnalytics, setGraphAnalytics] = useState<GraphAnalytics | null>(null)
-  const [viewMode, setViewMode] = useState<'tree' | 'graph'>('tree')
+  const [viewMode, setViewMode] = useState<'tree' | 'graph' | 'graph3d'>('tree')
   const [toolsExpanded, setToolsExpanded] = useState(false)
   const searchInputRef = useRef<HTMLInputElement>(null)
   const [history, setHistory] = useKV<any[]>('data-history', [])
@@ -208,7 +210,7 @@ function App() {
     }
   }, [inputValue, detectFormat])
 
-  const handleViewModeChange = useCallback((newMode: 'tree' | 'graph') => {
+  const handleViewModeChange = useCallback((newMode: 'tree' | 'graph' | 'graph3d') => {
     setViewMode(newMode)
     gtmViewChanged(newMode)
   }, [])
@@ -656,15 +658,19 @@ function App() {
                     <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
                     <div className="relative z-10">
                     <div className="flex items-center justify-between gap-3 flex-wrap">
-                      <Tabs value={viewMode} onValueChange={(v) => handleViewModeChange(v as 'tree' | 'graph')}>
+                      <Tabs value={viewMode} onValueChange={(v) => handleViewModeChange(v as 'tree' | 'graph' | 'graph3d')}>
                         <TabsList className="bg-muted/80 p-1 rounded-xl shadow-inner">
                           <TabsTrigger value="tree" className="gap-2 data-[state=active]:bg-gradient-to-br data-[state=active]:from-primary/15 data-[state=active]:to-primary/10 data-[state=active]:text-primary data-[state=active]:shadow-md transition-all duration-200 rounded-lg">
                             <TreeStructure size={16} weight="duotone" />
-                            <span className="hidden sm:inline font-medium">Tree View</span>
+                            <span className="hidden sm:inline font-medium">Tree</span>
                           </TabsTrigger>
                           <TabsTrigger value="graph" className="gap-2 data-[state=active]:bg-gradient-to-br data-[state=active]:from-primary/15 data-[state=active]:to-primary/10 data-[state=active]:text-primary data-[state=active]:shadow-md transition-all duration-200 rounded-lg">
                             <Graph size={16} weight="duotone" />
-                            <span className="hidden sm:inline font-medium">Graph View</span>
+                            <span className="hidden sm:inline font-medium">2D Graph</span>
+                          </TabsTrigger>
+                          <TabsTrigger value="graph3d" className="gap-2 data-[state=active]:bg-gradient-to-br data-[state=active]:from-primary/15 data-[state=active]:to-primary/10 data-[state=active]:text-primary data-[state=active]:shadow-md transition-all duration-200 rounded-lg">
+                            <Cube size={16} weight="duotone" />
+                            <span className="hidden sm:inline font-medium">3D Graph</span>
                           </TabsTrigger>
                         </TabsList>
                       </Tabs>
@@ -749,6 +755,14 @@ function App() {
                           selectedNodeId={selectedPath.length > 0 ? `root.${selectedPath.join('.')}` : 'root'}
                         />
                       </div>
+                    )}
+
+                    {viewMode === 'graph3d' && graphData && (
+                      <Graph3DVisualization 
+                        data={graphData}
+                        onNodeClick={handleGraphNodeClick}
+                        selectedNodeId={selectedPath.length > 0 ? `root.${selectedPath.join('.')}` : 'root'}
+                      />
                     )}
                     </div>
                   </Card>
