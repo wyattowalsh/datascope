@@ -44,6 +44,10 @@ export function Graph3DVisualization({ data, onNodeClick, selectedNodeId }: Grap
   const [nodeSize, setNodeSize] = useState([3])
   const [linkOpacity, setLinkOpacity] = useState([0.4])
   const [rotationSpeed, setRotationSpeed] = useState([0.5])
+  const [cameraDistance, setCameraDistance] = useState(150)
+  const isDraggingRef = useRef(false)
+  const lastMousePosRef = useRef({ x: 0, y: 0 })
+  const cameraAngleRef = useRef({ theta: 0, phi: 0 })
 
   const colorMap = {
     object: new THREE.Color('rgb(102, 166, 231)'),
@@ -247,11 +251,16 @@ export function Graph3DVisualization({ data, onNodeClick, selectedNodeId }: Grap
     if (isAnimating) {
       updatePhysics()
       
-      if (cameraRef.current) {
+      if (cameraRef.current && !isDraggingRef.current) {
         const time = Date.now() * 0.0001 * rotationSpeed[0]
-        const radius = 150
-        cameraRef.current.position.x = Math.sin(time) * radius
-        cameraRef.current.position.z = Math.cos(time) * radius
+        cameraAngleRef.current.theta = time
+        
+        const theta = cameraAngleRef.current.theta
+        const phi = cameraAngleRef.current.phi
+        
+        cameraRef.current.position.x = cameraDistance * Math.sin(theta) * Math.cos(phi)
+        cameraRef.current.position.y = cameraDistance * Math.sin(phi)
+        cameraRef.current.position.z = cameraDistance * Math.cos(theta) * Math.cos(phi)
         cameraRef.current.lookAt(0, 0, 0)
       }
     }
@@ -272,7 +281,7 @@ export function Graph3DVisualization({ data, onNodeClick, selectedNodeId }: Grap
 
     rendererRef.current.render(sceneRef.current, cameraRef.current)
     animationFrameRef.current = requestAnimationFrame(animate)
-  }, [isAnimating, updatePhysics, selectedNodeId, rotationSpeed])
+  }, [isAnimating, updatePhysics, selectedNodeId, rotationSpeed, cameraDistance])
 
   const handleMouseMove = useCallback((event: MouseEvent) => {
     if (!containerRef.current) return
@@ -280,6 +289,39 @@ export function Graph3DVisualization({ data, onNodeClick, selectedNodeId }: Grap
     const rect = containerRef.current.getBoundingClientRect()
     mouseRef.current.x = ((event.clientX - rect.left) / rect.width) * 2 - 1
     mouseRef.current.y = -((event.clientY - rect.top) / rect.height) * 2 + 1
+
+    if (isDraggingRef.current && cameraRef.current) {
+      const deltaX = event.clientX - lastMousePosRef.current.x
+      const deltaY = event.clientY - lastMousePosRef.current.y
+      
+      cameraAngleRef.current.theta -= deltaX * 0.005
+      cameraAngleRef.current.phi += deltaY * 0.005
+      cameraAngleRef.current.phi = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, cameraAngleRef.current.phi))
+      
+      const theta = cameraAngleRef.current.theta
+      const phi = cameraAngleRef.current.phi
+      
+      cameraRef.current.position.x = cameraDistance * Math.sin(theta) * Math.cos(phi)
+      cameraRef.current.position.y = cameraDistance * Math.sin(phi)
+      cameraRef.current.position.z = cameraDistance * Math.cos(theta) * Math.cos(phi)
+      cameraRef.current.lookAt(0, 0, 0)
+      
+      lastMousePosRef.current = { x: event.clientX, y: event.clientY }
+    }
+  }, [cameraDistance])
+
+  const handleMouseDown = useCallback((event: MouseEvent) => {
+    isDraggingRef.current = true
+    lastMousePosRef.current = { x: event.clientX, y: event.clientY }
+  }, [])
+
+  const handleMouseUp = useCallback(() => {
+    isDraggingRef.current = false
+  }, [])
+
+  const handleWheel = useCallback((event: WheelEvent) => {
+    event.preventDefault()
+    setCameraDistance(prev => Math.max(50, Math.min(300, prev + event.deltaY * 0.1)))
   }, [])
 
   const handleClick = useCallback((event: MouseEvent) => {
@@ -301,16 +343,19 @@ export function Graph3DVisualization({ data, onNodeClick, selectedNodeId }: Grap
   }, [onNodeClick])
 
   useEffect(() => {
+    if (!containerRef.current) return
+
     initScene()
-    createNodes()
 
     const container = containerRef.current
     if (container) {
       container.addEventListener('mousemove', handleMouseMove)
+      container.addEventListener('mousedown', handleMouseDown)
+      container.addEventListener('mouseup', handleMouseUp)
+      container.addEventListener('mouseleave', handleMouseUp)
       container.addEventListener('click', handleClick)
+      container.addEventListener('wheel', handleWheel, { passive: false })
     }
-
-    animate()
 
     const handleResize = () => {
       if (!containerRef.current || !cameraRef.current || !rendererRef.current) return
@@ -329,12 +374,16 @@ export function Graph3DVisualization({ data, onNodeClick, selectedNodeId }: Grap
       window.removeEventListener('resize', handleResize)
       if (container) {
         container.removeEventListener('mousemove', handleMouseMove)
+        container.removeEventListener('mousedown', handleMouseDown)
+        container.removeEventListener('mouseup', handleMouseUp)
+        container.removeEventListener('mouseleave', handleMouseUp)
         container.removeEventListener('click', handleClick)
+        container.removeEventListener('wheel', handleWheel)
       }
       if (animationFrameRef.current) {
         cancelAnimationFrame(animationFrameRef.current)
       }
-      if (rendererRef.current && containerRef.current) {
+      if (rendererRef.current && containerRef.current && containerRef.current.contains(rendererRef.current.domElement)) {
         containerRef.current.removeChild(rendererRef.current.domElement)
       }
       if (sceneRef.current) {
@@ -348,60 +397,79 @@ export function Graph3DVisualization({ data, onNodeClick, selectedNodeId }: Grap
         })
       }
     }
-  }, [])
+  }, [initScene, handleMouseMove, handleMouseDown, handleMouseUp, handleClick, handleWheel])
 
   useEffect(() => {
-    if (sceneRef.current) {
-      while (sceneRef.current.children.length > 0) {
-        const child = sceneRef.current.children[0]
-        sceneRef.current.remove(child)
-        if (child instanceof THREE.Mesh) {
-          child.geometry.dispose()
-          if (child.material instanceof THREE.Material) {
-            child.material.dispose()
-          }
+    if (!sceneRef.current) return
+
+    if (animationFrameRef.current) {
+      cancelAnimationFrame(animationFrameRef.current)
+    }
+
+    while (sceneRef.current.children.length > 0) {
+      const child = sceneRef.current.children[0]
+      sceneRef.current.remove(child)
+      if (child instanceof THREE.Mesh) {
+        child.geometry.dispose()
+        if (child.material instanceof THREE.Material) {
+          child.material.dispose()
+        } else if (Array.isArray(child.material)) {
+          child.material.forEach(mat => mat.dispose())
+        }
+      } else if (child instanceof THREE.Line) {
+        child.geometry.dispose()
+        if (child.material instanceof THREE.Material) {
+          child.material.dispose()
+        }
+      } else if (child instanceof THREE.Points) {
+        child.geometry.dispose()
+        if (child.material instanceof THREE.Material) {
+          child.material.dispose()
         }
       }
-      
-      const ambientLight = new THREE.AmbientLight(0xffffff, 0.5)
-      sceneRef.current.add(ambientLight)
-
-      const pointLight1 = new THREE.PointLight(0x8b74f9, 1.5, 300)
-      pointLight1.position.set(50, 50, 50)
-      sceneRef.current.add(pointLight1)
-
-      const pointLight2 = new THREE.PointLight(0x66a6e7, 1.5, 300)
-      pointLight2.position.set(-50, -50, 50)
-      sceneRef.current.add(pointLight2)
-
-      const pointLight3 = new THREE.PointLight(0x7edbc2, 1, 200)
-      pointLight3.position.set(0, 0, -50)
-      sceneRef.current.add(pointLight3)
-
-      const starGeometry = new THREE.BufferGeometry()
-      const starPositions: number[] = []
-      for (let i = 0; i < 1000; i++) {
-        const x = (Math.random() - 0.5) * 800
-        const y = (Math.random() - 0.5) * 800
-        const z = (Math.random() - 0.5) * 800
-        starPositions.push(x, y, z)
-      }
-      starGeometry.setAttribute('position', new THREE.Float32BufferAttribute(starPositions, 3))
-      const starMaterial = new THREE.PointsMaterial({ 
-        color: 0xffffff, 
-        size: 0.8,
-        transparent: true,
-        opacity: 0.6
-      })
-      const stars = new THREE.Points(starGeometry, starMaterial)
-      sceneRef.current.add(stars)
-
-      createNodes()
     }
-  }, [data, nodeSize, linkOpacity, createNodes])
+    
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5)
+    sceneRef.current.add(ambientLight)
+
+    const pointLight1 = new THREE.PointLight(0x8b74f9, 1.5, 300)
+    pointLight1.position.set(50, 50, 50)
+    sceneRef.current.add(pointLight1)
+
+    const pointLight2 = new THREE.PointLight(0x66a6e7, 1.5, 300)
+    pointLight2.position.set(-50, -50, 50)
+    sceneRef.current.add(pointLight2)
+
+    const pointLight3 = new THREE.PointLight(0x7edbc2, 1, 200)
+    pointLight3.position.set(0, 0, -50)
+    sceneRef.current.add(pointLight3)
+
+    const starGeometry = new THREE.BufferGeometry()
+    const starPositions: number[] = []
+    for (let i = 0; i < 1000; i++) {
+      const x = (Math.random() - 0.5) * 800
+      const y = (Math.random() - 0.5) * 800
+      const z = (Math.random() - 0.5) * 800
+      starPositions.push(x, y, z)
+    }
+    starGeometry.setAttribute('position', new THREE.Float32BufferAttribute(starPositions, 3))
+    const starMaterial = new THREE.PointsMaterial({ 
+      color: 0xffffff, 
+      size: 0.8,
+      transparent: true,
+      opacity: 0.6
+    })
+    const stars = new THREE.Points(starGeometry, starMaterial)
+    sceneRef.current.add(stars)
+
+    createNodes()
+    animate()
+  }, [data, nodeSize, linkOpacity, createNodes, animate])
 
   const handleReset = () => {
     if (cameraRef.current) {
+      setCameraDistance(150)
+      cameraAngleRef.current = { theta: 0, phi: 0 }
       cameraRef.current.position.set(0, 0, 150)
       cameraRef.current.lookAt(0, 0, 0)
     }
@@ -543,9 +611,9 @@ export function Graph3DVisualization({ data, onNodeClick, selectedNodeId }: Grap
           
           <div className="absolute bottom-3 left-3 px-3 py-2 bg-background/90 backdrop-blur-md border border-border/50 rounded-xl text-xs space-y-1 shadow-lg">
             <div className="text-muted-foreground font-medium">Controls:</div>
+            <div className="text-foreground/80">• Click + drag to rotate</div>
+            <div className="text-foreground/80">• Scroll to zoom in/out</div>
             <div className="text-foreground/80">• Click nodes to select</div>
-            <div className="text-foreground/80">• Auto-rotating camera</div>
-            <div className="text-foreground/80">• Physics-based layout</div>
           </div>
         </div>
       </Card>

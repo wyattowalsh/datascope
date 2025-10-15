@@ -57,87 +57,337 @@ import { gtmDataParsed, gtmFileLoaded, gtmViewChanged, gtmSearchPerformed, gtmFo
 import { toast } from 'sonner'
 
 const EXAMPLE_JSON = `{
-  "user": {
-    "id": 12345,
-    "name": "Alex Rivera",
-    "email": "alex@example.com",
-    "active": true,
-    "roles": ["admin", "developer"],
-    "metadata": {
-      "created": "2024-01-15",
-      "lastLogin": "2024-03-20",
-      "preferences": {
-        "theme": "dark",
-        "language": "en"
+  "organization": {
+    "id": "org_2024_alpha",
+    "name": "TechCorp Global",
+    "founded": "2015-03-10",
+    "headquarters": {
+      "address": {
+        "street": "123 Innovation Drive",
+        "city": "San Francisco",
+        "state": "CA",
+        "zip": "94105",
+        "country": "USA"
+      },
+      "coordinates": {
+        "lat": 37.7749,
+        "lng": -122.4194
+      }
+    },
+    "departments": [
+      {
+        "id": "dept_eng",
+        "name": "Engineering",
+        "head": "Sarah Chen",
+        "budget": 15000000,
+        "teams": [
+          {
+            "name": "Platform",
+            "members": 45,
+            "projects": ["DataScope", "CloudSync", "APIGateway"],
+            "techStack": ["React", "TypeScript", "Node.js", "PostgreSQL"],
+            "performance": {
+              "velocity": 8.7,
+              "quality": 9.2,
+              "satisfaction": 8.9
+            }
+          },
+          {
+            "name": "Mobile",
+            "members": 28,
+            "projects": ["iOS App", "Android App"],
+            "techStack": ["Swift", "Kotlin", "React Native"],
+            "performance": {
+              "velocity": 7.8,
+              "quality": 8.5,
+              "satisfaction": 8.2
+            }
+          },
+          {
+            "name": "DevOps",
+            "members": 12,
+            "projects": ["CI/CD Pipeline", "Infrastructure"],
+            "techStack": ["Kubernetes", "Docker", "Terraform", "GitHub Actions"],
+            "performance": {
+              "velocity": 9.1,
+              "quality": 9.5,
+              "satisfaction": 9.0
+            }
+          }
+        ]
+      },
+      {
+        "id": "dept_product",
+        "name": "Product",
+        "head": "Michael Torres",
+        "budget": 8500000,
+        "teams": [
+          {
+            "name": "Design",
+            "members": 18,
+            "projects": ["Design System", "User Research"],
+            "techStack": ["Figma", "Adobe Creative Suite"],
+            "performance": {
+              "velocity": 8.3,
+              "quality": 9.4,
+              "satisfaction": 9.1
+            }
+          },
+          {
+            "name": "Strategy",
+            "members": 15,
+            "projects": ["Market Analysis", "Roadmap Planning"],
+            "techStack": ["Analytics", "Tableau"],
+            "performance": {
+              "velocity": 7.5,
+              "quality": 8.8,
+              "satisfaction": 8.6
+            }
+          }
+        ]
+      },
+      {
+        "id": "dept_sales",
+        "name": "Sales & Marketing",
+        "head": "Jessica Yamamoto",
+        "budget": 12000000,
+        "teams": [
+          {
+            "name": "Enterprise Sales",
+            "members": 35,
+            "projects": ["Q1 Campaign", "Lead Generation"],
+            "techStack": ["Salesforce", "HubSpot"],
+            "performance": {
+              "velocity": 8.9,
+              "quality": 8.7,
+              "satisfaction": 8.4
+            }
+          }
+        ]
+      }
+    ],
+    "metrics": {
+      "revenue": {
+        "2023": 125000000,
+        "2024": 178000000,
+        "growth": 42.4
+      },
+      "employees": {
+        "total": 453,
+        "engineering": 185,
+        "product": 78,
+        "sales": 105,
+        "operations": 85
+      },
+      "customers": {
+        "total": 15780,
+        "enterprise": 342,
+        "smb": 15438,
+        "retention": 94.2
+      }
+    },
+    "products": [
+      {
+        "id": "prod_datascope",
+        "name": "DataScope",
+        "description": "Professional data visualization and analytics platform",
+        "price": 49.99,
+        "active": true,
+        "features": ["Multi-format support", "Graph analytics", "3D visualization"],
+        "users": 12500,
+        "rating": 4.8
+      },
+      {
+        "id": "prod_cloudsync",
+        "name": "CloudSync",
+        "description": "Real-time data synchronization service",
+        "price": 29.99,
+        "active": true,
+        "features": ["Real-time sync", "Conflict resolution", "Encryption"],
+        "users": 8900,
+        "rating": 4.6
+      },
+      {
+        "id": "prod_apigateway",
+        "name": "API Gateway",
+        "description": "Enterprise API management platform",
+        "price": 99.99,
+        "active": true,
+        "features": ["Rate limiting", "Authentication", "Analytics"],
+        "users": 3200,
+        "rating": 4.9
+      }
+    ],
+    "certifications": ["ISO 27001", "SOC 2 Type II", "GDPR Compliant"],
+    "partnerships": {
+      "strategic": ["AWS", "Google Cloud", "Microsoft Azure"],
+      "technology": ["GitHub", "Stripe", "Twilio"],
+      "integration": ["Salesforce", "Slack", "Zoom"]
+    },
+    "socialMedia": {
+      "twitter": "@techcorp",
+      "linkedin": "techcorp-global",
+      "github": "techcorp",
+      "followers": {
+        "twitter": 45000,
+        "linkedin": 128000,
+        "github": 23000
       }
     }
-  },
-  "projects": [
-    {
-      "id": 1,
-      "title": "Data Visualizer",
-      "status": "active",
-      "tags": ["react", "d3", "typescript"]
-    },
-    {
-      "id": 2,
-      "title": "Graph Analytics",
-      "status": "planning",
-      "tags": ["algorithms", "optimization"]
-    }
-  ],
-  "settings": {
-    "theme": "dark",
-    "notifications": true,
-    "privacy": null
   }
 }`
 
-const EXAMPLE_YAML = `user:
-  id: 12345
-  name: Alex Rivera
-  email: alex@example.com
-  active: true
-  roles:
-    - admin
-    - developer
-  metadata:
-    created: 2024-01-15
-    lastLogin: 2024-03-20
-    preferences:
-      theme: dark
-      language: en
-projects:
-  - id: 1
-    title: Data Visualizer
-    status: active
-    tags:
-      - react
-      - d3
-      - typescript
-  - id: 2
-    title: Graph Analytics
-    status: planning
-    tags:
-      - algorithms
-      - optimization
-settings:
-  theme: dark
-  notifications: true
-  privacy: null`
+const EXAMPLE_YAML = `apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: datascope-web
+  namespace: production
+  labels:
+    app: datascope
+    tier: frontend
+    version: v2.5.0
+  annotations:
+    deployment.kubernetes.io/revision: "42"
+    description: "DataScope web application deployment"
+spec:
+  replicas: 5
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 2
+      maxUnavailable: 1
+  selector:
+    matchLabels:
+      app: datascope
+      tier: frontend
+  template:
+    metadata:
+      labels:
+        app: datascope
+        tier: frontend
+        version: v2.5.0
+    spec:
+      containers:
+        - name: web
+          image: datascope/web:2.5.0
+          ports:
+            - containerPort: 3000
+              name: http
+              protocol: TCP
+            - containerPort: 9090
+              name: metrics
+              protocol: TCP
+          env:
+            - name: NODE_ENV
+              value: production
+            - name: API_URL
+              value: https://api.datascope.w4w.dev
+            - name: REDIS_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: redis-config
+                  key: host
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: database-credentials
+                  key: url
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "500m"
+            limits:
+              memory: "1Gi"
+              cpu: "1000m"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 3000
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 3
+            successThreshold: 1
+          volumeMounts:
+            - name: config
+              mountPath: /app/config
+              readOnly: true
+            - name: cache
+              mountPath: /app/cache
+        - name: sidecar-proxy
+          image: envoyproxy/envoy:v1.25.0
+          ports:
+            - containerPort: 8080
+              name: proxy
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "256Mi"
+              cpu: "200m"
+      volumes:
+        - name: config
+          configMap:
+            name: app-config
+        - name: cache
+          emptyDir:
+            sizeLimit: 1Gi
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app
+                      operator: In
+                      values:
+                        - datascope
+                topologyKey: kubernetes.io/hostname
+      nodeSelector:
+        node.kubernetes.io/instance-type: m5.large
+        environment: production
+      tolerations:
+        - key: dedicated
+          operator: Equal
+          value: frontend
+          effect: NoSchedule`
 
-const EXAMPLE_JSONL = `{"id": 1, "name": "Alice Johnson", "role": "Engineer", "active": true, "score": 95.5}
-{"id": 2, "name": "Bob Smith", "role": "Designer", "active": true, "score": 87.3}
-{"id": 3, "name": "Carol White", "role": "Manager", "active": false, "score": 92.1}
-{"id": 4, "name": "David Brown", "role": "Engineer", "active": true, "score": 88.7}
-{"id": 5, "name": "Eve Davis", "role": "Analyst", "active": true, "score": 94.2}`
+const EXAMPLE_JSONL = `{"timestamp": "2024-03-20T10:15:32.442Z", "level": "info", "service": "api-gateway", "requestId": "req_a8f3d9e1", "method": "POST", "path": "/api/v1/users", "statusCode": 201, "duration": 145, "ip": "203.0.113.42", "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)", "userId": "usr_88291", "message": "User created successfully"}
+{"timestamp": "2024-03-20T10:15:33.128Z", "level": "info", "service": "auth-service", "requestId": "req_b9c4e2a8", "method": "POST", "path": "/auth/login", "statusCode": 200, "duration": 89, "ip": "198.51.100.23", "userAgent": "Chrome/122.0.0.0", "userId": "usr_45672", "message": "Login successful", "metadata": {"mfa": true, "device": "desktop"}}
+{"timestamp": "2024-03-20T10:15:34.557Z", "level": "error", "service": "database", "requestId": "req_c1d5f3b2", "error": "Connection timeout", "query": "SELECT * FROM users WHERE active = true", "duration": 5000, "retries": 3, "message": "Database query timeout after 3 retries"}
+{"timestamp": "2024-03-20T10:15:35.223Z", "level": "warn", "service": "cache", "requestId": "req_d2e6g4c3", "key": "user:45672:profile", "operation": "GET", "hit": false, "message": "Cache miss - fetching from database", "metadata": {"ttl": 3600}}
+{"timestamp": "2024-03-20T10:15:36.891Z", "level": "info", "service": "analytics", "requestId": "req_e3f7h5d4", "event": "page_view", "page": "/dashboard", "userId": "usr_45672", "sessionId": "ses_xyz789", "duration": 1234, "message": "Page view tracked", "properties": {"referrer": "direct", "device": "desktop", "country": "US"}}
+{"timestamp": "2024-03-20T10:15:37.445Z", "level": "info", "service": "payment", "requestId": "req_f4g8i6e5", "method": "POST", "path": "/api/v1/payments", "statusCode": 200, "amount": 4999, "currency": "USD", "userId": "usr_12345", "message": "Payment processed", "metadata": {"provider": "stripe", "cardType": "visa", "last4": "4242"}}
+{"timestamp": "2024-03-20T10:15:38.667Z", "level": "debug", "service": "search", "requestId": "req_g5h9j7f6", "query": "data visualization tools", "results": 142, "duration": 28, "filters": {"category": "analytics", "minRating": 4.0}, "message": "Search query executed"}
+{"timestamp": "2024-03-20T10:15:39.112Z", "level": "info", "service": "notification", "requestId": "req_h6i0k8g7", "type": "email", "recipient": "user@example.com", "template": "welcome", "status": "sent", "message": "Email notification sent", "metadata": {"provider": "sendgrid", "messageId": "msg_abc123"}}
+{"timestamp": "2024-03-20T10:15:40.334Z", "level": "error", "service": "storage", "requestId": "req_i7j1l9h8", "operation": "upload", "filename": "report.pdf", "size": 2048576, "error": "Quota exceeded", "userId": "usr_99888", "message": "File upload failed - storage quota exceeded"}
+{"timestamp": "2024-03-20T10:15:41.778Z", "level": "info", "service": "api-gateway", "requestId": "req_j8k2m0i9", "method": "GET", "path": "/api/v1/analytics/dashboard", "statusCode": 200, "duration": 67, "ip": "192.0.2.15", "userId": "usr_45672", "message": "Analytics data retrieved", "metadata": {"cacheHit": true, "dataPoints": 1250}}`
 
-const EXAMPLE_CSV = `name,age,department,salary,active
-John Doe,32,Engineering,85000,true
-Jane Smith,28,Design,78000,true
-Bob Johnson,45,Management,95000,true
-Alice Williams,35,Sales,72000,false
-Charlie Brown,29,Engineering,82000,true`
+const EXAMPLE_CSV = `userId,username,email,signupDate,subscription,monthlySpend,active,country,lastLogin,sessionsCount,conversionRate,lifetimeValue
+1001,alex_rivera,alex.rivera@techmail.com,2023-01-15,premium,89.99,true,USA,2024-03-20T14:32:10Z,342,12.5,3599.58
+1002,sarah_chen,sarah.c@cloudservices.io,2023-02-22,enterprise,249.99,true,Canada,2024-03-20T09:15:33Z,567,18.3,9999.58
+1003,michael_torres,m.torres@startup.dev,2023-03-10,free,0.00,true,Mexico,2024-03-19T22:44:55Z,45,3.2,0.00
+1004,jessica_yamamoto,jyamamoto@corp.com,2023-01-08,premium,89.99,true,Japan,2024-03-20T06:22:17Z,891,22.1,8099.10
+1005,david_kim,david.k@innovate.ai,2023-04-05,business,149.99,true,South Korea,2024-03-20T11:08:42Z,234,9.8,4349.71
+1006,emily_anderson,emily.a@design.studio,2023-05-18,premium,89.99,false,UK,2024-02-28T16:55:03Z,123,7.4,1349.85
+1007,carlos_rodriguez,carlos.r@analytics.pro,2023-02-14,enterprise,249.99,true,Spain,2024-03-20T13:11:29Z,678,25.6,12499.50
+1008,anna_kowalski,a.kowalski@tech.pl,2023-06-22,free,0.00,true,Poland,2024-03-18T19:33:14Z,67,5.1,0.00
+1009,raj_patel,raj.p@software.in,2023-03-30,business,149.99,true,India,2024-03-20T08:47:21Z,445,15.7,5849.58
+1010,lisa_mueller,l.mueller@enterprise.de,2023-01-20,enterprise,249.99,true,Germany,2024-03-20T10:29:36Z,789,31.2,15749.25
+1011,tom_wilson,tom.w@freelance.com,2023-07-11,premium,89.99,true,Australia,2024-03-20T02:14:08Z,156,8.9,1889.79
+1012,maria_silva,maria.s@startup.br,2023-04-25,free,0.00,true,Brazil,2024-03-17T20:05:42Z,34,2.8,0.00
+1013,chen_wang,c.wang@platform.cn,2023-02-08,business,149.99,true,China,2024-03-20T07:38:55Z,523,19.4,7049.54
+1014,olivia_brown,olivia.b@agency.uk,2023-05-03,premium,89.99,true,UK,2024-03-20T15:22:17Z,267,11.3,2969.67
+1015,pierre_dubois,p.dubois@tech.fr,2023-03-17,enterprise,249.99,true,France,2024-03-20T12:44:29Z,612,28.7,13499.45`
 
 function App() {
   const [inputValue, setInputValue] = useKV('visualizer-input', '')
@@ -632,7 +882,15 @@ function App() {
                 <Textarea
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}
-                  placeholder={`Paste your data here... (${detectedFormat.toUpperCase()} will be auto-detected)`}
+                  placeholder={`Paste your ${detectedFormat.toUpperCase()} data here or load from file/URL...
+
+Examples:
+• JSON: {"key": "value", "nested": {"data": true}}
+• YAML: key: value\\n  nested:\\n    data: true
+• JSONL: {"event": "login", "user": 123}\\n{"event": "logout", "user": 123}
+• CSV: name,age,city\\nAlice,30,NYC\\nBob,25,LA
+
+Format will be auto-detected. Click "Parse Data" when ready!`}
                   className="font-mono text-sm min-h-[240px] md:min-h-[280px] resize-y transition-all duration-200 focus:ring-2 focus:ring-primary/30 border-border/50 hover:border-border/70 rounded-xl bg-muted/40 focus:bg-background shadow-inner hover:shadow-lg"
                 />
 
