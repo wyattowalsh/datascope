@@ -1,88 +1,99 @@
 # Planning Guide
 
-A professional, beautiful developer tool for visualizing, exploring, and analyzing JSON and YAML data with powerful search, filtering, formatting, and navigation capabilities.
+A professional, powerful developer tool for visualizing, exploring, analyzing structured data with advanced graph analytics, interactive exploration, comprehensive search capabilities, and beautiful data visualization.
 
 **Experience Qualities**:
-1. **Efficient** - Instant parsing, responsive interactions, and formatting tools that help developers work faster
-2. **Clear** - Visual hierarchy, syntax highlighting, and adaptive theming make complex data structures immediately understandable
-3. **Powerful** - Advanced features like path copying, type filtering, deep search, formatting/linting, and customization without overwhelming the interface
+1. **Powerful** - Graph visualization, advanced analytics, regex search, multi-modal data exploration with comprehensive metrics and insights
+2. **Intuitive** - Seamless switching between tree and graph views, smart search modes, clear visual feedback, and guided exploration
+3. **Professional** - Elegant design, sophisticated analytics, production-ready formatting tools, and refined interactions that delight
 
-**Complexity Level**: Light Application (multiple features with basic state)
-  - Multiple coordinated features (parsing, search, filtering, tree navigation, formatting, theme switching) with persistent state for user preferences and current data
+**Complexity Level**: Complex Application (advanced functionality with rich state management)
+  - Multiple sophisticated features (graph visualization with D3 force simulation, advanced search with regex/path modes, comprehensive analytics, dual visualization modes) with extensive state persistence and real-time coordination
 
 ## Essential Features
 
 ### JSON/YAML Input & Parsing
-- **Functionality**: Accept JSON or YAML input via textarea, auto-detect format, parse and validate
-- **Purpose**: Allow users to quickly paste data from APIs, configs, or files
+- **Functionality**: Accept JSON or YAML input via textarea, auto-detect format, parse and validate with comprehensive error reporting
+- **Purpose**: Allow users to quickly paste data from APIs, configs, or files with instant feedback
 - **Trigger**: User pastes or types into input area
-- **Progression**: Paste data → Auto-detect format → Parse → Display result or validation errors → Render tree view
-- **Success criteria**: Valid JSON/YAML renders in tree view; invalid input shows clear error messages with line numbers
+- **Progression**: Paste data → Auto-detect format → Parse → Validate → Build tree structure → Generate graph → Calculate analytics → Display results
+- **Success criteria**: Valid JSON/YAML renders in tree/graph views with full analytics; invalid input shows clear error messages with line numbers and helpful suggestions
 
 ### Interactive Tree Visualization
-- **Functionality**: Collapsible tree structure with syntax highlighting, type badges, and value previews
-- **Purpose**: Make nested data structures easy to explore and understand at a glance
+- **Functionality**: Collapsible tree structure with syntax highlighting, type badges, value previews, path navigation, and expand/collapse all
+- **Purpose**: Make nested data structures easy to explore with full control over visibility
 - **Trigger**: Successful parsing of input data
-- **Progression**: Parse complete → Render root node → Click to expand/collapse → Navigate nested structures → View full values
-- **Success criteria**: All nesting levels accessible, smooth expand/collapse, clear visual hierarchy
+- **Progression**: Parse complete → Render root node → Click to expand/collapse → Navigate nested structures → Copy paths → View full values → Expand/collapse all
+- **Success criteria**: All nesting levels accessible, smooth expand/collapse animations, clear visual hierarchy, instant path copying
 
-### Search & Filter
-- **Functionality**: Real-time search across keys and values, filter by data type (string, number, boolean, null, array, object)
-- **Purpose**: Quickly locate specific data in large documents
-- **Trigger**: User types in search box or selects type filters
-- **Progression**: Enter search term → Highlight matching nodes → Filter by type → Show only matching branches → Clear to reset
-- **Success criteria**: Instant results, highlight all matches, maintain tree context for filtered results
+### Graph Visualization with D3
+- **Functionality**: Interactive force-directed graph showing data structure relationships with zoom, pan, drag, and node selection
+- **Purpose**: Visualize data structure relationships and hierarchy in a spatial, intuitive way
+- **Trigger**: Switch to graph view tab after parsing
+- **Progression**: Switch to graph → Render force-directed layout → Drag nodes → Zoom/pan → Click nodes to select → Highlight connections → View node details
+- **Success criteria**: Smooth physics simulation, responsive interactions, clear node/edge differentiation, synchronized selection with tree view
 
-### Path Navigation
-- **Functionality**: Display and copy JSON path or YAML path for any selected node
-- **Purpose**: Enable developers to quickly reference data locations in code
-- **Trigger**: Click on any node in tree
-- **Progression**: Click node → Show path in toolbar → Click copy button → Path copied to clipboard → Toast confirmation
-- **Success criteria**: Accurate path notation (dot notation for JSON, bracket notation option), one-click copy
+### Advanced Search & Filtering
+- **Functionality**: Multi-mode search (text, regex, path) with case sensitivity, whole word matching, and type filtering across all data
+- **Purpose**: Enable powerful data discovery with flexible query options for any use case
+- **Trigger**: User enters search term or changes search options
+- **Progression**: Enter term → Select mode (text/regex/path) → Toggle options (case/word) → Apply type filters → View filtered results → See result count
+- **Success criteria**: Instant filtering, accurate regex matching, path-based search, persistent filter state, clear result highlighting
+
+### Graph Analytics & Metrics
+- **Functionality**: Comprehensive graph analysis including centrality, clustering, density, diameter, branching factor, and depth distribution
+- **Purpose**: Provide deep insights into data structure complexity and relationships
+- **Trigger**: Automatic calculation after successful parsing
+- **Progression**: Parse data → Build graph → Calculate metrics → Display analytics → Show depth/type distribution → Rank by centrality
+- **Success criteria**: Accurate mathematical calculations, meaningful visualizations, organized presentation across multiple tabs
 
 ### Statistics & Analysis
-- **Functionality**: Show document stats - total keys, nesting depth, type distribution
-- **Purpose**: Provide overview of data structure complexity
-- **Trigger**: Successful parsing displays stats panel
-- **Progression**: Parse data → Calculate metrics → Display in stats panel → Update on filter changes
-- **Success criteria**: Accurate counts, instant updates, helpful metrics
+- **Functionality**: Real-time stats - total keys, max depth, type distribution with progress bars and percentages
+- **Purpose**: Provide instant overview of data structure composition
+- **Trigger**: Successful parsing displays stats panel with live updates
+- **Progression**: Parse data → Calculate metrics → Display stats → Update on filter changes → Show type distributions
+- **Success criteria**: Accurate counts, instant updates, color-coded type badges, helpful visual representations
 
 ### JSON/YAML Formatting & Linting
-- **Functionality**: Format/prettify JSON with customizable indent (2/4 spaces, tabs), minify, validate and show lint errors
-- **Purpose**: Clean up messy data, reduce size, or standardize formatting
-- **Trigger**: Click format/minify buttons in toolbar
-- **Progression**: Click format → Select indent preference → Apply formatting → Update display → Show success toast
-- **Success criteria**: Proper indentation, maintains data integrity, smooth visual update
+- **Functionality**: Format/prettify with customizable indent (2/4 spaces, tabs), minify JSON, comprehensive linting with error locations
+- **Purpose**: Clean up messy data, standardize formatting, identify and fix errors
+- **Trigger**: Click format/minify buttons or open format dialog
+- **Progression**: Click format → Select indent preference → Apply formatting → Update display → Show lint errors if any → Provide fix suggestions
+- **Success criteria**: Proper indentation, maintains data integrity, helpful lint messages, smooth visual updates
 
 ### Light/Dark Mode Toggle
-- **Functionality**: Switch between light and dark themes with persistent preference
-- **Purpose**: Reduce eye strain and match user's environment/preference
+- **Functionality**: Switch between light and dark themes with persistent preference and smooth transitions
+- **Purpose**: Reduce eye strain and match user's environment preference
 - **Trigger**: Click theme toggle button in header
-- **Progression**: Click toggle → Theme switches instantly → Save preference → Persist across sessions
-- **Success criteria**: Smooth transition, all colors adapt properly, preference remembered
+- **Progression**: Click toggle → Theme switches with smooth transition → Save preference → Persist across sessions → Update all visualizations
+- **Success criteria**: Smooth 300ms color transitions, all elements adapt properly, preference persisted, graph colors update
 
 ## Edge Case Handling
-- **Empty Input**: Show helpful placeholder with example JSON/YAML to get started
-- **Invalid Syntax**: Display detailed error message with line/column numbers and helpful fix suggestions
-- **Very Large Files**: Handle large documents gracefully with virtual scrolling and performance warnings (10k+ nodes)
-- **Deep Nesting**: Limit initial expansion depth, provide expand-all option with warning for deep structures (20+ levels)
-- **Special Characters**: Properly escape and display unicode, emojis, and special chars in values
+- **Empty Input**: Show helpful quick start guide with example links and feature overview
+- **Invalid Syntax**: Display detailed error message with line/column numbers and helpful fix suggestions with inline highlighting
+- **Very Large Files**: Handle large documents gracefully with virtual scrolling, performance monitoring, and warnings (10k+ nodes)
+- **Deep Nesting**: Smart initial expansion, expand-all with progress, performance warnings for deep structures (20+ levels)
+- **Special Characters**: Properly escape and display unicode, emojis, and special chars in values across all views
 - **Circular References**: Detect and display warning (JSON only, as YAML can have anchors/aliases)
-- **Mixed Format**: Auto-detect format and guide user to correct tab
-- **Malformed Formatting**: Provide lint errors with helpful suggestions when formatting fails
-- **Theme Transitions**: Ensure smooth color transitions without flashing on theme change
-- **Mobile Interactions**: Handle touch gestures, prevent zoom on double-tap, optimize for small screens
+- **Mixed Format**: Auto-detect format and guide user to correct tab with helpful suggestions
+- **Malformed Formatting**: Provide comprehensive lint errors with helpful fix suggestions and error locations
+- **Theme Transitions**: Ensure smooth color transitions across all components including graph visualization
+- **Mobile Interactions**: Handle touch gestures for graph manipulation, prevent zoom conflicts, optimize for small screens
+- **Complex Regex**: Catch and display regex syntax errors with helpful messages
+- **Empty Search Results**: Show "No results found" state with suggestion to adjust filters
+- **Graph Rendering**: Handle disconnected nodes, self-loops, and performance for large graphs (500+ nodes)
+- **Path Edge Cases**: Handle special characters in keys, numeric indices, and deeply nested paths correctly
 
 ## Design Direction
-The design should feel professional, elegant, and adaptive - like a premium developer tool that works beautifully in any lighting condition. Clean, monospace typography for code with sophisticated color-coded syntax highlighting. Smooth theme transitions between light and dark modes. Minimal but powerful interface where function is immediately visible. Modern glassmorphic touches and subtle shadows that adapt to the current theme.
+The design should feel sophisticated, powerful, and elegant - like a premium data analytics platform that combines technical precision with visual beauty. Modern glassmorphic UI with subtle depth, professional monospace typography for code with sophisticated multi-color syntax highlighting. Smooth theme transitions between light and dark modes that extend to graph visualizations. Layered information architecture where complexity is progressively revealed. Interactive visualizations that respond fluidly to user input with physics-based animations in graph view.
 
 ## Color Selection
-Dual-palette system with carefully balanced light and dark modes, both featuring syntax-highlighting inspired colors that feel technical yet refined.
+Sophisticated dual-palette system with carefully balanced light and dark modes, featuring syntax-highlighting inspired colors and analytics-grade visualizations.
 
 **Light Mode Palette:**
-- **Primary Color**: Vibrant Blue (oklch(0.53 0.197 264.05)) - Professional, energetic, represents clarity and structure
+- **Primary Color**: Vibrant Blue (oklch(0.53 0.197 264.05)) - Professional, energetic, represents clarity and structure, used for graph arrays and primary actions
 - **Secondary Colors**: Soft slate backgrounds (oklch(0.96 0.002 247.86)) for subtle contrast and visual breathing room
-- **Accent Color**: Bright Cyan (oklch(0.69 0.134 210.42)) for interactive highlights and active states - modern and eye-catching
+- **Accent Color**: Bright Cyan (oklch(0.69 0.134 210.42)) for interactive highlights, graph objects, and active states - modern and eye-catching
 - **Background**: Near-white (oklch(0.99 0 0)) with very light warmth for reduced eye strain
 - **Foreground/Background Pairings**:
   - Background (oklch(0.99 0 0)): Dark text (oklch(0.09 0 0)) - Ratio 16.8:1 ✓
@@ -92,9 +103,9 @@ Dual-palette system with carefully balanced light and dark modes, both featuring
   - Muted (oklch(0.96 0.002 247.86)): Medium text (oklch(0.48 0.014 252.73)) - Ratio 8.1:1 ✓
 
 **Dark Mode Palette:**
-- **Primary Color**: Bright Blue (oklch(0.64 0.25 265.75)) - Luminous against dark, maintains brand identity
+- **Primary Color**: Bright Blue (oklch(0.64 0.25 265.75)) - Luminous against dark, maintains brand identity, graph arrays
 - **Secondary Colors**: Deep slate backgrounds (oklch(0.18 0.01 250)) for rich depth
-- **Accent Color**: Electric Cyan (oklch(0.75 0.15 210)) for vibrant highlights that pop in darkness
+- **Accent Color**: Electric Cyan (oklch(0.75 0.15 210)) for vibrant highlights, graph objects, that pop in darkness
 - **Background**: True dark (oklch(0.12 0.01 250)) with slight cool tone for OLED-friendly display
 - **Foreground/Background Pairings**:
   - Background (oklch(0.12 0.01 250)): Light text (oklch(0.95 0.01 250)) - Ratio 15.2:1 ✓
@@ -105,7 +116,7 @@ Dual-palette system with carefully balanced light and dark modes, both featuring
 
 **Syntax Highlighting Colors (Adaptive):**
 - Light Mode:
-  - String values: Emerald (oklch(0.64 0.15 163.23))
+  - String values: Emerald (oklch(0.64 0.15 163.23)) - Graph primitives
   - Number values: Amber (oklch(0.72 0.16 65.28))
   - Boolean values: Purple (oklch(0.64 0.19 305.48))
   - Null values: Slate (oklch(0.54 0.02 247.86))
@@ -113,7 +124,7 @@ Dual-palette system with carefully balanced light and dark modes, both featuring
   - Brackets: Medium slate (oklch(0.52 0.02 252.73))
 
 - Dark Mode:
-  - String values: Bright emerald (oklch(0.72 0.18 163))
+  - String values: Bright emerald (oklch(0.72 0.18 163)) - Graph primitives
   - Number values: Bright amber (oklch(0.78 0.18 65))
   - Boolean values: Bright purple (oklch(0.72 0.22 305))
   - Null values: Light slate (oklch(0.62 0.03 250))
@@ -121,74 +132,112 @@ Dual-palette system with carefully balanced light and dark modes, both featuring
   - Brackets: Light slate (oklch(0.58 0.03 250))
 
 ## Font Selection
-Monospace fonts for code display convey precision and technical accuracy, while clean sans-serif for UI elements maintains readability and modern aesthetics.
+Monospace fonts for code display and technical precision, clean sans-serif for UI elements and analytics readability.
 
 - **Typographic Hierarchy**:
   - H1 (App Title): Inter SemiBold/24px/tight letter spacing
-  - H2 (Section Headers): Inter Medium/16px/normal spacing
-  - Code/Data Display: JetBrains Mono Regular/14px/wide letter spacing for clarity
+  - H2 (Section Headers): Inter SemiBold/16px/normal spacing
+  - H3 (Panel Titles): Inter SemiBold/14px/normal spacing
+  - Code/Data Display: JetBrains Mono Regular/13px/wide letter spacing for clarity
+  - Graph Labels: Inter Medium/11px/normal spacing
   - UI Labels: Inter Regular/13px/normal spacing
   - Tree Keys: JetBrains Mono Medium/13px
   - Tree Values: JetBrains Mono Regular/13px
-  - Stats/Meta: Inter Regular/12px/subtle gray
+  - Stats/Metrics: Inter Medium/20px for numbers, Inter Regular/12px for labels
+  - Analytics Text: Inter Regular/13px
+  - Badge Text: Inter Medium/11px
 
 ## Animations
-Purposeful, smooth animations that provide visual feedback and guide attention without interrupting workflow - theme transitions, tree expansions, and interactive states.
+Sophisticated, purposeful animations that provide visual feedback, guide attention, and create delightful micro-interactions - from theme transitions to graph physics simulations.
 
-- **Purposeful Meaning**: Theme transitions smoothly morph colors (300ms), expand/collapse animations communicate hierarchy changes (250ms), search highlights pulse briefly to catch attention (200ms), copy confirmations fade smoothly (150ms), format changes animate gracefully (200ms)
-- **Hierarchy of Movement**: Theme switch is primary (300ms with easing), tree expand/collapse is secondary (250ms smooth), button interactions and hovers are tertiary (150ms), tooltips appear quickly (100ms)
+- **Purposeful Meaning**: 
+  - Theme transitions smoothly morph all colors including graphs (300ms)
+  - Graph force simulation provides organic, physics-based movement
+  - Tree expand/collapse with smooth height transitions (250ms)
+  - Search filter animations highlight results (200ms)
+  - Node drag in graph view with momentum
+  - Zoom/pan in graph with smooth easing
+  - Copy confirmations with check animation (150ms)
+  - Tab switches with subtle fade (200ms)
+  - Hover states with gentle scale (100ms)
+  
+- **Hierarchy of Movement**: 
+  - Graph physics simulation is primary (continuous, organic)
+  - Theme switch is secondary (300ms with easing)
+  - View mode transitions are secondary (250ms)
+  - Tree expand/collapse is tertiary (250ms smooth)
+  - Button interactions are quaternary (150ms)
+  - Tooltips appear quickly (100ms)
 
 ## Component Selection
 - **Components**: 
-  - Card for main content areas (input panel, tree view, stats)
-  - Tabs for JSON/YAML format switching
-  - Input/Textarea for data entry with monospace styling
-  - Badge for type indicators (string, number, object, array, etc.)
-  - Button for actions (parse, copy, expand all, collapse all, format, minify)
-  - ScrollArea for tree view to handle large documents
-  - Alert for error messages with helpful context
-  - Separator for visual section division
-  - Tooltip for path previews, keyboard shortcuts, and feature hints
-  - Sheet/Drawer for stats panel and filters on mobile
-  - Dialog for format options (indent size, style preferences)
-  - Switch for theme toggle (light/dark)
-  - DropdownMenu for formatting options
+  - Card for all major content areas (input, tree, graph, stats, analytics)
+  - Tabs for format switching (JSON/YAML) and view modes (Tree/Graph)
+  - Textarea for data entry with monospace styling
+  - Badge for type indicators with color coding
+  - Button for all actions with icon support
+  - ScrollArea for tree view and analytics panels
+  - Alert for error messages with syntax highlighting
+  - Separator for visual organization
+  - Tooltip for contextual help throughout
+  - Dialog for format options
+  - Switch for boolean options
+  - DropdownMenu for tools and actions
+  - Progress bars for type/depth distribution
+  - Custom D3 SVG for graph visualization
   
 - **Customizations**: 
-  - Custom Tree component with recursive rendering
-  - Custom syntax highlighting for values (theme-aware)
-  - Custom path breadcrumb component
-  - Copy button with success state animation
-  - Format toolbar with indent options
-  - Theme toggle with smooth transition
+  - Custom Tree component with recursive rendering and path tracking
+  - Custom Graph component with D3 force-directed layout
+  - Advanced Search component with multi-mode support
+  - Graph Analytics Panel with tabbed metrics
+  - Custom syntax highlighting theme-aware across all views
+  - Path display with copy functionality
+  - Interactive node selection synchronized across views
   
 - **States**: 
-  - Buttons: Default (with icon), Hover (slight lift + bg change), Active (pressed effect), Disabled (grayed when no data), Loading (spinner for format operations)
-  - Tree Nodes: Collapsed (chevron right), Expanded (chevron down), Matched (highlighted bg), Selected (accent border), Hover (subtle bg)
-  - Input: Empty (placeholder), Valid (success border), Invalid (error border + message), Formatting (brief overlay)
-  - Theme: Light (bright, high contrast), Dark (rich, deep colors), Transition (smooth 300ms morph)
+  - Buttons: Default, Hover (lift + color), Active (pressed), Disabled (grayed), Loading (spinner)
+  - Tree Nodes: Collapsed, Expanded, Matched (highlighted), Selected (accent border), Hover (bg change)
+  - Graph Nodes: Normal, Hover (highlight), Selected (thick border + color), Dragging (elevated)
+  - Search Modes: Text (default), Regex (code icon), Path (path icon)
+  - Views: Tree (hierarchical), Graph (spatial)
+  - Input: Empty (placeholder), Valid (success), Invalid (error + details), Formatting (loading)
+  - Theme: Light (bright), Dark (rich), Transitioning (smooth morph)
   
 - **Icon Selection**: 
+  - Graph/TreeStructure for view mode switching
   - MagnifyingGlass for search
-  - Funnel for filters
-  - Copy/Check for path copying with success state
+  - Code for regex mode
+  - Path for path search mode
+  - TextAa for text mode
+  - Funnel/X for filters
+  - Copy/Check for path copying
   - CaretRight/CaretDown for tree expansion
-  - File/FileCode for JSON/YAML tabs
+  - File/FileCode for JSON/YAML
   - ChartBar for statistics
+  - Target for centrality
+  - GitBranch for graph structure
+  - Rows for node count
   - Sun/Moon for theme toggle
-  - TextAlignLeft/TextAlignJustify for format/minify
+  - TextAlignLeft/Minus for format/minify
   - Gear for settings
-  - ArrowsOut/ArrowsIn for expand/collapse all
+  - ArrowsOut/ArrowsIn for expand/collapse and zoom
+  - ArrowsClockwise for graph reset
   
-- **Spacing**: Consistent use of Tailwind spacing - gap-6 for major sections, gap-4 for related groups, gap-2 for tight elements, p-6 for cards, p-4 for compact areas, p-2 for minimal padding
-
+- **Spacing**: 
+  - Consistent Tailwind spacing: gap-6 for major sections, gap-4 for related groups, gap-3 for search options, gap-2 for tight elements
+  - Card padding: p-6 for analytics, p-4 for general cards, p-3 for compact
+  - Graph margins and node spacing calculated by force simulation
+  
 - **Mobile**: 
-  - Stack input and tree view vertically on mobile (<768px)
-  - Stats panel becomes a bottom sheet/drawer with swipe gesture
-  - Reduce tree indentation from 24px to 16px on mobile
+  - Stack all panels vertically (<1280px)
+  - Graph view optimized for touch (larger nodes, better hit targets)
+  - Advanced search collapses filters by default
+  - Analytics tabs remain accessible
+  - Tree indentation reduced to 16px on mobile
   - Larger touch targets (44px min) for all interactive elements
-  - Sticky header with theme toggle and essential controls
-  - Format options in dropdown menu instead of inline buttons
-  - Collapsible filter chips instead of full filter sheet
-  - Responsive font sizes (14px → 13px for code on mobile)
-  - Bottom toolbar for primary actions (parse, format) on mobile
+  - Sticky header with essential controls
+  - Bottom toolbar for primary actions
+  - Swipe gestures for graph pan
+  - Pinch to zoom on graph
+  - Responsive font scaling

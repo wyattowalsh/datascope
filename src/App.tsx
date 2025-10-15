@@ -1,13 +1,9 @@
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback, useEffect, useMemo } from 'react'
 import { useKV } from '@github/spark/hooks'
 import { useTheme } from '@/hooks/use-theme'
 import { 
-  MagnifyingGlass, 
-  Funnel, 
   Copy, 
   Check, 
-  CaretDown, 
-  CaretRight, 
   File, 
   FileCode, 
   ChartBar,
@@ -17,17 +13,16 @@ import {
   Minus,
   ArrowsOut,
   ArrowsIn,
-  Gear
+  Gear,
+  Graph,
+  TreeStructure
 } from '@phosphor-icons/react'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
@@ -35,10 +30,13 @@ import { TreeView } from '@/components/TreeView'
 import { StatsPanel } from '@/components/StatsPanel'
 import { FormatOptionsDialog } from '@/components/FormatOptionsDialog'
 import { LintErrorsDisplay } from '@/components/LintErrorsDisplay'
-import { parseData, buildTree, calculateStats, getPathString, searchNodes, TreeNode, ValueType, DataFormat } from '@/lib/parser'
+import { GraphVisualization } from '@/components/GraphVisualization'
+import { GraphAnalyticsPanel } from '@/components/GraphAnalyticsPanel'
+import { AdvancedSearch, SearchOptions } from '@/components/AdvancedSearch'
+import { parseData, buildTree, calculateStats, getPathString, advancedSearchNodes, TreeNode, ValueType, DataFormat } from '@/lib/parser'
 import { formatJSON, minifyJSON, formatYAML, lintJSON, FormatOptions, LintError } from '@/lib/formatter'
+import { buildGraph, analyzeGraph, GraphData, GraphAnalytics } from '@/lib/graph-analyzer'
 import { toast } from 'sonner'
-import { cn } from '@/lib/utils'
 
 const EXAMPLE_JSON = `{
   "user": {
@@ -46,8 +44,30 @@ const EXAMPLE_JSON = `{
     "name": "Alex Rivera",
     "email": "alex@example.com",
     "active": true,
-    "roles": ["admin", "developer"]
+    "roles": ["admin", "developer"],
+    "metadata": {
+      "created": "2024-01-15",
+      "lastLogin": "2024-03-20",
+      "preferences": {
+        "theme": "dark",
+        "language": "en"
+      }
+    }
   },
+  "projects": [
+    {
+      "id": 1,
+      "title": "Data Visualizer",
+      "status": "active",
+      "tags": ["react", "d3", "typescript"]
+    },
+    {
+      "id": 2,
+      "title": "Graph Analytics",
+      "status": "planning",
+      "tags": ["algorithms", "optimization"]
+    }
+  ],
   "settings": {
     "theme": "dark",
     "notifications": true,
@@ -63,6 +83,26 @@ const EXAMPLE_YAML = `user:
   roles:
     - admin
     - developer
+  metadata:
+    created: 2024-01-15
+    lastLogin: 2024-03-20
+    preferences:
+      theme: dark
+      language: en
+projects:
+  - id: 1
+    title: Data Visualizer
+    status: active
+    tags:
+      - react
+      - d3
+      - typescript
+  - id: 2
+    title: Graph Analytics
+    status: planning
+    tags:
+      - algorithms
+      - optimization
 settings:
   theme: dark
   notifications: true
@@ -74,14 +114,22 @@ function App() {
   const [parsedData, setParsedData] = useState<any>(null)
   const [error, setError] = useState<string>('')
   const [treeNodes, setTreeNodes] = useState<TreeNode[]>([])
-  const [searchTerm, setSearchTerm] = useState('')
-  const [typeFilters, setTypeFilters] = useState<ValueType[]>([])
   const [selectedPath, setSelectedPath] = useState<string[]>([])
   const [copiedPath, setCopiedPath] = useState(false)
   const [expandedPaths, setExpandedPaths] = useState<Set<string>>(new Set())
   const [showFormatDialog, setShowFormatDialog] = useState(false)
   const [lintErrors, setLintErrors] = useState<LintError[]>([])
   const [showLintErrors, setShowLintErrors] = useState(false)
+  const [graphData, setGraphData] = useState<GraphData | null>(null)
+  const [graphAnalytics, setGraphAnalytics] = useState<GraphAnalytics | null>(null)
+  const [viewMode, setViewMode] = useState<'tree' | 'graph'>('tree')
+  const [searchOptions, setSearchOptions] = useState<SearchOptions>({
+    searchTerm: '',
+    searchMode: 'text',
+    caseSensitive: false,
+    wholeWord: false,
+    typeFilters: []
+  })
   
   const { theme, toggleTheme } = useTheme()
 
@@ -94,6 +142,12 @@ function App() {
       const nodes = buildTree(result.data)
       setTreeNodes(nodes)
       setExpandedPaths(new Set())
+      
+      const graph = buildGraph(result.data)
+      setGraphData(graph)
+      
+      const analytics = analyzeGraph(graph)
+      setGraphAnalytics(analytics)
       
       if (format === 'json') {
         const errors = lintJSON(inputValue || '')
@@ -108,6 +162,8 @@ function App() {
     } else {
       setParsedData(null)
       setTreeNodes([])
+      setGraphData(null)
+      setGraphAnalytics(null)
       setError(result.error || 'Failed to parse')
       setLintErrors([])
       setShowLintErrors(false)
@@ -183,17 +239,6 @@ function App() {
     setTimeout(() => setCopiedPath(false), 2000)
   }, [selectedPath])
 
-  const toggleTypeFilter = useCallback((type: ValueType) => {
-    setTypeFilters(prev => {
-      if (prev.includes(type)) {
-        return prev.filter(t => t !== type)
-      }
-      return [...prev, type]
-    })
-  }, [])
-
-  const filteredNodes = searchNodes(treeNodes, searchTerm, typeFilters.length > 0 ? typeFilters : undefined)
-
   const loadExample = useCallback((type: 'json' | 'yaml') => {
     setInputValue(type === 'json' ? EXAMPLE_JSON : EXAMPLE_YAML)
     setFormat(type)
@@ -236,6 +281,28 @@ function App() {
     }
   }, [inputValue, format, setInputValue, handleParse])
 
+  const handleGraphNodeClick = useCallback((nodeId: string) => {
+    const pathArray = nodeId.replace(/^root\.?/, '').split('.')
+    setSelectedPath(pathArray.length === 1 && pathArray[0] === '' ? [] : pathArray)
+  }, [])
+
+  const filteredNodes = useMemo(() => {
+    return advancedSearchNodes(treeNodes, searchOptions)
+  }, [treeNodes, searchOptions])
+
+  const searchResultCount = useMemo(() => {
+    const countNodes = (nodes: TreeNode[]): number => {
+      return nodes.reduce((count, node) => {
+        let nodeCount = 1
+        if (node.children) {
+          nodeCount += countNodes(node.children)
+        }
+        return count + nodeCount
+      }, 0)
+    }
+    return countNodes(filteredNodes)
+  }, [filteredNodes])
+
   useEffect(() => {
     if (inputValue) {
       handleParse()
@@ -246,12 +313,12 @@ function App() {
     <TooltipProvider>
       <div className="min-h-screen bg-background transition-colors duration-300">
         <header className="sticky top-0 z-10 bg-background/80 backdrop-blur-sm border-b border-border">
-          <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 py-4">
+          <div className="max-w-[1600px] mx-auto px-4 md:px-6 lg:px-8 py-4">
             <div className="flex items-center justify-between gap-4">
               <div>
                 <h1 className="text-xl md:text-2xl font-semibold tracking-tight">JSON/YAML Visualizer</h1>
                 <p className="text-xs md:text-sm text-muted-foreground mt-1">
-                  Parse, explore, and format structured data
+                  Parse, explore, analyze, and visualize structured data
                 </p>
               </div>
               
@@ -278,9 +345,9 @@ function App() {
           </div>
         </header>
 
-        <div className="max-w-7xl mx-auto p-4 md:p-6 lg:p-8">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2 space-y-4">
+        <div className="max-w-[1600px] mx-auto p-4 md:p-6 lg:p-8">
+          <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+            <div className="xl:col-span-2 space-y-4">
               <Card className="p-4 space-y-4">
                 <div className="flex items-center justify-between gap-2 flex-wrap">
                   <Tabs value={format} onValueChange={(v) => setFormat(v as DataFormat)}>
@@ -375,135 +442,118 @@ function App() {
               </Card>
 
               {parsedData && (
-                <Card className="p-4 space-y-4">
-                  <div className="flex items-center justify-between gap-2 flex-wrap">
-                    <h2 className="text-sm font-semibold">Tree View</h2>
-                    
-                    <div className="flex gap-2">
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={handleExpandAll}
-                          >
-                            <ArrowsOut size={16} />
-                            <span className="hidden sm:inline ml-2">Expand All</span>
-                          </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>Expand all nodes</TooltipContent>
-                      </Tooltip>
+                <>
+                  <Card className="p-4 space-y-4">
+                    <div className="flex items-center justify-between gap-2 flex-wrap">
+                      <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as 'tree' | 'graph')}>
+                        <TabsList>
+                          <TabsTrigger value="tree" className="gap-2">
+                            <TreeStructure size={16} />
+                            <span className="hidden sm:inline">Tree View</span>
+                          </TabsTrigger>
+                          <TabsTrigger value="graph" className="gap-2">
+                            <Graph size={16} />
+                            <span className="hidden sm:inline">Graph View</span>
+                          </TabsTrigger>
+                        </TabsList>
+                      </Tabs>
                       
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={handleCollapseAll}
-                          >
-                            <ArrowsIn size={16} />
-                            <span className="hidden sm:inline ml-2">Collapse All</span>
-                          </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>Collapse all nodes</TooltipContent>
-                      </Tooltip>
-                    </div>
-                  </div>
-
-                  <div className="space-y-3">
-                    <div className="flex gap-2">
-                      <div className="relative flex-1">
-                        <MagnifyingGlass
-                          size={16}
-                          className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
-                        />
-                        <Input
-                          value={searchTerm}
-                          onChange={(e) => setSearchTerm(e.target.value)}
-                          placeholder="Search keys and values..."
-                          className="pl-9"
-                        />
-                      </div>
-                      
-                      <Sheet>
-                        <SheetTrigger asChild>
-                          <Button variant="outline" size="icon">
-                            <Funnel size={16} />
-                          </Button>
-                        </SheetTrigger>
-                        <SheetContent>
-                          <SheetHeader>
-                            <SheetTitle>Filter by Type</SheetTitle>
-                          </SheetHeader>
-                          <div className="mt-6 space-y-2">
-                            {(['string', 'number', 'boolean', 'null', 'array', 'object'] as ValueType[]).map(type => (
+                      {viewMode === 'tree' && (
+                        <div className="flex gap-2">
+                          <Tooltip>
+                            <TooltipTrigger asChild>
                               <Button
-                                key={type}
-                                variant={typeFilters.includes(type) ? 'default' : 'outline'}
-                                className="w-full justify-start"
-                                onClick={() => toggleTypeFilter(type)}
+                                size="sm"
+                                variant="outline"
+                                onClick={handleExpandAll}
                               >
-                                {type.charAt(0).toUpperCase() + type.slice(1)}
+                                <ArrowsOut size={16} />
+                                <span className="hidden sm:inline ml-2">Expand All</span>
                               </Button>
-                            ))}
-                          </div>
-                        </SheetContent>
-                      </Sheet>
+                            </TooltipTrigger>
+                            <TooltipContent>Expand all nodes</TooltipContent>
+                          </Tooltip>
+                          
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={handleCollapseAll}
+                              >
+                                <ArrowsIn size={16} />
+                                <span className="hidden sm:inline ml-2">Collapse All</span>
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>Collapse all nodes</TooltipContent>
+                          </Tooltip>
+                        </div>
+                      )}
                     </div>
 
-                    {typeFilters.length > 0 && (
-                      <div className="flex gap-2 flex-wrap">
-                        {typeFilters.map(type => (
-                          <Badge
-                            key={type}
-                            variant="secondary"
-                            className="cursor-pointer"
-                            onClick={() => toggleTypeFilter(type)}
-                          >
-                            {type}
-                            <span className="ml-1">×</span>
-                          </Badge>
-                        ))}
-                      </div>
+                    {viewMode === 'tree' && (
+                      <>
+                        {selectedPath.length > 0 && (
+                          <div className="flex items-center gap-2 p-2 bg-muted rounded-md">
+                            <code className="flex-1 text-xs font-mono truncate">
+                              {getPathString(selectedPath, 'dot')}
+                            </code>
+                            <Button
+                              size="icon"
+                              variant="ghost"
+                              className="h-6 w-6 flex-shrink-0"
+                              onClick={handleCopyPath}
+                            >
+                              {copiedPath ? (
+                                <Check size={14} className="text-syntax-string" />
+                              ) : (
+                                <Copy size={14} />
+                              )}
+                            </Button>
+                          </div>
+                        )}
+
+                        <Separator />
+
+                        <ScrollArea className="h-[500px]">
+                          <TreeView
+                            nodes={filteredNodes}
+                            onNodeUpdate={handleNodeUpdate}
+                            selectedPath={selectedPath}
+                            onSelectNode={setSelectedPath}
+                          />
+                        </ScrollArea>
+                      </>
                     )}
 
-                    {selectedPath.length > 0 && (
-                      <div className="flex items-center gap-2 p-2 bg-muted rounded-md">
-                        <code className="flex-1 text-xs font-mono truncate">
-                          {getPathString(selectedPath, 'dot')}
-                        </code>
-                        <Button
-                          size="icon"
-                          variant="ghost"
-                          className="h-6 w-6 flex-shrink-0"
-                          onClick={handleCopyPath}
-                        >
-                          {copiedPath ? (
-                            <Check size={14} className="text-syntax-string" />
-                          ) : (
-                            <Copy size={14} />
-                          )}
-                        </Button>
-                      </div>
+                    {viewMode === 'graph' && graphData && (
+                      <GraphVisualization 
+                        data={graphData}
+                        onNodeClick={handleGraphNodeClick}
+                        selectedNodeId={selectedPath.length > 0 ? `root.${selectedPath.join('.')}` : 'root'}
+                      />
                     )}
-                  </div>
-
-                  <Separator />
-
-                  <ScrollArea className="h-[400px]">
-                    <TreeView
-                      nodes={filteredNodes}
-                      onNodeUpdate={handleNodeUpdate}
-                      selectedPath={selectedPath}
-                      onSelectNode={setSelectedPath}
-                    />
-                  </ScrollArea>
-                </Card>
+                  </Card>
+                </>
               )}
             </div>
 
             <div className="space-y-4">
-              {stats && <StatsPanel stats={stats} />}
+              {parsedData && (
+                <>
+                  <AdvancedSearch 
+                    options={searchOptions}
+                    onChange={setSearchOptions}
+                    resultCount={searchResultCount}
+                  />
+
+                  {stats && <StatsPanel stats={stats} />}
+
+                  {graphAnalytics && (
+                    <GraphAnalyticsPanel analytics={graphAnalytics} />
+                  )}
+                </>
+              )}
               
               {!parsedData && (
                 <Card className="p-6 space-y-4">
@@ -515,8 +565,9 @@ function App() {
                     <p>1. Paste JSON or YAML data</p>
                     <p>2. Click Parse to visualize</p>
                     <p>3. Use Tools to format or minify</p>
-                    <p>4. Search and filter to explore</p>
-                    <p>5. Click any node to copy its path</p>
+                    <p>4. Advanced search with regex support</p>
+                    <p>5. Explore tree or graph view</p>
+                    <p>6. Analyze graph metrics</p>
                   </div>
                 </Card>
               )}

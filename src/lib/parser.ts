@@ -192,6 +192,14 @@ export function getPathString(path: string[], format: 'dot' | 'bracket' = 'dot')
   }
 }
 
+export interface AdvancedSearchOptions {
+  searchTerm: string
+  searchMode: 'text' | 'regex' | 'path'
+  caseSensitive: boolean
+  wholeWord: boolean
+  typeFilter?: ValueType[]
+}
+
 export function searchNodes(nodes: TreeNode[], searchTerm: string, typeFilter?: ValueType[]): TreeNode[] {
   if (!searchTerm && (!typeFilter || typeFilter.length === 0)) {
     return nodes
@@ -211,6 +219,86 @@ export function searchNodes(nodes: TreeNode[], searchTerm: string, typeFilter?: 
     let childMatches: TreeNode[] = []
     if (node.children) {
       childMatches = searchNodes(node.children, searchTerm, typeFilter)
+    }
+
+    if ((matchesSearch && matchesType) || childMatches.length > 0) {
+      filtered.push({
+        ...node,
+        children: childMatches.length > 0 ? childMatches : node.children,
+        isExpanded: childMatches.length > 0 ? true : node.isExpanded
+      })
+    }
+  })
+
+  return filtered
+}
+
+export function advancedSearchNodes(
+  nodes: TreeNode[], 
+  options: AdvancedSearchOptions
+): TreeNode[] {
+  const { searchTerm, searchMode, caseSensitive, wholeWord, typeFilter } = options
+
+  if (!searchTerm && (!typeFilter || typeFilter.length === 0)) {
+    return nodes
+  }
+
+  const filtered: TreeNode[] = []
+
+  nodes.forEach(node => {
+    let matchesSearch = false
+
+    if (!searchTerm) {
+      matchesSearch = true
+    } else if (searchMode === 'regex') {
+      try {
+        const flags = caseSensitive ? 'g' : 'gi'
+        const regex = new RegExp(searchTerm, flags)
+        
+        matchesSearch = regex.test(node.key) ||
+          (typeof node.value === 'string' && regex.test(node.value)) ||
+          (typeof node.value === 'number' && regex.test(node.value.toString()))
+      } catch {
+        matchesSearch = false
+      }
+    } else if (searchMode === 'path') {
+      const pathStr = getPathString(node.path, 'dot')
+      matchesSearch = caseSensitive 
+        ? pathStr.includes(searchTerm)
+        : pathStr.toLowerCase().includes(searchTerm.toLowerCase())
+    } else {
+      const searchValue = caseSensitive ? searchTerm : searchTerm.toLowerCase()
+      const keyValue = caseSensitive ? node.key : node.key.toLowerCase()
+      
+      let keyMatches = false
+      let valueMatches = false
+
+      if (wholeWord) {
+        const wordRegex = new RegExp(`\\b${searchValue}\\b`, caseSensitive ? 'g' : 'gi')
+        keyMatches = wordRegex.test(node.key)
+        
+        if (typeof node.value === 'string') {
+          valueMatches = wordRegex.test(node.value)
+        }
+      } else {
+        keyMatches = keyValue.includes(searchValue)
+        
+        if (typeof node.value === 'string') {
+          const strValue = caseSensitive ? node.value : node.value.toLowerCase()
+          valueMatches = strValue.includes(searchValue)
+        } else if (typeof node.value === 'number') {
+          valueMatches = node.value.toString().includes(searchValue)
+        }
+      }
+
+      matchesSearch = keyMatches || valueMatches
+    }
+
+    const matchesType = !typeFilter || typeFilter.length === 0 || typeFilter.includes(node.type)
+
+    let childMatches: TreeNode[] = []
+    if (node.children) {
+      childMatches = advancedSearchNodes(node.children, options)
     }
 
     if ((matchesSearch && matchesType) || childMatches.length > 0) {
