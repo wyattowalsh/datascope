@@ -1,204 +1,214 @@
-# DataScope - Image Asset Requirements
-# This file contains a list of useful image assets with associated AI image generation prompts
-# Generate these images using your preferred AI image generator (DALL-E, Midjourney, Stable Diffusion, etc.)
-# Save generated images to src/assets/images/ with the specified filename
+# DataScope Image Assets
+# Professional data visualization and analytics platform
+# All images should maintain a consistent modern, technical aesthetic
 
-assets:
-  - filename: hero-background.png
-    dimensions: 1920x1080
-    format: PNG with transparency
-    purpose: Hero section background image for landing/empty state
-    prompt: |
-      A modern, abstract geometric background with flowing data streams and network nodes.
-      Style: minimalist, gradient from deep indigo to electric purple, subtle grid pattern,
-      floating hexagonal shapes, light particles, tech-inspired, clean and professional.
-      Color palette: blues, purples, teals. Soft glowing effects. 8K, high quality.
+images:
+  # Brand & Identity
+  - filename: logo.svg
+    purpose: Main application logo (already exists)
+    dimensions: 512x512
+    format: SVG
+    ai_prompt: "Modern minimalist tech logo for 'DataScope', featuring abstract geometric data visualization elements like nodes and connections, clean lines, professional gradient from deep purple (#5668e8) to bright blue (#66d9ef), transparency-friendly, flat design, vector style, technology-focused"
     
-  - filename: graph-visualization-preview.png
-    dimensions: 1200x800
+  - filename: logo-dark.svg
+    purpose: Dark mode variant of logo for better contrast
+    dimensions: 512x512
+    format: SVG
+    ai_prompt: "Same DataScope logo design but optimized for dark backgrounds, lighter colors with glow effect, bright purple (#7b8ff9) to cyan gradient, enhanced visibility on dark surfaces, vector style, modern tech aesthetic"
+    
+  - filename: icon-192.png
+    purpose: PWA icon for mobile and desktop
+    dimensions: 192x192
     format: PNG
-    purpose: Preview image for graph visualization feature
-    prompt: |
-      A beautiful 3D network graph visualization showing interconnected nodes and edges.
-      Glowing spherical nodes in varying sizes connected by luminous lines. Dark background
-      with accent lighting in blue and cyan. Professional data visualization aesthetic.
-      Bokeh effect, depth of field. Scientific yet artistic. Render quality: photorealistic.
-
-  - filename: data-analytics-icon.png
+    ai_prompt: "Simplified DataScope icon, abstract data node network in circular badge, purple and blue gradient (#5668e8 to #66d9ef), clean minimalist design, centered composition, suitable for app icons"
+    
+  - filename: icon-512.png
+    purpose: High-res PWA icon
     dimensions: 512x512
-    format: PNG with transparency
-    purpose: Icon for analytics and statistics features
-    prompt: |
-      A modern, flat design icon representing data analytics. Combines elements of bar charts,
-      pie charts, and trend lines. Gradient from blue to purple. Minimalist style with
-      clean lines. Professional, tech-forward aesthetic. Icon should work at small sizes.
-      No background, transparent PNG.
+    format: PNG
+    ai_prompt: "High resolution version of DataScope icon, detailed data visualization symbol with interconnected nodes, purple-blue gradient, crisp edges, professional tech branding"
 
-  - filename: json-yaml-parser-icon.png
-    dimensions: 512x512
-    format: PNG with transparency
-    purpose: Icon for data parsing and format conversion features
-    prompt: |
-      An elegant icon showing curly braces {} transforming into structured data blocks.
-      Gradient from teal to blue. Clean, modern design. Represents JSON/YAML parsing.
-      Minimalist tech aesthetic. Should be recognizable at 32px. Transparent background.
+  # Empty States & Onboarding
+  - filename: empty-state-welcome.svg
+    purpose: Welcome screen when no data is loaded
+    dimensions: 600x400
+    format: SVG
+    ai_prompt: "Friendly illustration of floating data documents (JSON, YAML, CSV files) with gentle arrows pointing toward a central analytics dashboard, soft purple and blue gradients, welcoming atmosphere, modern flat illustration style, minimalist tech aesthetic, subtle geometric patterns"
+    
+  - filename: empty-state-no-results.svg
+    purpose: Search with no results found
+    dimensions: 400x300
+    format: SVG
+    ai_prompt: "Minimalist illustration of a magnifying glass over empty data nodes, soft muted purple tones, gentle sad but not discouraged mood, clean lines, modern illustration, geometric shapes floating in space"
+    
+  - filename: empty-state-error.svg
+    purpose: Error state illustration
+    dimensions: 400x300
+    format: SVG
+    ai_prompt: "Abstract illustration of disconnected data nodes with warning symbol, warm orange-red accent (#E8965A), purple base tones, technical but approachable, modern flat style, geometric error visualization"
 
-  - filename: tree-structure-visual.png
+  # Feature Illustrations
+  - filename: feature-tree-view.svg
+    purpose: Tree view feature showcase
     dimensions: 800x600
-    format: PNG
-    purpose: Visual representation of hierarchical tree data structure
-    prompt: |
-      A beautiful visualization of a hierarchical tree data structure. Clean geometric nodes
-      connected by elegant lines forming a tree hierarchy. Gradient colors from root to leaves
-      (purple to teal). Modern, professional data visualization style. White or transparent
-      background. Should feel technical yet approachable.
-
-  - filename: performance-metrics-icon.png
-    dimensions: 512x512
-    format: PNG with transparency
-    purpose: Icon representing performance analysis and speed metrics
-    prompt: |
-      A sleek icon combining a speedometer gauge with digital metrics. Gradient from
-      yellow-orange to blue suggesting speed and performance. Clean, modern design.
-      Dashboard-style aesthetic. Represents performance monitoring. Transparent background.
-      Should work well at 24px and larger.
-
-  - filename: search-filter-icon.png
-    dimensions: 512x512
-    format: PNG with transparency
-    purpose: Icon for advanced search and filtering capabilities
-    prompt: |
-      Modern icon showing a magnifying glass merged with filter/funnel elements and
-      sparkles suggesting smart search. Gradient purple to blue. Clean lines, minimalist.
-      Tech-forward design. Should be clear and recognizable at small sizes. Transparent PNG.
-
-  - filename: empty-state-illustration.png
+    format: SVG
+    ai_prompt: "Elegant hierarchical tree structure visualization with expanding/collapsing nodes, purple gradient nodes connected by clean lines, isometric or slight 3D perspective, modern data visualization aesthetic, glowing connection points, professional tech illustration"
+    
+  - filename: feature-graph-2d.svg
+    purpose: 2D graph visualization feature
     dimensions: 800x600
-    format: PNG with transparency
-    purpose: Illustration for empty/initial state when no data is loaded
-    prompt: |
-      A friendly, minimalist illustration showing an empty document or data file with
-      a gentle invitation to add content. Soft gradients in blue and purple tones.
-      Simple geometric shapes, clean lines. Modern, welcoming aesthetic. Not too busy.
-      Should communicate "ready to start" without being intimidating. Transparent background.
-
-  - filename: export-download-icon.png
-    dimensions: 512x512
-    format: PNG with transparency
-    purpose: Icon for data export and download functionality
-    prompt: |
-      Clean, modern icon showing a downward arrow merging with document/file symbols.
-      Represents data export. Gradient from teal to blue. Minimalist design with
-      professional tech aesthetic. Should work at 20px minimum size. Transparent background.
-      Slight glow or shadow for depth.
-
-  - filename: graph-3d-preview.png
-    dimensions: 1200x800
-    format: PNG
-    purpose: Preview/thumbnail for 3D graph visualization mode
-    prompt: |
-      A stunning 3D force-directed graph floating in space. Glowing spherical nodes of
-      varying sizes connected by luminous edges. Deep space background with subtle nebula.
-      Nodes in gradient colors (blue, purple, teal). Cinematic lighting, depth of field.
-      Futuristic, scientific visualization aesthetic. Photorealistic render quality.
-
-  - filename: insights-ai-icon.png
-    dimensions: 512x512
-    format: PNG with transparency
-    purpose: Icon for AI-powered insights and recommendations
-    prompt: |
-      Modern icon combining a lightbulb with circuit patterns or neural network elements.
-      Represents AI insights and intelligence. Gradient from gold/yellow to purple.
-      Clean, minimalist design. Sparkle or glow effects. Should convey "smart analysis."
-      Transparent background. Recognizable at 24px.
-
-  - filename: complexity-analysis-visual.png
+    format: SVG
+    ai_prompt: "Force-directed graph network with colorful nodes (purple, blue, cyan), curved connecting lines, dynamic layout suggesting movement and relationships, modern network visualization, glowing nodes, depth through opacity and size variation"
+    
+  - filename: feature-graph-3d.svg
+    purpose: 3D graph visualization feature
     dimensions: 800x600
-    format: PNG
-    purpose: Visual for data complexity and quality analysis
-    prompt: |
-      An abstract visualization showing data complexity levels through layered geometric
-      shapes or nested structures. Gradient color coding from green (simple) through
-      yellow and orange to red (complex). Clean, modern design. Professional data
-      visualization style. Suggests depth and analysis.
-
-  - filename: format-convert-icon.png
-    dimensions: 512x512
-    format: PNG with transparency
-    purpose: Icon for format conversion between JSON, YAML, CSV, JSONL
-    prompt: |
-      Icon showing multiple document types or file formats with circular arrows indicating
-      conversion/transformation. Gradient blue to purple. Clean, modern style. Represents
-      data format flexibility. Minimalist design. Transparent background. Should work at 24px.
-
-  - filename: schema-structure-icon.png
-    dimensions: 512x512
-    format: PNG with transparency
-    purpose: Icon for schema extraction and structure analysis
-    prompt: |
-      Modern icon showing a blueprint or schematic design merged with data structures.
-      Represents schema and structural analysis. Gradient teal to blue. Clean geometric
-      shapes. Professional, technical aesthetic. Minimalist design. Transparent background.
-
-  - filename: comparison-diff-icon.png
-    dimensions: 512x512
-    format: PNG with transparency
-    purpose: Icon for data comparison and diff functionality
-    prompt: |
-      Icon showing two overlapping documents or data sets with comparison indicators.
-      Split design suggesting before/after or A/B comparison. Gradient blue to purple.
-      Clean lines, modern style. Represents data comparison. Transparent background.
-      Should be clear at 20px minimum.
-
-  - filename: history-timeline-icon.png
-    dimensions: 512x512
-    format: PNG with transparency
-    purpose: Icon for data history and version tracking
-    prompt: |
-      Modern icon combining a clock or timeline with document layers suggesting version
-      history. Gradient from purple to blue. Clean, minimalist design. Represents temporal
-      data tracking. Should work well at small sizes. Transparent background.
-
-  - filename: keyboard-shortcuts-visual.png
+    format: SVG
+    ai_prompt: "Isometric 3D data network with nodes at varying depths, purple-to-blue gradient spheres connected by lines in 3D space, modern tech aesthetic, sense of depth and dimension, floating in space effect, subtle shadows and lighting"
+    
+  - filename: feature-analytics.svg
+    purpose: Analytics and insights feature
     dimensions: 800x600
+    format: SVG
+    ai_prompt: "Dashboard illustration with bar charts, line graphs, and data metrics, purple and blue color scheme, modern analytics aesthetic, clean geometric charts, glowing accent points, professional data visualization style, layered composition"
+    
+  - filename: feature-search.svg
+    purpose: Advanced search feature
+    dimensions: 800x600
+    format: SVG
+    ai_prompt: "Magnifying glass highlighting specific data nodes in a network, search results glowing with accent color, purple-blue theme, modern flat illustration, connected data points, some highlighted in bright cyan to show search matches"
+
+  # Format Icons (for better file type recognition)
+  - filename: format-json.svg
+    purpose: JSON file type icon
+    dimensions: 128x128
+    format: SVG
+    ai_prompt: "Clean icon representing JSON format, curly braces {} with small colorful nested elements inside, purple primary color, modern flat icon design, subtle gradient, technical aesthetic"
+    
+  - filename: format-yaml.svg
+    purpose: YAML file type icon
+    dimensions: 128x128
+    format: SVG
+    ai_prompt: "Icon for YAML format, hierarchical indented structure symbol, blue-cyan color scheme, modern flat design, clean geometric shapes suggesting structured data"
+    
+  - filename: format-csv.svg
+    purpose: CSV file type icon
+    dimensions: 128x128
+    format: SVG
+    ai_prompt: "CSV file icon with grid/table visualization, green-blue color, modern flat style, spreadsheet cells visible, clean and professional"
+    
+  - filename: format-jsonl.svg
+    purpose: JSONL file type icon
+    dimensions: 128x128
+    format: SVG
+    ai_prompt: "JSONL format icon, stacked curly braces indicating line-by-line JSON, orange-purple gradient, modern tech icon style, layered composition"
+
+  # Background Patterns & Textures
+  - filename: pattern-grid-subtle.svg
+    purpose: Subtle grid pattern for backgrounds
+    dimensions: 100x100
+    format: SVG (tileable)
+    ai_prompt: "Subtle dot grid pattern, very low opacity (5-10%), small dots evenly spaced, technical blueprint aesthetic, can tile seamlessly, minimal and professional, neutral gray tones that work in light and dark modes"
+    
+  - filename: pattern-data-nodes.svg
+    purpose: Decorative data node pattern
+    dimensions: 1200x1200
+    format: SVG
+    ai_prompt: "Abstract network of faint connected nodes in background, very subtle purple-blue tones at 5% opacity, random organic placement, modern tech wallpaper style, seamless tileable pattern, minimal visual noise"
+    
+  - filename: gradient-hero.svg
+    purpose: Hero section gradient background
+    dimensions: 1920x1080
+    format: SVG
+    ai_prompt: "Smooth flowing gradient from deep purple (#5668e8) through violet to cyan-blue (#66d9ef), organic blob shapes, modern abstract tech background, subtle geometric elements, professional and sleek, suitable for hero sections"
+
+  # Loading & Status Indicators
+  - filename: loading-spinner.svg
+    purpose: Custom loading animation base
+    dimensions: 200x200
+    format: SVG
+    ai_prompt: "Circular data node network that can be animated as loading spinner, purple-blue gradient nodes in circle formation, modern tech aesthetic, clean geometric design, orbital/rotation-friendly composition"
+    
+  - filename: success-checkmark.svg
+    purpose: Success state illustration
+    dimensions: 300x300
+    format: SVG
+    ai_prompt: "Glowing checkmark with radiating success indicator, bright green (#4ade80) with purple accents, modern celebration style, clean geometric shapes, positive energy, subtle particle effects around edges"
+    
+  - filename: processing-animation.svg
+    purpose: Data processing illustration
+    dimensions: 400x300
+    format: SVG
+    ai_prompt: "Abstract data flowing through processing pipeline, purple-blue gradient streams, modern tech visualization, geometric data packets moving through system, clean and professional"
+
+  # Tutorial & Help
+  - filename: tutorial-step-1.svg
+    purpose: Tutorial illustration for data input
+    dimensions: 600x400
+    format: SVG
+    ai_prompt: "Illustration of data being pasted or uploaded, document with arrow pointing to DataScope interface, friendly and instructional, purple-blue theme, modern flat style, clear visual communication"
+    
+  - filename: tutorial-step-2.svg
+    purpose: Tutorial illustration for parsing
+    dimensions: 600x400
+    format: SVG
+    ai_prompt: "Illustration of data being analyzed and structured, gears and nodes forming from raw data, transformation visualization, purple gradient, modern tech illustration, process flow aesthetic"
+    
+  - filename: tutorial-step-3.svg
+    purpose: Tutorial illustration for visualization
+    dimensions: 600x400
+    format: SVG
+    ai_prompt: "Illustration of final visualized data in tree/graph form, glowing successful visualization, purple-blue-cyan colors, modern achievement illustration, data coming to life with clarity"
+
+  # Social & Sharing
+  - filename: og-image.png
+    purpose: Open Graph image for social sharing
+    dimensions: 1200x630
     format: PNG
-    purpose: Visual for keyboard shortcuts and productivity features
-    prompt: |
-      Stylized illustration of a modern keyboard with highlighted key combinations glowing
-      in blue and purple gradients. Clean, minimalist design. Tech-forward aesthetic.
-      Should feel productive and efficient. Soft shadows, professional look.
+    ai_prompt: "Professional social media card for DataScope, featuring app name, tagline 'Professional Data Analytics & Visualization', abstract data network visualization, purple-blue gradient background, modern tech aesthetic, clean typography space, suitable for Twitter/LinkedIn/Facebook sharing"
+    
+  - filename: twitter-card.png
+    purpose: Twitter card optimized image
+    dimensions: 1200x600
+    format: PNG
+    ai_prompt: "Compact version of DataScope social card, bold app logo, key features listed (JSON, YAML, CSV, Analytics), vibrant purple-blue gradient, modern tech branding, optimized for Twitter preview"
 
-  - filename: loading-spinner-custom.png
-    dimensions: 256x256
-    format: PNG with transparency (can be animated GIF/APNG)
-    purpose: Custom loading indicator for data processing
-    prompt: |
-      Elegant, modern loading spinner design. Circular shape with gradient from blue to
-      purple. Clean lines, minimalist. Could be geometric segments or smooth gradient ring.
-      Should convey motion and processing. Transparent background. Tech aesthetic.
-
-  - filename: success-checkmark-icon.png
-    dimensions: 512x512
-    format: PNG with transparency
-    purpose: Success state indicator for completed operations
-    prompt: |
-      Modern checkmark icon with subtle celebration elements (sparkles, particles).
-      Gradient from green to teal. Clean, friendly design. Represents successful completion.
-      Minimalist style with slight glow effect. Transparent background. Should work at 24px.
-
-  - filename: error-warning-icon.png
-    dimensions: 512x512
-    format: PNG with transparency
-    purpose: Error and warning state indicator
-    prompt: |
-      Modern alert/warning icon combining exclamation mark with geometric shapes.
-      Gradient from orange to red. Clean, professional design. Not aggressive but
-      attention-getting. Minimalist style. Transparent background. Clear at small sizes.
-
-# Additional notes:
-# - All gradients should use the app's color palette: primary (indigo/purple #5668e8), accent (cyan/teal #66d9ef)
-# - Maintain consistent visual style across all assets (modern, minimalist, tech-forward)
-# - Ensure all icons work well at multiple sizes (minimum 24px for UI icons)
-# - Consider light and dark mode compatibility
-# - Use smooth gradients and subtle glow effects for premium feel
-# - Keep file sizes reasonable for web (optimize PNGs, use appropriate compression)
+# Usage Guidelines
+style_guidelines:
+  color_palette:
+    primary: "#5668e8 (oklch(0.56 0.21 264.05))"
+    accent: "#66d9ef (oklch(0.66 0.15 210.42))"
+    background_light: "#f9fafb"
+    background_dark: "#0a0a0f (oklch(0.10 0.012 250))"
+    success: "#4ade80"
+    warning: "#E8965A"
+    
+  design_principles:
+    - Modern flat illustration style with subtle gradients
+    - Clean geometric shapes and lines
+    - Professional technical aesthetic
+    - Consistent purple-blue color scheme
+    - Minimal visual noise, maximum clarity
+    - Suitable for both light and dark themes
+    - Scalable vector graphics preferred
+    - Accessible contrast ratios
+    
+  file_naming:
+    convention: kebab-case
+    examples:
+      - "empty-state-welcome.svg"
+      - "feature-tree-view.svg"
+      - "format-json.svg"
+      
+  optimization:
+    svg_requirements:
+      - Remove unnecessary metadata
+      - Optimize paths and shapes
+      - Use viewBox for scalability
+      - Clean readable code
+      - Maximum 50KB file size
+    png_requirements:
+      - Compress with tools like TinyPNG
+      - Use appropriate resolution
+      - Include @2x variants for retina
+      - Maximum 200KB file size

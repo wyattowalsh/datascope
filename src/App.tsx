@@ -1036,8 +1036,6 @@ function App() {
                     <PerformanceAnalysis metrics={parseMetrics} />
                   )}
 
-                  {stats && <InsightsPanel stats={stats} data={parsedData} />}
-
                   {stats && <StatsPanel stats={stats} />}
 
                   {graphAnalytics && (
