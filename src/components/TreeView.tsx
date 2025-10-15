@@ -71,13 +71,13 @@ function TreeNodeView({ node, depth, onNodeUpdate, selectedPath, onSelectNode }:
     <div>
       <div
         className={cn(
-          "group flex items-start gap-2 py-1.5 px-2 hover:bg-muted/50 rounded transition-colors cursor-pointer min-h-[44px] md:min-h-0",
-          isSelected && "bg-accent/10 border-l-2 border-accent"
+          "group flex items-start gap-2 py-2 px-3 hover:bg-muted/60 rounded-lg transition-all duration-150 cursor-pointer min-h-[44px] md:min-h-0 border border-transparent hover:border-border/40",
+          isSelected && "bg-accent/15 border-l-[3px] border-l-accent shadow-sm"
         )}
-        style={{ paddingLeft: `${depth * (window.innerWidth < 768 ? 16 : 24) + 8}px` }}
+        style={{ paddingLeft: `${depth * (window.innerWidth < 768 ? 16 : 24) + 12}px` }}
         onClick={handleSelect}
       >
-        <div className="flex items-center gap-1 min-w-0 flex-1">
+        <div className="flex items-center gap-1.5 min-w-0 flex-1">
           {hasChildren ? (
             <Tooltip>
               <TooltipTrigger asChild>
@@ -86,16 +86,16 @@ function TreeNodeView({ node, depth, onNodeUpdate, selectedPath, onSelectNode }:
                     e.stopPropagation()
                     handleToggle()
                   }}
-                  className="flex-shrink-0 p-1 hover:bg-muted rounded transition-colors touch-manipulation"
+                  className="flex-shrink-0 p-1 hover:bg-muted/70 rounded-md transition-all duration-150 touch-manipulation hover:scale-110"
                 >
                   {node.isExpanded ? (
-                    <CaretDown size={16} weight="bold" className="text-syntax-bracket" />
+                    <CaretDown size={16} weight="bold" className="text-syntax-bracket transition-transform duration-200" />
                   ) : (
-                    <CaretRight size={16} weight="bold" className="text-syntax-bracket" />
+                    <CaretRight size={16} weight="bold" className="text-syntax-bracket transition-transform duration-200" />
                   )}
                 </button>
               </TooltipTrigger>
-              <TooltipContent>
+              <TooltipContent side="right">
                 <p>{node.isExpanded ? 'Collapse' : 'Expand'}</p>
               </TooltipContent>
             </Tooltip>
@@ -119,17 +119,17 @@ function TreeNodeView({ node, depth, onNodeUpdate, selectedPath, onSelectNode }:
             <Button
               size="icon"
               variant="ghost"
-              className="opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8 md:h-6 md:w-6 flex-shrink-0 touch-manipulation"
+              className="opacity-0 group-hover:opacity-100 transition-all duration-200 h-8 w-8 md:h-7 md:w-7 flex-shrink-0 touch-manipulation hover:bg-primary/10 hover:text-primary"
               onClick={handleCopyPath}
             >
               {copiedPath ? (
-                <Check size={14} className="text-syntax-string" />
+                <Check size={14} className="text-syntax-string" weight="bold" />
               ) : (
                 <Copy size={14} />
               )}
             </Button>
           </TooltipTrigger>
-          <TooltipContent>
+          <TooltipContent side="left">
             <p>Copy path</p>
           </TooltipContent>
         </Tooltip>
@@ -155,19 +155,19 @@ function TreeNodeView({ node, depth, onNodeUpdate, selectedPath, onSelectNode }:
 
 function TypeBadge({ type }: { type: ValueType }) {
   const colorMap: Record<ValueType, string> = {
-    string: 'bg-syntax-string/10 text-syntax-string border-syntax-string/20',
-    number: 'bg-syntax-number/10 text-syntax-number border-syntax-number/20',
-    boolean: 'bg-syntax-boolean/10 text-syntax-boolean border-syntax-boolean/20',
-    null: 'bg-syntax-null/10 text-syntax-null border-syntax-null/20',
-    array: 'bg-primary/10 text-primary border-primary/20',
-    object: 'bg-accent/10 text-accent border-accent/20'
+    string: 'bg-syntax-string/15 text-syntax-string border-syntax-string/30 shadow-sm',
+    number: 'bg-syntax-number/15 text-syntax-number border-syntax-number/30 shadow-sm',
+    boolean: 'bg-syntax-boolean/15 text-syntax-boolean border-syntax-boolean/30 shadow-sm',
+    null: 'bg-syntax-null/15 text-syntax-null border-syntax-null/30 shadow-sm',
+    array: 'bg-primary/15 text-primary border-primary/30 shadow-sm',
+    object: 'bg-accent/15 text-accent border-accent/30 shadow-sm'
   }
 
   return (
     <Badge
       variant="outline"
       className={cn(
-        "text-[10px] h-4 px-1.5 font-medium flex-shrink-0",
+        "text-[10px] h-5 px-2 font-semibold flex-shrink-0 transition-all duration-150",
         colorMap[type]
       )}
     >

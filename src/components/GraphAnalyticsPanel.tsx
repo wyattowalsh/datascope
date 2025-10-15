@@ -24,39 +24,41 @@ export function GraphAnalyticsPanel({ analytics }: GraphAnalyticsProps) {
     .slice(0, 5)
 
   return (
-    <Card className="p-4 md:p-6">
-      <div className="flex items-center gap-2 mb-4">
-        <Graph size={20} weight="duotone" className="text-primary" />
+    <Card className="p-6 shadow-lg border-border/60 transition-all duration-300 hover:shadow-xl">
+      <div className="flex items-center gap-3 mb-5">
+        <Graph size={22} weight="duotone" className="text-primary" />
         <h3 className="text-sm font-semibold">Graph Analytics</h3>
       </div>
 
       <Tabs defaultValue="metrics" className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="metrics" className="text-xs">
-            <ChartBar size={14} className="mr-1" />
+        <TabsList className="grid w-full grid-cols-3 bg-muted/80">
+          <TabsTrigger value="metrics" className="text-xs gap-1.5 data-[state=active]:shadow-sm transition-all duration-200">
+            <ChartBar size={14} weight="duotone" />
             Metrics
           </TabsTrigger>
-          <TabsTrigger value="structure" className="text-xs">
-            <TreeStructure size={14} className="mr-1" />
+          <TabsTrigger value="structure" className="text-xs gap-1.5 data-[state=active]:shadow-sm transition-all duration-200">
+            <TreeStructure size={14} weight="duotone" />
             Structure
           </TabsTrigger>
-          <TabsTrigger value="centrality" className="text-xs">
-            <Target size={14} className="mr-1" />
+          <TabsTrigger value="centrality" className="text-xs gap-1.5 data-[state=active]:shadow-sm transition-all duration-200">
+            <Target size={14} weight="duotone" />
             Centrality
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="metrics" className="space-y-4 mt-4">
-          <div className="grid grid-cols-2 gap-4">
+        <TabsContent value="metrics" className="space-y-5 mt-5">
+          <div className="grid grid-cols-2 gap-3">
             <MetricCard
               label="Nodes"
               value={analytics.totalNodes}
-              icon={<Rows size={16} />}
+              icon={<Rows size={18} weight="duotone" />}
+              accent="primary"
             />
             <MetricCard
               label="Edges"
               value={analytics.totalEdges}
-              icon={<GitBranch size={16} />}
+              icon={<GitBranch size={18} weight="duotone" />}
+              accent="accent"
             />
             <MetricCard
               label="Avg Degree"
@@ -80,49 +82,32 @@ export function GraphAnalyticsPanel({ analytics }: GraphAnalyticsProps) {
             />
             <MetricCard
               label="Clustering"
-              value={(analytics.clusteringCoefficient * 100).toFixed(1) + '%'}
+              value={analytics.clusteringCoefficient.toFixed(3)}
             />
-          </div>
-
-          <Separator />
-
-          <div className="space-y-2">
-            <p className="text-xs text-muted-foreground font-medium">Advanced Metrics</p>
-            <div className="space-y-3">
-              <div className="flex justify-between items-center">
-                <span className="text-sm">Leaf Nodes</span>
-                <Badge variant="secondary">{analytics.leafNodes}</Badge>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-sm">Branching Factor</span>
-                <Badge variant="secondary">{analytics.branchingFactor.toFixed(2)}</Badge>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-sm">Largest Component</span>
-                <Badge variant="secondary">{analytics.largestComponent}</Badge>
-              </div>
-            </div>
           </div>
         </TabsContent>
 
-        <TabsContent value="structure" className="space-y-4 mt-4">
-          <div className="space-y-3">
-            <p className="text-xs text-muted-foreground font-medium">Depth Distribution</p>
-            <ScrollArea className="h-[200px]">
-              <div className="space-y-2 pr-4">
+        <TabsContent value="structure" className="space-y-5 mt-5">
+          <div className="space-y-4">
+            <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Depth Distribution</p>
+            <ScrollArea className="h-[240px]">
+              <div className="space-y-3 pr-4">
                 {Object.entries(analytics.nodesByDepth)
-                  .sort((a, b) => parseInt(a[0]) - parseInt(b[0]))
+                  .sort(([a], [b]) => Number(a) - Number(b))
                   .map(([depth, count]) => {
-                    const percentage = (count / analytics.totalNodes) * 100
+                    const percentage = (Number(count) / analytics.totalNodes) * 100
                     return (
-                      <div key={depth} className="space-y-1.5">
+                      <div key={depth} className="space-y-2">
                         <div className="flex items-center justify-between">
-                          <span className="text-sm">Level {depth}</span>
-                          <span className="text-sm font-medium tabular-nums">{count}</span>
+                          <span className="text-sm font-medium">Level {depth}</span>
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm font-semibold tabular-nums">{count}</span>
+                            <span className="text-xs text-muted-foreground">({percentage.toFixed(1)}%)</span>
+                          </div>
                         </div>
                         <Progress 
                           value={percentage}
-                          className="[&>div]:bg-primary"
+                          className="[&>div]:bg-primary h-2"
                         />
                       </div>
                     )
@@ -131,17 +116,17 @@ export function GraphAnalyticsPanel({ analytics }: GraphAnalyticsProps) {
             </ScrollArea>
           </div>
 
-          <Separator />
+          <Separator className="bg-border/50" />
 
-          <div className="space-y-3">
-            <p className="text-xs text-muted-foreground font-medium">Node Type Distribution</p>
-            <div className="space-y-2">
+          <div className="space-y-4">
+            <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Node Type Distribution</p>
+            <div className="space-y-3">
               {Object.entries(analytics.nodesByType).map(([type, count]) => {
                 const percentage = (count / analytics.totalNodes) * 100
                 const colorMap: Record<string, string> = {
-                  object: 'bg-accent/10 text-accent border-accent/20',
-                  array: 'bg-primary/10 text-primary border-primary/20',
-                  primitive: 'bg-syntax-string/10 text-syntax-string border-syntax-string/20'
+                  object: 'bg-accent/15 text-accent border-accent/30 shadow-sm',
+                  array: 'bg-primary/15 text-primary border-primary/30 shadow-sm',
+                  primitive: 'bg-syntax-string/15 text-syntax-string border-syntax-string/30 shadow-sm'
                 }
                 const progressColorMap: Record<string, string> = {
                   object: '[&>div]:bg-accent',
@@ -149,16 +134,19 @@ export function GraphAnalyticsPanel({ analytics }: GraphAnalyticsProps) {
                   primitive: '[&>div]:bg-syntax-string'
                 }
                 return (
-                  <div key={type} className="space-y-1.5">
+                  <div key={type} className="space-y-2">
                     <div className="flex items-center justify-between">
                       <Badge variant="outline" className={colorMap[type]}>
                         {type}
                       </Badge>
-                      <span className="text-sm font-medium tabular-nums">{count}</span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-semibold tabular-nums">{count}</span>
+                        <span className="text-xs text-muted-foreground">({percentage.toFixed(1)}%)</span>
+                      </div>
                     </div>
                     <Progress 
                       value={percentage}
-                      className={progressColorMap[type]}
+                      className={`${progressColorMap[type]} h-2`}
                     />
                   </div>
                 )
@@ -167,42 +155,40 @@ export function GraphAnalyticsPanel({ analytics }: GraphAnalyticsProps) {
           </div>
         </TabsContent>
 
-        <TabsContent value="centrality" className="space-y-4 mt-4">
-          <div className="space-y-3">
-            <p className="text-xs text-muted-foreground font-medium">
-              Top Nodes by Centrality
-            </p>
-            <p className="text-xs text-muted-foreground">
-              Nodes with the most connections
-            </p>
+        <TabsContent value="centrality" className="space-y-4 mt-5">
+          <div className="space-y-4">
+            <div className="space-y-1">
+              <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Top Central Nodes</p>
+              <p className="text-xs text-muted-foreground">Nodes with the most connections</p>
+            </div>
             
-            <ScrollArea className="h-[280px]">
-              <div className="space-y-2 pr-4">
+            <ScrollArea className="h-[320px]">
+              <div className="space-y-3 pr-4">
                 {topCentralNodes.map(([nodeId, centrality], index) => {
                   const displayId = nodeId.split('.').pop() || nodeId
                   const percentage = centrality * 100
                   
                   return (
-                    <div key={nodeId} className="space-y-1.5">
+                    <div key={nodeId} className="space-y-2 p-3 rounded-lg bg-muted/40 border border-border/40 hover:bg-muted/60 transition-all duration-200">
                       <div className="flex items-center justify-between gap-2">
                         <div className="flex items-center gap-2 min-w-0 flex-1">
                           <Badge 
                             variant="outline" 
-                            className="flex-shrink-0 bg-primary/10 text-primary border-primary/20"
+                            className="flex-shrink-0 bg-primary/15 text-primary border-primary/30 shadow-sm font-semibold"
                           >
                             #{index + 1}
                           </Badge>
-                          <code className="text-xs font-mono truncate">
+                          <code className="text-xs font-mono truncate text-foreground/90">
                             {displayId}
                           </code>
                         </div>
-                        <span className="text-sm font-medium tabular-nums flex-shrink-0">
+                        <span className="text-sm font-bold tabular-nums flex-shrink-0 text-primary">
                           {percentage.toFixed(1)}%
                         </span>
                       </div>
                       <Progress 
                         value={percentage}
-                        className="[&>div]:bg-primary"
+                        className="[&>div]:bg-primary h-2"
                       />
                     </div>
                   )
@@ -219,19 +205,33 @@ export function GraphAnalyticsPanel({ analytics }: GraphAnalyticsProps) {
 function MetricCard({ 
   label, 
   value, 
-  icon 
+  icon,
+  accent
 }: { 
   label: string
   value: string | number
-  icon?: React.ReactNode 
+  icon?: React.ReactNode
+  accent?: 'primary' | 'accent'
 }) {
+  const accentColors = accent === 'primary' 
+    ? 'from-primary/10 to-primary/5 border-primary/20'
+    : accent === 'accent'
+    ? 'from-accent/10 to-accent/5 border-accent/20'
+    : 'from-muted/50 to-muted/20 border-border/30'
+  
+  const textColor = accent === 'primary'
+    ? 'text-primary'
+    : accent === 'accent'
+    ? 'text-accent'
+    : 'text-foreground'
+
   return (
-    <div className="space-y-1">
-      <div className="flex items-center gap-1.5 text-muted-foreground">
+    <div className={`space-y-2 p-4 rounded-xl bg-gradient-to-br ${accentColors} border transition-all duration-200 hover:shadow-md`}>
+      <div className="flex items-center gap-2 text-muted-foreground">
         {icon}
-        <p className="text-xs">{label}</p>
+        <p className="text-xs font-medium">{label}</p>
       </div>
-      <p className="text-xl font-semibold tabular-nums">{value}</p>
+      <p className={`text-2xl font-bold tabular-nums ${textColor}`}>{value}</p>
     </div>
   )
 }

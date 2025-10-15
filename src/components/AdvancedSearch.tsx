@@ -64,18 +64,18 @@ export function AdvancedSearch({ options, onChange, resultCount }: AdvancedSearc
   const hasActiveFilters = options.searchTerm || options.typeFilters.length > 0
 
   return (
-    <Card className="p-4 space-y-4">
+    <Card className="p-5 space-y-5 shadow-lg border-border/60 transition-all duration-300 hover:shadow-xl">
       <div className="flex items-center gap-2">
-        <MagnifyingGlass size={18} weight="duotone" className="text-primary" />
+        <MagnifyingGlass size={20} weight="duotone" className="text-primary" />
         <h3 className="text-sm font-semibold">Advanced Search</h3>
         {resultCount !== undefined && (
-          <Badge variant="secondary" className="ml-auto">
+          <Badge variant="secondary" className="ml-auto shadow-sm">
             {resultCount} results
           </Badge>
         )}
       </div>
 
-      <div className="space-y-3">
+      <div className="space-y-4">
         <div className="flex gap-2">
           <div className="relative flex-1">
             <MagnifyingGlass
@@ -92,12 +92,12 @@ export function AdvancedSearch({ options, onChange, resultCount }: AdvancedSearc
                   ? 'Search by path...'
                   : 'Search keys and values...'
               }
-              className="pl-9 pr-9"
+              className="pl-9 pr-9 transition-all duration-200 focus:ring-2 focus:ring-primary/20"
             />
             {options.searchTerm && (
               <button
                 onClick={() => handleSearchChange('')}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-all duration-150 hover:scale-110"
               >
                 <X size={16} />
               </button>
@@ -108,8 +108,9 @@ export function AdvancedSearch({ options, onChange, resultCount }: AdvancedSearc
             variant={showFilters ? 'default' : 'outline'}
             size="icon"
             onClick={() => setShowFilters(!showFilters)}
+            className="transition-all duration-200 hover:scale-105"
           >
-            <Funnel size={16} />
+            <Funnel size={16} weight={showFilters ? 'fill' : 'regular'} />
           </Button>
 
           {hasActiveFilters && (
@@ -117,6 +118,7 @@ export function AdvancedSearch({ options, onChange, resultCount }: AdvancedSearc
               variant="ghost"
               size="icon"
               onClick={clearAllFilters}
+              className="transition-all duration-200 hover:scale-105 hover:bg-destructive/10 hover:text-destructive"
             >
               <X size={16} />
             </Button>
@@ -124,29 +126,29 @@ export function AdvancedSearch({ options, onChange, resultCount }: AdvancedSearc
         </div>
 
         <Tabs value={options.searchMode} onValueChange={(v) => handleModeChange(v as any)}>
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="text" className="text-xs gap-1.5">
-              <TextAa size={14} />
+          <TabsList className="grid w-full grid-cols-3 bg-muted/80">
+            <TabsTrigger value="text" className="text-xs gap-1.5 data-[state=active]:shadow-sm transition-all duration-200">
+              <TextAa size={14} weight="duotone" />
               Text
             </TabsTrigger>
-            <TabsTrigger value="regex" className="text-xs gap-1.5">
-              <Code size={14} />
+            <TabsTrigger value="regex" className="text-xs gap-1.5 data-[state=active]:shadow-sm transition-all duration-200">
+              <Code size={14} weight="duotone" />
               Regex
             </TabsTrigger>
-            <TabsTrigger value="path" className="text-xs gap-1.5">
-              <Path size={14} />
+            <TabsTrigger value="path" className="text-xs gap-1.5 data-[state=active]:shadow-sm transition-all duration-200">
+              <Path size={14} weight="duotone" />
               Path
             </TabsTrigger>
           </TabsList>
         </Tabs>
 
         {showFilters && (
-          <div className="space-y-4 pt-2 border-t border-border">
+          <div className="space-y-5 pt-3 border-t border-border/50">
             <div className="space-y-3">
-              <p className="text-xs font-medium">Search Options</p>
+              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Search Options</p>
               
-              <div className="flex items-center justify-between">
-                <Label htmlFor="case-sensitive" className="text-sm">
+              <div className="flex items-center justify-between p-3 rounded-lg bg-muted/40 border border-border/40 transition-all duration-200 hover:bg-muted/60">
+                <Label htmlFor="case-sensitive" className="text-sm cursor-pointer">
                   Case sensitive
                 </Label>
                 <Switch
@@ -159,8 +161,8 @@ export function AdvancedSearch({ options, onChange, resultCount }: AdvancedSearc
               </div>
 
               {options.searchMode === 'text' && (
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="whole-word" className="text-sm">
+                <div className="flex items-center justify-between p-3 rounded-lg bg-muted/40 border border-border/40 transition-all duration-200 hover:bg-muted/60">
+                  <Label htmlFor="whole-word" className="text-sm cursor-pointer">
                     Whole word
                   </Label>
                   <Switch
@@ -174,20 +176,20 @@ export function AdvancedSearch({ options, onChange, resultCount }: AdvancedSearc
               )}
             </div>
 
-            <Separator />
+            <Separator className="bg-border/50" />
 
             <div className="space-y-3">
-              <p className="text-xs font-medium">Filter by Type</p>
+              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Filter by Type</p>
               
               <div className="grid grid-cols-2 gap-2">
                 {(['string', 'number', 'boolean', 'null', 'array', 'object'] as ValueType[]).map(type => {
                   const colorMap: Record<ValueType, string> = {
-                    string: 'bg-syntax-string/10 text-syntax-string border-syntax-string/20 hover:bg-syntax-string/20',
-                    number: 'bg-syntax-number/10 text-syntax-number border-syntax-number/20 hover:bg-syntax-number/20',
-                    boolean: 'bg-syntax-boolean/10 text-syntax-boolean border-syntax-boolean/20 hover:bg-syntax-boolean/20',
-                    null: 'bg-syntax-null/10 text-syntax-null border-syntax-null/20 hover:bg-syntax-null/20',
-                    array: 'bg-primary/10 text-primary border-primary/20 hover:bg-primary/20',
-                    object: 'bg-accent/10 text-accent border-accent/20 hover:bg-accent/20'
+                    string: 'bg-syntax-string/15 text-syntax-string border-syntax-string/30 hover:bg-syntax-string/25',
+                    number: 'bg-syntax-number/15 text-syntax-number border-syntax-number/30 hover:bg-syntax-number/25',
+                    boolean: 'bg-syntax-boolean/15 text-syntax-boolean border-syntax-boolean/30 hover:bg-syntax-boolean/25',
+                    null: 'bg-syntax-null/15 text-syntax-null border-syntax-null/30 hover:bg-syntax-null/25',
+                    array: 'bg-primary/15 text-primary border-primary/30 hover:bg-primary/25',
+                    object: 'bg-accent/15 text-accent border-accent/30 hover:bg-accent/25'
                   }
 
                   return (
@@ -196,14 +198,14 @@ export function AdvancedSearch({ options, onChange, resultCount }: AdvancedSearc
                       variant="outline"
                       size="sm"
                       className={cn(
-                        'justify-start transition-all',
-                        options.typeFilters.includes(type) && colorMap[type]
+                        'justify-start transition-all duration-200 hover:scale-105',
+                        options.typeFilters.includes(type) && `${colorMap[type]} shadow-sm`
                       )}
                       onClick={() => toggleTypeFilter(type)}
                     >
                       <span className={cn(
-                        'w-2 h-2 rounded-full mr-2',
-                        options.typeFilters.includes(type) ? 'opacity-100' : 'opacity-30'
+                        'w-2 h-2 rounded-full mr-2 transition-all duration-150',
+                        options.typeFilters.includes(type) ? 'opacity-100 scale-110' : 'opacity-30'
                       )} style={{
                         backgroundColor: options.typeFilters.includes(type) ? 'currentColor' : 'transparent',
                         border: '1.5px solid currentColor'
@@ -223,7 +225,7 @@ export function AdvancedSearch({ options, onChange, resultCount }: AdvancedSearc
               <Badge
                 key={type}
                 variant="secondary"
-                className="cursor-pointer hover:bg-secondary/80 transition-colors"
+                className="cursor-pointer hover:bg-secondary/80 transition-all duration-200 hover:scale-105 shadow-sm"
                 onClick={() => toggleTypeFilter(type)}
               >
                 {type}
