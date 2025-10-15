@@ -168,6 +168,8 @@ function App() {
   const { theme, toggleTheme } = useTheme()
 
   const detectFormat = useCallback((data: string): DataFormat => {
+    if (!data || typeof data !== 'string') return 'json'
+    
     const trimmed = data.trim()
     
     if (!trimmed) return 'json'

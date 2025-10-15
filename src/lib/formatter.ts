@@ -17,6 +17,9 @@ export interface FormatResult {
 
 export function formatJSON(input: string, options: FormatOptions): FormatResult {
   try {
+    if (!input || typeof input !== 'string') {
+      return { success: false, error: 'Input must be a string' }
+    }
     let parsed = JSON.parse(input)
     if (options.sortKeys) {
       parsed = sortObjectKeys(parsed)
@@ -31,6 +34,9 @@ export function formatJSON(input: string, options: FormatOptions): FormatResult 
 
 export function minifyJSON(input: string): FormatResult {
   try {
+    if (!input || typeof input !== 'string') {
+      return { success: false, error: 'Input must be a string' }
+    }
     const parsed = JSON.parse(input)
     const formatted = JSON.stringify(parsed)
     return { success: true, formatted }
@@ -41,6 +47,9 @@ export function minifyJSON(input: string): FormatResult {
 
 export function formatYAML(input: string, options: FormatOptions): FormatResult {
   try {
+    if (!input || typeof input !== 'string') {
+      return { success: false, error: 'Input must be a string' }
+    }
     let parsed
     try {
       parsed = parseYAML(input)
@@ -61,6 +70,9 @@ export function formatYAML(input: string, options: FormatOptions): FormatResult 
 
 export function formatJSONL(input: string, options: FormatOptions): FormatResult {
   try {
+    if (!input || typeof input !== 'string') {
+      return { success: false, error: 'Input must be a string' }
+    }
     const lines = input.split('\n').filter(line => line.trim())
     const formattedLines = lines.map(line => {
       let parsed = JSON.parse(line)
@@ -100,6 +112,10 @@ export interface LintError {
 
 export function lintJSON(input: string): LintError[] {
   const errors: LintError[] = []
+  
+  if (!input || typeof input !== 'string') {
+    return [{ line: 1, column: 1, message: 'Input must be a string', type: 'error' }]
+  }
   
   if (!input.trim()) {
     return [{ line: 1, column: 1, message: 'Empty input', type: 'error' }]

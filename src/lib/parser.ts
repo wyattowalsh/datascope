@@ -15,6 +15,8 @@ export interface ParseResult {
 }
 
 export function detectFormat(input: string): DataFormat {
+  if (!input || typeof input !== 'string') return 'unknown'
+  
   const trimmed = input.trim()
   if (!trimmed) return 'unknown'
   
@@ -55,6 +57,13 @@ export function detectFormat(input: string): DataFormat {
 export function parseJSONL(input: string): ParseResult {
   const startTime = performance.now()
   try {
+    if (!input || typeof input !== 'string') {
+      return {
+        success: false,
+        error: 'JSONL Error: Input must be a string',
+        format: 'jsonl'
+      }
+    }
     const lines = input.split('\n').filter(line => line.trim())
     const records = lines.map((line, index) => {
       try {
@@ -88,6 +97,13 @@ export function parseJSONL(input: string): ParseResult {
 export function parseCSV(input: string): ParseResult {
   const startTime = performance.now()
   try {
+    if (!input || typeof input !== 'string') {
+      return { 
+        success: false, 
+        error: 'CSV Error: Input must be a string',
+        format: 'csv' 
+      }
+    }
     const lines = input.split('\n').filter(line => line.trim())
     if (lines.length === 0) {
       return { success: false, error: 'CSV is empty' }
@@ -131,6 +147,10 @@ export function parseCSV(input: string): ParseResult {
 
 export function parseData(input: string, format?: DataFormat): ParseResult {
   const startTime = performance.now()
+  
+  if (!input || typeof input !== 'string') {
+    return { success: false, error: 'Input must be a string' }
+  }
   
   if (!input.trim()) {
     return { success: false, error: 'Input is empty' }
