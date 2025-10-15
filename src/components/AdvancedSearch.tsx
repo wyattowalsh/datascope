@@ -64,12 +64,14 @@ export function AdvancedSearch({ options, onChange, resultCount }: AdvancedSearc
   const hasActiveFilters = options.searchTerm || options.typeFilters.length > 0
 
   return (
-    <Card className="p-5 space-y-5 shadow-lg border-border/60 transition-all duration-300 hover:shadow-xl">
-      <div className="flex items-center gap-2">
-        <MagnifyingGlass size={20} weight="duotone" className="text-primary" />
+    <Card className="p-6 space-y-5 shadow-xl border-border/40 bg-card/50 backdrop-blur-sm transition-all duration-300 hover:shadow-2xl hover:border-border/60">
+      <div className="flex items-center gap-3">
+        <div className="p-2 rounded-xl bg-primary/10">
+          <MagnifyingGlass size={20} weight="duotone" className="text-primary" />
+        </div>
         <h3 className="text-sm font-semibold">Advanced Search</h3>
         {resultCount !== undefined && (
-          <Badge variant="secondary" className="ml-auto shadow-sm">
+          <Badge variant="secondary" className="ml-auto shadow-sm px-3 py-1 font-semibold">
             {resultCount} results
           </Badge>
         )}

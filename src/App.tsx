@@ -15,7 +15,11 @@ import {
   ArrowsIn,
   Gear,
   Graph,
-  TreeStructure
+  TreeStructure,
+  Table,
+  ListBullets,
+  FileCsv,
+  Sparkle
 } from '@phosphor-icons/react'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
@@ -34,7 +38,7 @@ import { GraphVisualization } from '@/components/GraphVisualization'
 import { GraphAnalyticsPanel } from '@/components/GraphAnalyticsPanel'
 import { AdvancedSearch, SearchOptions } from '@/components/AdvancedSearch'
 import { parseData, buildTree, calculateStats, getPathString, advancedSearchNodes, TreeNode, ValueType, DataFormat } from '@/lib/parser'
-import { formatJSON, minifyJSON, formatYAML, lintJSON, FormatOptions, LintError } from '@/lib/formatter'
+import { formatJSON, minifyJSON, formatYAML, formatJSONL, lintJSON, FormatOptions, LintError } from '@/lib/formatter'
 import { buildGraph, analyzeGraph, GraphData, GraphAnalytics } from '@/lib/graph-analyzer'
 import { toast } from 'sonner'
 
@@ -107,6 +111,19 @@ settings:
   theme: dark
   notifications: true
   privacy: null`
+
+const EXAMPLE_JSONL = `{"id": 1, "name": "Alice Johnson", "role": "Engineer", "active": true, "score": 95.5}
+{"id": 2, "name": "Bob Smith", "role": "Designer", "active": true, "score": 87.3}
+{"id": 3, "name": "Carol White", "role": "Manager", "active": false, "score": 92.1}
+{"id": 4, "name": "David Brown", "role": "Engineer", "active": true, "score": 88.7}
+{"id": 5, "name": "Eve Davis", "role": "Analyst", "active": true, "score": 94.2}`
+
+const EXAMPLE_CSV = `name,age,department,salary,active
+John Doe,32,Engineering,85000,true
+Jane Smith,28,Design,78000,true
+Bob Johnson,45,Management,95000,true
+Alice Williams,35,Sales,72000,false
+Charlie Brown,29,Engineering,82000,true`
 
 function App() {
   const [inputValue, setInputValue] = useKV('visualizer-input', '')
@@ -239,30 +256,38 @@ function App() {
     setTimeout(() => setCopiedPath(false), 2000)
   }, [selectedPath])
 
-  const loadExample = useCallback((type: 'json' | 'yaml') => {
-    setInputValue(type === 'json' ? EXAMPLE_JSON : EXAMPLE_YAML)
+  const loadExample = useCallback((type: DataFormat) => {
+    const examples: Record<DataFormat, string> = {
+      json: EXAMPLE_JSON,
+      yaml: EXAMPLE_YAML,
+      jsonl: EXAMPLE_JSONL,
+      csv: EXAMPLE_CSV,
+      json5: EXAMPLE_JSON,
+      unknown: EXAMPLE_JSON
+    }
+    setInputValue(examples[type] || EXAMPLE_JSON)
     setFormat(type)
   }, [setInputValue])
 
   const handleFormat = useCallback((options: FormatOptions) => {
-    if (format === 'json') {
-      const result = formatJSON(inputValue || '', options)
-      if (result.success && result.formatted) {
-        setInputValue(result.formatted)
-        toast.success('JSON formatted successfully')
-        handleParse()
-      } else {
-        toast.error(`Format failed: ${result.error}`)
-      }
+    let result
+    if (format === 'json' || format === 'json5') {
+      result = formatJSON(inputValue || '', options)
+    } else if (format === 'jsonl') {
+      result = formatJSONL(inputValue || '', options)
+    } else if (format === 'yaml') {
+      result = formatYAML(inputValue || '', options)
     } else {
-      const result = formatYAML(inputValue || '', options)
-      if (result.success && result.formatted) {
-        setInputValue(result.formatted)
-        toast.success('YAML formatted successfully')
-        handleParse()
-      } else {
-        toast.error(`Format failed: ${result.error}`)
-      }
+      toast.error('Format not supported for this data type')
+      return
+    }
+    
+    if (result.success && result.formatted) {
+      setInputValue(result.formatted)
+      toast.success(`${format.toUpperCase()} formatted successfully`)
+      handleParse()
+    } else {
+      toast.error(`Format failed: ${result.error}`)
     }
   }, [inputValue, format, setInputValue, handleParse])
 
@@ -311,17 +336,24 @@ function App() {
 
   return (
     <TooltipProvider>
-      <div className="min-h-screen bg-background transition-all duration-[350ms] ease-out">
-        <header className="sticky top-0 z-20 bg-background/85 backdrop-blur-xl border-b border-border/60 shadow-sm transition-all duration-300">
-          <div className="max-w-[1600px] mx-auto px-4 md:px-6 lg:px-8 py-5">
+      <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 transition-all duration-[350ms] ease-out">
+        <header className="sticky top-0 z-20 bg-background/90 backdrop-blur-xl border-b border-border/40 shadow-sm transition-all duration-300">
+          <div className="max-w-[1800px] mx-auto px-4 md:px-6 lg:px-8 py-6">
             <div className="flex items-center justify-between gap-4">
-              <div className="space-y-1">
-                <h1 className="text-xl md:text-2xl font-semibold tracking-tight bg-gradient-to-br from-foreground to-foreground/70 bg-clip-text">
-                  JSON/YAML Visualizer
-                </h1>
-                <p className="text-xs md:text-sm text-muted-foreground">
-                  Parse, explore, analyze, and visualize structured data
-                </p>
+              <div className="space-y-1.5">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-xl bg-gradient-to-br from-primary/20 to-accent/20 backdrop-blur-sm">
+                    <Sparkle size={24} weight="duotone" className="text-primary" />
+                  </div>
+                  <div>
+                    <h1 className="text-xl md:text-2xl lg:text-3xl font-semibold tracking-tight bg-gradient-to-br from-foreground via-foreground to-foreground/60 bg-clip-text">
+                      Data Visualizer Pro
+                    </h1>
+                    <p className="text-xs md:text-sm text-muted-foreground">
+                      Parse, explore, analyze structured data • JSON, YAML, JSONL, CSV
+                    </p>
+                  </div>
+                </div>
               </div>
               
               <Tooltip>
@@ -330,16 +362,16 @@ function App() {
                     variant="outline"
                     size="icon"
                     onClick={toggleTheme}
-                    className="flex-shrink-0 hover:scale-105 transition-transform duration-200 hover:border-primary/50"
+                    className="flex-shrink-0 h-10 w-10 rounded-xl hover:scale-105 transition-all duration-200 hover:border-primary/50 hover:bg-primary/5"
                   >
                     {theme === 'light' ? (
-                      <Moon size={18} weight="duotone" className="transition-transform duration-300" />
+                      <Moon size={20} weight="duotone" className="transition-transform duration-300" />
                     ) : (
-                      <Sun size={18} weight="duotone" className="transition-transform duration-300" />
+                      <Sun size={20} weight="duotone" className="transition-transform duration-300" />
                     )}
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent side="bottom">
+                <TooltipContent side="bottom" className="font-medium">
                   <p>Toggle {theme === 'light' ? 'dark' : 'light'} mode</p>
                 </TooltipContent>
               </Tooltip>
@@ -347,49 +379,74 @@ function App() {
           </div>
         </header>
 
-        <div className="max-w-[1600px] mx-auto p-4 md:p-6 lg:p-8">
+        <div className="max-w-[1800px] mx-auto p-4 md:p-6 lg:p-8">
           <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 lg:gap-8">
             <div className="xl:col-span-2 space-y-6">
-              <Card className="p-5 space-y-5 shadow-lg border-border/60 transition-all duration-300 hover:shadow-xl">
+              <Card className="p-6 space-y-5 shadow-xl border-border/40 bg-card/50 backdrop-blur-sm transition-all duration-300 hover:shadow-2xl hover:border-border/60">
                 <div className="flex items-center justify-between gap-3 flex-wrap">
-                  <Tabs value={format} onValueChange={(v) => setFormat(v as DataFormat)}>
-                    <TabsList className="bg-muted/80">
-                      <TabsTrigger value="json" className="gap-2 data-[state=active]:shadow-sm transition-all duration-200">
+                  <Tabs value={format} onValueChange={(v) => setFormat(v as DataFormat)} className="w-full sm:w-auto">
+                    <TabsList className="grid grid-cols-2 sm:grid-cols-5 bg-muted/80 p-1 rounded-xl">
+                      <TabsTrigger value="json" className="gap-1.5 data-[state=active]:bg-primary/10 data-[state=active]:text-primary data-[state=active]:shadow-sm transition-all duration-200 rounded-lg">
                         <File size={16} weight="duotone" />
-                        <span className="hidden sm:inline">JSON</span>
+                        <span className="text-xs sm:text-sm">JSON</span>
                       </TabsTrigger>
-                      <TabsTrigger value="yaml" className="gap-2 data-[state=active]:shadow-sm transition-all duration-200">
+                      <TabsTrigger value="yaml" className="gap-1.5 data-[state=active]:bg-primary/10 data-[state=active]:text-primary data-[state=active]:shadow-sm transition-all duration-200 rounded-lg">
                         <FileCode size={16} weight="duotone" />
-                        <span className="hidden sm:inline">YAML</span>
+                        <span className="text-xs sm:text-sm">YAML</span>
+                      </TabsTrigger>
+                      <TabsTrigger value="jsonl" className="gap-1.5 data-[state=active]:bg-primary/10 data-[state=active]:text-primary data-[state=active]:shadow-sm transition-all duration-200 rounded-lg">
+                        <ListBullets size={16} weight="duotone" />
+                        <span className="text-xs sm:text-sm">JSONL</span>
+                      </TabsTrigger>
+                      <TabsTrigger value="csv" className="gap-1.5 data-[state=active]:bg-primary/10 data-[state=active]:text-primary data-[state=active]:shadow-sm transition-all duration-200 rounded-lg">
+                        <FileCsv size={16} weight="duotone" />
+                        <span className="text-xs sm:text-sm">CSV</span>
+                      </TabsTrigger>
+                      <TabsTrigger value="json5" className="gap-1.5 data-[state=active]:bg-primary/10 data-[state=active]:text-primary data-[state=active]:shadow-sm transition-all duration-200 rounded-lg">
+                        <Table size={16} weight="duotone" />
+                        <span className="text-xs sm:text-sm">JSON5</span>
                       </TabsTrigger>
                     </TabsList>
                   </Tabs>
 
-                  <div className="flex gap-2 flex-wrap">
-                    <div className="hidden md:flex gap-2">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => loadExample('json')}
-                        className="hover:border-primary/50 transition-all duration-200 hover:scale-105"
-                      >
-                        JSON Example
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => loadExample('yaml')}
-                        className="hover:border-primary/50 transition-all duration-200 hover:scale-105"
-                      >
-                        YAML Example
-                      </Button>
-                    </div>
+                  <div className="flex gap-2 flex-wrap w-full sm:w-auto justify-end">
+                    <DropdownMenu>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <DropdownMenuTrigger asChild>
+                            <Button size="sm" variant="outline" className="gap-2 hover:border-primary/50 transition-all duration-200 rounded-lg hover:bg-primary/5">
+                              <File size={16} weight="duotone" />
+                              <span className="hidden sm:inline">Examples</span>
+                            </Button>
+                          </DropdownMenuTrigger>
+                        </TooltipTrigger>
+                        <TooltipContent side="bottom">Load example data</TooltipContent>
+                      </Tooltip>
+                      <DropdownMenuContent align="end" className="w-48 shadow-xl rounded-xl">
+                        <DropdownMenuItem onClick={() => loadExample('json')} className="gap-2 cursor-pointer rounded-lg">
+                          <File size={16} weight="duotone" />
+                          JSON Example
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => loadExample('yaml')} className="gap-2 cursor-pointer rounded-lg">
+                          <FileCode size={16} weight="duotone" />
+                          YAML Example
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => loadExample('jsonl')} className="gap-2 cursor-pointer rounded-lg">
+                          <ListBullets size={16} weight="duotone" />
+                          JSONL Example
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => loadExample('csv')} className="gap-2 cursor-pointer rounded-lg">
+                          <FileCsv size={16} weight="duotone" />
+                          CSV Example
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                     
                     <DropdownMenu>
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <DropdownMenuTrigger asChild>
-                            <Button size="sm" variant="outline" className="gap-2 hover:border-primary/50 transition-all duration-200">
+                            <Button size="sm" variant="outline" className="gap-2 hover:border-primary/50 transition-all duration-200 rounded-lg hover:bg-primary/5">
                               <Gear size={16} weight="duotone" />
                               <span className="hidden sm:inline">Tools</span>
                             </Button>
@@ -397,28 +454,28 @@ function App() {
                         </TooltipTrigger>
                         <TooltipContent side="bottom">Formatting tools</TooltipContent>
                       </Tooltip>
-                      <DropdownMenuContent align="end" className="w-48 shadow-lg">
-                        <DropdownMenuItem onClick={() => setShowFormatDialog(true)} className="gap-2 cursor-pointer">
+                      <DropdownMenuContent align="end" className="w-52 shadow-xl rounded-xl">
+                        <DropdownMenuItem onClick={() => setShowFormatDialog(true)} className="gap-2 cursor-pointer rounded-lg">
                           <TextAlignLeft size={16} weight="duotone" />
                           Format & Prettify
                         </DropdownMenuItem>
                         <DropdownMenuItem 
                           onClick={handleMinify}
-                          disabled={format !== 'json'}
-                          className="gap-2 cursor-pointer"
+                          disabled={format !== 'json' && format !== 'jsonl'}
+                          className="gap-2 cursor-pointer rounded-lg"
                         >
                           <Minus size={16} weight="duotone" />
                           Minify
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => loadExample(format as 'json' | 'yaml')} className="gap-2 cursor-pointer">
-                          <File size={16} weight="duotone" />
-                          Load Example
-                        </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
 
-                    <Button onClick={handleParse} size="sm" className="shadow-sm hover:shadow transition-all duration-200 hover:scale-105">
-                      Parse
+                    <Button 
+                      onClick={handleParse} 
+                      size="sm" 
+                      className="shadow-md hover:shadow-lg transition-all duration-200 hover:scale-105 bg-gradient-to-r from-primary to-primary/80 rounded-lg font-medium"
+                    >
+                      Parse Data
                     </Button>
                   </div>
                 </div>
@@ -427,7 +484,7 @@ function App() {
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}
                   placeholder={`Paste your ${format.toUpperCase()} data here...`}
-                  className="font-mono text-sm min-h-[200px] resize-y transition-all duration-200 focus:ring-2 focus:ring-primary/20 border-border/60 hover:border-border"
+                  className="font-mono text-sm min-h-[240px] md:min-h-[280px] resize-y transition-all duration-200 focus:ring-2 focus:ring-primary/30 border-border/40 hover:border-border/60 rounded-xl bg-muted/30 focus:bg-background"
                 />
 
                 {showLintErrors && lintErrors.length > 0 && (
@@ -438,7 +495,7 @@ function App() {
                 )}
 
                 {error && !showLintErrors && (
-                  <Alert variant="destructive">
+                  <Alert variant="destructive" className="rounded-xl border-destructive/50 bg-destructive/10">
                     <AlertDescription className="text-sm font-mono">
                       {error}
                     </AlertDescription>
@@ -448,15 +505,15 @@ function App() {
 
               {parsedData && (
                 <>
-                  <Card className="p-5 space-y-5 shadow-lg border-border/60 transition-all duration-300 hover:shadow-xl">
+                  <Card className="p-6 space-y-5 shadow-xl border-border/40 bg-card/50 backdrop-blur-sm transition-all duration-300 hover:shadow-2xl hover:border-border/60">
                     <div className="flex items-center justify-between gap-3 flex-wrap">
                       <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as 'tree' | 'graph')}>
-                        <TabsList className="bg-muted/80">
-                          <TabsTrigger value="tree" className="gap-2 data-[state=active]:shadow-sm transition-all duration-200">
+                        <TabsList className="bg-muted/80 p-1 rounded-xl">
+                          <TabsTrigger value="tree" className="gap-2 data-[state=active]:bg-primary/10 data-[state=active]:text-primary data-[state=active]:shadow-sm transition-all duration-200 rounded-lg">
                             <TreeStructure size={16} weight="duotone" />
                             <span className="hidden sm:inline">Tree View</span>
                           </TabsTrigger>
-                          <TabsTrigger value="graph" className="gap-2 data-[state=active]:shadow-sm transition-all duration-200">
+                          <TabsTrigger value="graph" className="gap-2 data-[state=active]:bg-primary/10 data-[state=active]:text-primary data-[state=active]:shadow-sm transition-all duration-200 rounded-lg">
                             <Graph size={16} weight="duotone" />
                             <span className="hidden sm:inline">Graph View</span>
                           </TabsTrigger>
@@ -471,13 +528,13 @@ function App() {
                                 size="sm"
                                 variant="outline"
                                 onClick={handleExpandAll}
-                                className="hover:border-primary/50 transition-all duration-200 hover:scale-105"
+                                className="hover:border-primary/50 transition-all duration-200 hover:scale-105 rounded-lg hover:bg-primary/5"
                               >
                                 <ArrowsOut size={16} weight="duotone" />
                                 <span className="hidden sm:inline ml-2">Expand All</span>
                               </Button>
                             </TooltipTrigger>
-                            <TooltipContent side="bottom">Expand all nodes</TooltipContent>
+                            <TooltipContent side="bottom" className="font-medium">Expand all nodes</TooltipContent>
                           </Tooltip>
                           
                           <Tooltip>
@@ -486,13 +543,13 @@ function App() {
                                 size="sm"
                                 variant="outline"
                                 onClick={handleCollapseAll}
-                                className="hover:border-primary/50 transition-all duration-200 hover:scale-105"
+                                className="hover:border-primary/50 transition-all duration-200 hover:scale-105 rounded-lg hover:bg-primary/5"
                               >
                                 <ArrowsIn size={16} weight="duotone" />
                                 <span className="hidden sm:inline ml-2">Collapse All</span>
                               </Button>
                             </TooltipTrigger>
-                            <TooltipContent side="bottom">Collapse all nodes</TooltipContent>
+                            <TooltipContent side="bottom" className="font-medium">Collapse all nodes</TooltipContent>
                           </Tooltip>
                         </div>
                       )}
@@ -501,44 +558,48 @@ function App() {
                     {viewMode === 'tree' && (
                       <>
                         {selectedPath.length > 0 && (
-                          <div className="flex items-center gap-2 p-3 bg-muted/60 rounded-lg border border-border/40 backdrop-blur-sm transition-all duration-200 hover:bg-muted/80">
-                            <code className="flex-1 text-xs font-mono truncate text-foreground/90">
+                          <div className="flex items-center gap-2 p-3.5 bg-gradient-to-r from-muted/70 to-muted/50 rounded-xl border border-border/40 backdrop-blur-sm transition-all duration-200 hover:border-primary/30 group">
+                            <code className="flex-1 text-xs font-mono truncate text-foreground/90 group-hover:text-foreground transition-colors">
                               {getPathString(selectedPath, 'dot')}
                             </code>
                             <Button
                               size="icon"
                               variant="ghost"
-                              className="h-7 w-7 flex-shrink-0 hover:bg-primary/10 hover:text-primary transition-all duration-200"
+                              className="h-8 w-8 flex-shrink-0 hover:bg-primary/10 hover:text-primary transition-all duration-200 rounded-lg"
                               onClick={handleCopyPath}
                             >
                               {copiedPath ? (
-                                <Check size={14} className="text-syntax-string" weight="bold" />
+                                <Check size={16} className="text-syntax-string" weight="bold" />
                               ) : (
-                                <Copy size={14} />
+                                <Copy size={16} />
                               )}
                             </Button>
                           </div>
                         )}
 
-                        <Separator className="bg-border/50" />
+                        <Separator className="bg-gradient-to-r from-transparent via-border/60 to-transparent" />
 
-                        <ScrollArea className="h-[500px] rounded-md">
-                          <TreeView
-                            nodes={filteredNodes}
-                            onNodeUpdate={handleNodeUpdate}
-                            selectedPath={selectedPath}
-                            onSelectNode={setSelectedPath}
-                          />
+                        <ScrollArea className="h-[500px] md:h-[560px] rounded-xl border border-border/20">
+                          <div className="p-2">
+                            <TreeView
+                              nodes={filteredNodes}
+                              onNodeUpdate={handleNodeUpdate}
+                              selectedPath={selectedPath}
+                              onSelectNode={setSelectedPath}
+                            />
+                          </div>
                         </ScrollArea>
                       </>
                     )}
 
                     {viewMode === 'graph' && graphData && (
-                      <GraphVisualization 
-                        data={graphData}
-                        onNodeClick={handleGraphNodeClick}
-                        selectedNodeId={selectedPath.length > 0 ? `root.${selectedPath.join('.')}` : 'root'}
-                      />
+                      <div className="rounded-xl border border-border/20 overflow-hidden">
+                        <GraphVisualization 
+                          data={graphData}
+                          onNodeClick={handleGraphNodeClick}
+                          selectedNodeId={selectedPath.length > 0 ? `root.${selectedPath.join('.')}` : 'root'}
+                        />
+                      </div>
                     )}
                   </Card>
                 </>
@@ -563,35 +624,41 @@ function App() {
               )}
               
               {!parsedData && (
-                <Card className="p-8 space-y-6 shadow-lg border-border/60 bg-gradient-to-br from-card to-muted/20">
+                <Card className="p-8 space-y-6 shadow-xl border-border/40 bg-gradient-to-br from-card/50 to-muted/30 backdrop-blur-sm">
                   <div className="flex items-center gap-3 text-foreground/80">
-                    <ChartBar size={24} weight="duotone" className="text-primary" />
-                    <h3 className="text-base font-semibold">Quick Start Guide</h3>
+                    <div className="p-2.5 rounded-xl bg-primary/10">
+                      <ChartBar size={24} weight="duotone" className="text-primary" />
+                    </div>
+                    <h3 className="text-lg font-semibold">Quick Start Guide</h3>
                   </div>
                   <div className="space-y-3 text-sm text-muted-foreground leading-relaxed">
-                    <div className="flex items-start gap-3 p-3 rounded-lg bg-background/50 border border-border/40 transition-all duration-200 hover:border-primary/30">
-                      <span className="text-primary font-semibold flex-shrink-0">1.</span>
-                      <p>Paste JSON or YAML data into the editor</p>
+                    <div className="flex items-start gap-3 p-4 rounded-xl bg-background/50 border border-border/40 transition-all duration-200 hover:border-primary/30 hover:bg-background/70 group">
+                      <span className="text-primary font-bold flex-shrink-0 text-base">1.</span>
+                      <p className="group-hover:text-foreground/80 transition-colors">Select a format (JSON, YAML, JSONL, CSV) and paste your data</p>
                     </div>
-                    <div className="flex items-start gap-3 p-3 rounded-lg bg-background/50 border border-border/40 transition-all duration-200 hover:border-primary/30">
-                      <span className="text-primary font-semibold flex-shrink-0">2.</span>
-                      <p>Click Parse to visualize your data structure</p>
+                    <div className="flex items-start gap-3 p-4 rounded-xl bg-background/50 border border-border/40 transition-all duration-200 hover:border-primary/30 hover:bg-background/70 group">
+                      <span className="text-primary font-bold flex-shrink-0 text-base">2.</span>
+                      <p className="group-hover:text-foreground/80 transition-colors">Click "Parse Data" to visualize structure & analytics</p>
                     </div>
-                    <div className="flex items-start gap-3 p-3 rounded-lg bg-background/50 border border-border/40 transition-all duration-200 hover:border-primary/30">
-                      <span className="text-primary font-semibold flex-shrink-0">3.</span>
-                      <p>Use Tools menu to format or minify content</p>
+                    <div className="flex items-start gap-3 p-4 rounded-xl bg-background/50 border border-border/40 transition-all duration-200 hover:border-primary/30 hover:bg-background/70 group">
+                      <span className="text-primary font-bold flex-shrink-0 text-base">3.</span>
+                      <p className="group-hover:text-foreground/80 transition-colors">Use Tools menu for formatting, minifying, & prettifying</p>
                     </div>
-                    <div className="flex items-start gap-3 p-3 rounded-lg bg-background/50 border border-border/40 transition-all duration-200 hover:border-primary/30">
-                      <span className="text-primary font-semibold flex-shrink-0">4.</span>
-                      <p>Advanced search with regex & path support</p>
+                    <div className="flex items-start gap-3 p-4 rounded-xl bg-background/50 border border-border/40 transition-all duration-200 hover:border-primary/30 hover:bg-background/70 group">
+                      <span className="text-primary font-bold flex-shrink-0 text-base">4.</span>
+                      <p className="group-hover:text-foreground/80 transition-colors">Advanced search with regex, path queries, & type filters</p>
                     </div>
-                    <div className="flex items-start gap-3 p-3 rounded-lg bg-background/50 border border-border/40 transition-all duration-200 hover:border-primary/30">
-                      <span className="text-primary font-semibold flex-shrink-0">5.</span>
-                      <p>Switch between tree and graph views</p>
+                    <div className="flex items-start gap-3 p-4 rounded-xl bg-background/50 border border-border/40 transition-all duration-200 hover:border-primary/30 hover:bg-background/70 group">
+                      <span className="text-primary font-bold flex-shrink-0 text-base">5.</span>
+                      <p className="group-hover:text-foreground/80 transition-colors">Switch between tree & graph visualization modes</p>
                     </div>
-                    <div className="flex items-start gap-3 p-3 rounded-lg bg-background/50 border border-border/40 transition-all duration-200 hover:border-primary/30">
-                      <span className="text-primary font-semibold flex-shrink-0">6.</span>
-                      <p>Explore comprehensive analytics & metrics</p>
+                    <div className="flex items-start gap-3 p-4 rounded-xl bg-background/50 border border-border/40 transition-all duration-200 hover:border-primary/30 hover:bg-background/70 group">
+                      <span className="text-primary font-bold flex-shrink-0 text-base">6.</span>
+                      <p className="group-hover:text-foreground/80 transition-colors">Explore comprehensive analytics, metrics, & insights</p>
+                    </div>
+                    <div className="flex items-start gap-3 p-4 rounded-xl bg-background/50 border border-border/40 transition-all duration-200 hover:border-primary/30 hover:bg-background/70 group">
+                      <span className="text-primary font-bold flex-shrink-0 text-base">7.</span>
+                      <p className="group-hover:text-foreground/80 transition-colors">JSONL support for streaming logs & line-delimited data</p>
                     </div>
                   </div>
                 </Card>

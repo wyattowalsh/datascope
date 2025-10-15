@@ -24,23 +24,25 @@ export function GraphAnalyticsPanel({ analytics }: GraphAnalyticsProps) {
     .slice(0, 5)
 
   return (
-    <Card className="p-6 shadow-lg border-border/60 transition-all duration-300 hover:shadow-xl">
+    <Card className="p-6 shadow-xl border-border/40 bg-card/50 backdrop-blur-sm transition-all duration-300 hover:shadow-2xl hover:border-border/60">
       <div className="flex items-center gap-3 mb-5">
-        <Graph size={22} weight="duotone" className="text-primary" />
+        <div className="p-2 rounded-xl bg-primary/10">
+          <Graph size={22} weight="duotone" className="text-primary" />
+        </div>
         <h3 className="text-sm font-semibold">Graph Analytics</h3>
       </div>
 
       <Tabs defaultValue="metrics" className="w-full">
-        <TabsList className="grid w-full grid-cols-3 bg-muted/80">
-          <TabsTrigger value="metrics" className="text-xs gap-1.5 data-[state=active]:shadow-sm transition-all duration-200">
+        <TabsList className="grid w-full grid-cols-3 bg-muted/80 p-1 rounded-xl">
+          <TabsTrigger value="metrics" className="text-xs gap-1.5 data-[state=active]:bg-primary/10 data-[state=active]:text-primary data-[state=active]:shadow-sm transition-all duration-200 rounded-lg">
             <ChartBar size={14} weight="duotone" />
             Metrics
           </TabsTrigger>
-          <TabsTrigger value="structure" className="text-xs gap-1.5 data-[state=active]:shadow-sm transition-all duration-200">
+          <TabsTrigger value="structure" className="text-xs gap-1.5 data-[state=active]:bg-primary/10 data-[state=active]:text-primary data-[state=active]:shadow-sm transition-all duration-200 rounded-lg">
             <TreeStructure size={14} weight="duotone" />
             Structure
           </TabsTrigger>
-          <TabsTrigger value="centrality" className="text-xs gap-1.5 data-[state=active]:shadow-sm transition-all duration-200">
+          <TabsTrigger value="centrality" className="text-xs gap-1.5 data-[state=active]:bg-primary/10 data-[state=active]:text-primary data-[state=active]:shadow-sm transition-all duration-200 rounded-lg">
             <Target size={14} weight="duotone" />
             Centrality
           </TabsTrigger>
@@ -214,10 +216,10 @@ function MetricCard({
   accent?: 'primary' | 'accent'
 }) {
   const accentColors = accent === 'primary' 
-    ? 'from-primary/10 to-primary/5 border-primary/20'
+    ? 'from-primary/15 to-primary/5 border-primary/30'
     : accent === 'accent'
-    ? 'from-accent/10 to-accent/5 border-accent/20'
-    : 'from-muted/50 to-muted/20 border-border/30'
+    ? 'from-accent/15 to-accent/5 border-accent/30'
+    : 'from-muted/60 to-muted/30 border-border/40'
   
   const textColor = accent === 'primary'
     ? 'text-primary'
@@ -226,10 +228,10 @@ function MetricCard({
     : 'text-foreground'
 
   return (
-    <div className={`space-y-2 p-4 rounded-xl bg-gradient-to-br ${accentColors} border transition-all duration-200 hover:shadow-md`}>
+    <div className={`space-y-2 p-4 rounded-xl bg-gradient-to-br ${accentColors} border transition-all duration-200 hover:shadow-md hover:scale-[1.02]`}>
       <div className="flex items-center gap-2 text-muted-foreground">
         {icon}
-        <p className="text-xs font-medium">{label}</p>
+        <p className="text-xs font-semibold">{label}</p>
       </div>
       <p className={`text-2xl font-bold tabular-nums ${textColor}`}>{value}</p>
     </div>

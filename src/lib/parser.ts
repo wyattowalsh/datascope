@@ -1,20 +1,48 @@
 import { parse as parseYAML } from 'yaml'
 
-export type DataFormat = 'json' | 'yaml' | 'unknown'
+export type DataFormat = 'json' | 'yaml' | 'jsonl' | 'json5' | 'csv' | 'unknown'
 
 export interface ParseResult {
   success: boolean
   data?: any
   error?: string
   format?: DataFormat
+  stats?: {
+    lineCount?: number
+    recordCount?: number
+    parseTime?: number
+  }
 }
 
 export function detectFormat(input: string): DataFormat {
   const trimmed = input.trim()
   if (!trimmed) return 'unknown'
   
+  const lines = trimmed.split('\n').filter(l => l.trim())
+  
+  if (lines.length > 1) {
+    const possibleJsonl = lines.every(line => {
+      const trimmedLine = line.trim()
+      return trimmedLine.startsWith('{') || trimmedLine.startsWith('[')
+    })
+    
+    if (possibleJsonl) {
+      return 'jsonl'
+    }
+  }
+  
   if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
     return 'json'
+  }
+  
+  if (lines.length > 0) {
+    const firstLine = lines[0]
+    if (firstLine.includes(',') && !firstLine.startsWith('{')) {
+      const commaCount = (firstLine.match(/,/g) || []).length
+      if (commaCount > 0) {
+        return 'csv'
+      }
+    }
   }
   
   if (trimmed.includes(':') && !trimmed.startsWith('{')) {
@@ -24,19 +52,112 @@ export function detectFormat(input: string): DataFormat {
   return 'unknown'
 }
 
+export function parseJSONL(input: string): ParseResult {
+  const startTime = performance.now()
+  try {
+    const lines = input.split('\n').filter(line => line.trim())
+    const records = lines.map((line, index) => {
+      try {
+        return JSON.parse(line)
+      } catch (error: any) {
+        throw new Error(`Line ${index + 1}: ${error.message}`)
+      }
+    })
+    
+    const parseTime = performance.now() - startTime
+    
+    return {
+      success: true,
+      data: records,
+      format: 'jsonl',
+      stats: {
+        lineCount: lines.length,
+        recordCount: records.length,
+        parseTime
+      }
+    }
+  } catch (error: any) {
+    return {
+      success: false,
+      error: `JSONL Error: ${error.message}`,
+      format: 'jsonl'
+    }
+  }
+}
+
+export function parseCSV(input: string): ParseResult {
+  const startTime = performance.now()
+  try {
+    const lines = input.split('\n').filter(line => line.trim())
+    if (lines.length === 0) {
+      return { success: false, error: 'CSV is empty' }
+    }
+    
+    const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''))
+    const records = lines.slice(1).map(line => {
+      const values = line.split(',').map(v => v.trim().replace(/^"|"$/g, ''))
+      const record: any = {}
+      headers.forEach((header, index) => {
+        let value: any = values[index] || ''
+        if (value === 'true') value = true
+        else if (value === 'false') value = false
+        else if (value === 'null') value = null
+        else if (!isNaN(Number(value)) && value !== '') value = Number(value)
+        record[header] = value
+      })
+      return record
+    })
+    
+    const parseTime = performance.now() - startTime
+    
+    return {
+      success: true,
+      data: records,
+      format: 'csv',
+      stats: {
+        lineCount: lines.length,
+        recordCount: records.length,
+        parseTime
+      }
+    }
+  } catch (error: any) {
+    return {
+      success: false,
+      error: `CSV Error: ${error.message}`,
+      format: 'csv'
+    }
+  }
+}
+
 export function parseData(input: string, format?: DataFormat): ParseResult {
+  const startTime = performance.now()
+  
   if (!input.trim()) {
     return { success: false, error: 'Input is empty' }
   }
 
   const detectedFormat = format || detectFormat(input)
 
-  if (detectedFormat === 'json' || detectedFormat === 'unknown') {
+  if (detectedFormat === 'jsonl') {
+    return parseJSONL(input)
+  }
+
+  if (detectedFormat === 'csv') {
+    return parseCSV(input)
+  }
+
+  if (detectedFormat === 'json' || detectedFormat === 'json5' || detectedFormat === 'unknown') {
     try {
       const data = JSON.parse(input)
-      return { success: true, data, format: 'json' }
+      const parseTime = performance.now() - startTime
+      return { 
+        success: true, 
+        data, 
+        format: 'json',
+        stats: { parseTime }
+      }
     } catch (jsonError: any) {
-      if (detectedFormat === 'json') {
+      if (detectedFormat === 'json' || detectedFormat === 'json5') {
         const match = jsonError.message.match(/position (\d+)/)
         const position = match ? parseInt(match[1]) : 0
         const lines = input.substring(0, position).split('\n')
@@ -54,7 +175,13 @@ export function parseData(input: string, format?: DataFormat): ParseResult {
   if (detectedFormat === 'yaml' || detectedFormat === 'unknown') {
     try {
       const data = parseYAML(input)
-      return { success: true, data, format: 'yaml' }
+      const parseTime = performance.now() - startTime
+      return { 
+        success: true, 
+        data, 
+        format: 'yaml',
+        stats: { parseTime }
+      }
     } catch (yamlError: any) {
       return {
         success: false,

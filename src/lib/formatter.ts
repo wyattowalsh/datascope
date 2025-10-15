@@ -1,4 +1,4 @@
-import { stringify as stringifyYAML } from 'yaml'
+import { stringify as stringifyYAML, parse as parseYAML } from 'yaml'
 
 export type IndentSize = 2 | 4
 export type IndentType = 'spaces' | 'tabs'
@@ -6,6 +6,7 @@ export type IndentType = 'spaces' | 'tabs'
 export interface FormatOptions {
   indentSize: IndentSize
   indentType: IndentType
+  sortKeys?: boolean
 }
 
 export interface FormatResult {
@@ -16,7 +17,10 @@ export interface FormatResult {
 
 export function formatJSON(input: string, options: FormatOptions): FormatResult {
   try {
-    const parsed = JSON.parse(input)
+    let parsed = JSON.parse(input)
+    if (options.sortKeys) {
+      parsed = sortObjectKeys(parsed)
+    }
     const indent = options.indentType === 'tabs' ? '\t' : ' '.repeat(options.indentSize)
     const formatted = JSON.stringify(parsed, null, indent)
     return { success: true, formatted }
@@ -37,13 +41,54 @@ export function minifyJSON(input: string): FormatResult {
 
 export function formatYAML(input: string, options: FormatOptions): FormatResult {
   try {
-    const parsed = JSON.parse(input)
+    let parsed
+    try {
+      parsed = parseYAML(input)
+    } catch {
+      parsed = JSON.parse(input)
+    }
+    
+    if (options.sortKeys) {
+      parsed = sortObjectKeys(parsed)
+    }
     const indent = options.indentType === 'tabs' ? 1 : options.indentSize
     const formatted = stringifyYAML(parsed, { indent })
     return { success: true, formatted }
   } catch (error: any) {
     return { success: false, error: error.message }
   }
+}
+
+export function formatJSONL(input: string, options: FormatOptions): FormatResult {
+  try {
+    const lines = input.split('\n').filter(line => line.trim())
+    const formattedLines = lines.map(line => {
+      let parsed = JSON.parse(line)
+      if (options.sortKeys) {
+        parsed = sortObjectKeys(parsed)
+      }
+      return JSON.stringify(parsed)
+    })
+    return { success: true, formatted: formattedLines.join('\n') }
+  } catch (error: any) {
+    return { success: false, error: error.message }
+  }
+}
+
+export function sortObjectKeys(obj: any): any {
+  if (obj === null || typeof obj !== 'object') {
+    return obj
+  }
+  
+  if (Array.isArray(obj)) {
+    return obj.map(sortObjectKeys)
+  }
+  
+  const sorted: any = {}
+  Object.keys(obj).sort().forEach(key => {
+    sorted[key] = sortObjectKeys(obj[key])
+  })
+  return sorted
 }
 
 export interface LintError {
