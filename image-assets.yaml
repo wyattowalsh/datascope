@@ -1,0 +1,204 @@
+# DataScope - Image Asset Requirements
+# This file contains a list of useful image assets with associated AI image generation prompts
+# Generate these images using your preferred AI image generator (DALL-E, Midjourney, Stable Diffusion, etc.)
+# Save generated images to src/assets/images/ with the specified filename
+
+assets:
+  - filename: hero-background.png
+    dimensions: 1920x1080
+    format: PNG with transparency
+    purpose: Hero section background image for landing/empty state
+    prompt: |
+      A modern, abstract geometric background with flowing data streams and network nodes.
+      Style: minimalist, gradient from deep indigo to electric purple, subtle grid pattern,
+      floating hexagonal shapes, light particles, tech-inspired, clean and professional.
+      Color palette: blues, purples, teals. Soft glowing effects. 8K, high quality.
+    
+  - filename: graph-visualization-preview.png
+    dimensions: 1200x800
+    format: PNG
+    purpose: Preview image for graph visualization feature
+    prompt: |
+      A beautiful 3D network graph visualization showing interconnected nodes and edges.
+      Glowing spherical nodes in varying sizes connected by luminous lines. Dark background
+      with accent lighting in blue and cyan. Professional data visualization aesthetic.
+      Bokeh effect, depth of field. Scientific yet artistic. Render quality: photorealistic.
+
+  - filename: data-analytics-icon.png
+    dimensions: 512x512
+    format: PNG with transparency
+    purpose: Icon for analytics and statistics features
+    prompt: |
+      A modern, flat design icon representing data analytics. Combines elements of bar charts,
+      pie charts, and trend lines. Gradient from blue to purple. Minimalist style with
+      clean lines. Professional, tech-forward aesthetic. Icon should work at small sizes.
+      No background, transparent PNG.
+
+  - filename: json-yaml-parser-icon.png
+    dimensions: 512x512
+    format: PNG with transparency
+    purpose: Icon for data parsing and format conversion features
+    prompt: |
+      An elegant icon showing curly braces {} transforming into structured data blocks.
+      Gradient from teal to blue. Clean, modern design. Represents JSON/YAML parsing.
+      Minimalist tech aesthetic. Should be recognizable at 32px. Transparent background.
+
+  - filename: tree-structure-visual.png
+    dimensions: 800x600
+    format: PNG
+    purpose: Visual representation of hierarchical tree data structure
+    prompt: |
+      A beautiful visualization of a hierarchical tree data structure. Clean geometric nodes
+      connected by elegant lines forming a tree hierarchy. Gradient colors from root to leaves
+      (purple to teal). Modern, professional data visualization style. White or transparent
+      background. Should feel technical yet approachable.
+
+  - filename: performance-metrics-icon.png
+    dimensions: 512x512
+    format: PNG with transparency
+    purpose: Icon representing performance analysis and speed metrics
+    prompt: |
+      A sleek icon combining a speedometer gauge with digital metrics. Gradient from
+      yellow-orange to blue suggesting speed and performance. Clean, modern design.
+      Dashboard-style aesthetic. Represents performance monitoring. Transparent background.
+      Should work well at 24px and larger.
+
+  - filename: search-filter-icon.png
+    dimensions: 512x512
+    format: PNG with transparency
+    purpose: Icon for advanced search and filtering capabilities
+    prompt: |
+      Modern icon showing a magnifying glass merged with filter/funnel elements and
+      sparkles suggesting smart search. Gradient purple to blue. Clean lines, minimalist.
+      Tech-forward design. Should be clear and recognizable at small sizes. Transparent PNG.
+
+  - filename: empty-state-illustration.png
+    dimensions: 800x600
+    format: PNG with transparency
+    purpose: Illustration for empty/initial state when no data is loaded
+    prompt: |
+      A friendly, minimalist illustration showing an empty document or data file with
+      a gentle invitation to add content. Soft gradients in blue and purple tones.
+      Simple geometric shapes, clean lines. Modern, welcoming aesthetic. Not too busy.
+      Should communicate "ready to start" without being intimidating. Transparent background.
+
+  - filename: export-download-icon.png
+    dimensions: 512x512
+    format: PNG with transparency
+    purpose: Icon for data export and download functionality
+    prompt: |
+      Clean, modern icon showing a downward arrow merging with document/file symbols.
+      Represents data export. Gradient from teal to blue. Minimalist design with
+      professional tech aesthetic. Should work at 20px minimum size. Transparent background.
+      Slight glow or shadow for depth.
+
+  - filename: graph-3d-preview.png
+    dimensions: 1200x800
+    format: PNG
+    purpose: Preview/thumbnail for 3D graph visualization mode
+    prompt: |
+      A stunning 3D force-directed graph floating in space. Glowing spherical nodes of
+      varying sizes connected by luminous edges. Deep space background with subtle nebula.
+      Nodes in gradient colors (blue, purple, teal). Cinematic lighting, depth of field.
+      Futuristic, scientific visualization aesthetic. Photorealistic render quality.
+
+  - filename: insights-ai-icon.png
+    dimensions: 512x512
+    format: PNG with transparency
+    purpose: Icon for AI-powered insights and recommendations
+    prompt: |
+      Modern icon combining a lightbulb with circuit patterns or neural network elements.
+      Represents AI insights and intelligence. Gradient from gold/yellow to purple.
+      Clean, minimalist design. Sparkle or glow effects. Should convey "smart analysis."
+      Transparent background. Recognizable at 24px.
+
+  - filename: complexity-analysis-visual.png
+    dimensions: 800x600
+    format: PNG
+    purpose: Visual for data complexity and quality analysis
+    prompt: |
+      An abstract visualization showing data complexity levels through layered geometric
+      shapes or nested structures. Gradient color coding from green (simple) through
+      yellow and orange to red (complex). Clean, modern design. Professional data
+      visualization style. Suggests depth and analysis.
+
+  - filename: format-convert-icon.png
+    dimensions: 512x512
+    format: PNG with transparency
+    purpose: Icon for format conversion between JSON, YAML, CSV, JSONL
+    prompt: |
+      Icon showing multiple document types or file formats with circular arrows indicating
+      conversion/transformation. Gradient blue to purple. Clean, modern style. Represents
+      data format flexibility. Minimalist design. Transparent background. Should work at 24px.
+
+  - filename: schema-structure-icon.png
+    dimensions: 512x512
+    format: PNG with transparency
+    purpose: Icon for schema extraction and structure analysis
+    prompt: |
+      Modern icon showing a blueprint or schematic design merged with data structures.
+      Represents schema and structural analysis. Gradient teal to blue. Clean geometric
+      shapes. Professional, technical aesthetic. Minimalist design. Transparent background.
+
+  - filename: comparison-diff-icon.png
+    dimensions: 512x512
+    format: PNG with transparency
+    purpose: Icon for data comparison and diff functionality
+    prompt: |
+      Icon showing two overlapping documents or data sets with comparison indicators.
+      Split design suggesting before/after or A/B comparison. Gradient blue to purple.
+      Clean lines, modern style. Represents data comparison. Transparent background.
+      Should be clear at 20px minimum.
+
+  - filename: history-timeline-icon.png
+    dimensions: 512x512
+    format: PNG with transparency
+    purpose: Icon for data history and version tracking
+    prompt: |
+      Modern icon combining a clock or timeline with document layers suggesting version
+      history. Gradient from purple to blue. Clean, minimalist design. Represents temporal
+      data tracking. Should work well at small sizes. Transparent background.
+
+  - filename: keyboard-shortcuts-visual.png
+    dimensions: 800x600
+    format: PNG
+    purpose: Visual for keyboard shortcuts and productivity features
+    prompt: |
+      Stylized illustration of a modern keyboard with highlighted key combinations glowing
+      in blue and purple gradients. Clean, minimalist design. Tech-forward aesthetic.
+      Should feel productive and efficient. Soft shadows, professional look.
+
+  - filename: loading-spinner-custom.png
+    dimensions: 256x256
+    format: PNG with transparency (can be animated GIF/APNG)
+    purpose: Custom loading indicator for data processing
+    prompt: |
+      Elegant, modern loading spinner design. Circular shape with gradient from blue to
+      purple. Clean lines, minimalist. Could be geometric segments or smooth gradient ring.
+      Should convey motion and processing. Transparent background. Tech aesthetic.
+
+  - filename: success-checkmark-icon.png
+    dimensions: 512x512
+    format: PNG with transparency
+    purpose: Success state indicator for completed operations
+    prompt: |
+      Modern checkmark icon with subtle celebration elements (sparkles, particles).
+      Gradient from green to teal. Clean, friendly design. Represents successful completion.
+      Minimalist style with slight glow effect. Transparent background. Should work at 24px.
+
+  - filename: error-warning-icon.png
+    dimensions: 512x512
+    format: PNG with transparency
+    purpose: Error and warning state indicator
+    prompt: |
+      Modern alert/warning icon combining exclamation mark with geometric shapes.
+      Gradient from orange to red. Clean, professional design. Not aggressive but
+      attention-getting. Minimalist style. Transparent background. Clear at small sizes.
+
+# Additional notes:
+# - All gradients should use the app's color palette: primary (indigo/purple #5668e8), accent (cyan/teal #66d9ef)
+# - Maintain consistent visual style across all assets (modern, minimalist, tech-forward)
+# - Ensure all icons work well at multiple sizes (minimum 24px for UI icons)
+# - Consider light and dark mode compatibility
+# - Use smooth gradients and subtle glow effects for premium feel
+# - Keep file sizes reasonable for web (optimize PNGs, use appropriate compression)

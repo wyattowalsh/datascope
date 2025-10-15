@@ -35,12 +35,10 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { TreeView } from '@/components/TreeView'
-import { StatsPanel } from '@/components/StatsPanel'
 import { FormatOptionsDialog } from '@/components/FormatOptionsDialog'
 import { LintErrorsDisplay } from '@/components/LintErrorsDisplay'
 import { GraphVisualization } from '@/components/GraphVisualization'
 import { Graph3DVisualization } from '@/components/Graph3DVisualization'
-import { GraphAnalyticsPanel } from '@/components/GraphAnalyticsPanel'
 import { AdvancedSearch, SearchOptions } from '@/components/AdvancedSearch'
 import { FileInput } from '@/components/FileInput'
 import { ExportDialog } from '@/components/ExportDialog'
@@ -48,10 +46,8 @@ import { SchemaExtractor } from '@/components/SchemaExtractor'
 import { DataTransformer } from '@/components/DataTransformer'
 import { DataComparator } from '@/components/DataComparator'
 import { ShortcutsDialog, useKeyboardShortcuts } from '@/components/ShortcutsDialog'
-import { InsightsPanel } from '@/components/InsightsPanel'
 import { DataHistory, saveToHistory } from '@/components/DataHistory'
-import { EnhancedAnalytics } from '@/components/EnhancedAnalytics'
-import { PerformanceAnalysis } from '@/components/PerformanceAnalysis'
+import { StatsPanel, InsightsPanel, PerformanceAnalysis, GraphAnalyticsPanel } from '@/components/analytics'
 import { parseData, buildTree, calculateStats, getPathString, advancedSearchNodes, TreeNode, ValueType, DataFormat } from '@/lib/parser'
 import { formatJSON, minifyJSON, formatYAML, formatJSONL, lintJSON, FormatOptions, LintError } from '@/lib/formatter'
 import { buildGraph, analyzeGraph, GraphData, GraphAnalytics } from '@/lib/graph-analyzer'
@@ -1039,8 +1035,6 @@ function App() {
                   {parseMetrics && (
                     <PerformanceAnalysis metrics={parseMetrics} />
                   )}
-
-                  {stats && <EnhancedAnalytics stats={stats} data={parsedData} />}
 
                   {stats && <InsightsPanel stats={stats} data={parsedData} />}
 
