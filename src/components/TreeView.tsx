@@ -4,6 +4,7 @@ import { TreeNode, getPathString, ValueType } from '@/lib/parser'
 import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { toast } from 'sonner'
 
 interface TreeViewProps {
@@ -15,18 +16,20 @@ interface TreeViewProps {
 
 export function TreeView({ nodes, onNodeUpdate, selectedPath, onSelectNode }: TreeViewProps) {
   return (
-    <div className="font-mono text-[13px]">
-      {nodes.map((node, index) => (
-        <TreeNodeView
-          key={`${node.path.join('.')}-${index}`}
-          node={node}
-          depth={0}
-          onNodeUpdate={onNodeUpdate}
-          selectedPath={selectedPath}
-          onSelectNode={onSelectNode}
-        />
-      ))}
-    </div>
+    <TooltipProvider>
+      <div className="font-mono text-[13px]">
+        {nodes.map((node, index) => (
+          <TreeNodeView
+            key={`${node.path.join('.')}-${index}`}
+            node={node}
+            depth={0}
+            onNodeUpdate={onNodeUpdate}
+            selectedPath={selectedPath}
+            onSelectNode={onSelectNode}
+          />
+        ))}
+      </div>
+    </TooltipProvider>
   )
 }
 
@@ -54,7 +57,7 @@ function TreeNodeView({ node, depth, onNodeUpdate, selectedPath, onSelectNode }:
     const pathStr = getPathString(node.path, 'dot')
     navigator.clipboard.writeText(pathStr)
     setCopiedPath(true)
-    toast.success('Path copied to clipboard')
+    toast.success('Path copied')
     setTimeout(() => setCopiedPath(false), 2000)
   }
 
@@ -68,32 +71,39 @@ function TreeNodeView({ node, depth, onNodeUpdate, selectedPath, onSelectNode }:
     <div>
       <div
         className={cn(
-          "group flex items-start gap-2 py-1 px-2 hover:bg-muted/50 rounded transition-colors cursor-pointer",
+          "group flex items-start gap-2 py-1.5 px-2 hover:bg-muted/50 rounded transition-colors cursor-pointer min-h-[44px] md:min-h-0",
           isSelected && "bg-accent/10 border-l-2 border-accent"
         )}
-        style={{ paddingLeft: `${depth * 24 + 8}px` }}
+        style={{ paddingLeft: `${depth * (window.innerWidth < 768 ? 16 : 24) + 8}px` }}
         onClick={handleSelect}
       >
         <div className="flex items-center gap-1 min-w-0 flex-1">
           {hasChildren ? (
-            <button
-              onClick={(e) => {
-                e.stopPropagation()
-                handleToggle()
-              }}
-              className="flex-shrink-0 p-0.5 hover:bg-muted rounded transition-colors"
-            >
-              {node.isExpanded ? (
-                <CaretDown size={16} weight="bold" className="text-syntax-bracket" />
-              ) : (
-                <CaretRight size={16} weight="bold" className="text-syntax-bracket" />
-              )}
-            </button>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    handleToggle()
+                  }}
+                  className="flex-shrink-0 p-1 hover:bg-muted rounded transition-colors touch-manipulation"
+                >
+                  {node.isExpanded ? (
+                    <CaretDown size={16} weight="bold" className="text-syntax-bracket" />
+                  ) : (
+                    <CaretRight size={16} weight="bold" className="text-syntax-bracket" />
+                  )}
+                </button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>{node.isExpanded ? 'Collapse' : 'Expand'}</p>
+              </TooltipContent>
+            </Tooltip>
           ) : (
             <div className="w-[24px] flex-shrink-0" />
           )}
 
-          <span className="text-syntax-key font-medium flex-shrink-0">
+          <span className="text-syntax-key font-medium flex-shrink-0 break-all">
             {node.key}
           </span>
           
@@ -104,18 +114,25 @@ function TreeNodeView({ node, depth, onNodeUpdate, selectedPath, onSelectNode }:
           <ValuePreview node={node} />
         </div>
 
-        <Button
-          size="icon"
-          variant="ghost"
-          className="opacity-0 group-hover:opacity-100 transition-opacity h-6 w-6 flex-shrink-0"
-          onClick={handleCopyPath}
-        >
-          {copiedPath ? (
-            <Check size={14} className="text-syntax-string" />
-          ) : (
-            <Copy size={14} />
-          )}
-        </Button>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              size="icon"
+              variant="ghost"
+              className="opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8 md:h-6 md:w-6 flex-shrink-0 touch-manipulation"
+              onClick={handleCopyPath}
+            >
+              {copiedPath ? (
+                <Check size={14} className="text-syntax-string" />
+              ) : (
+                <Copy size={14} />
+              )}
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Copy path</p>
+          </TooltipContent>
+        </Tooltip>
       </div>
 
       {hasChildren && node.isExpanded && node.children && (
@@ -194,7 +211,7 @@ function ValuePreview({ node }: { node: TreeNode }) {
   if (node.type === 'string') {
     const preview = node.value.length > 50 ? node.value.substring(0, 50) + '...' : node.value
     return (
-      <span className={cn("truncate", colorMap[node.type])}>
+      <span className={cn("truncate break-all", colorMap[node.type])}>
         "{preview}"
       </span>
     )
@@ -209,7 +226,7 @@ function ValuePreview({ node }: { node: TreeNode }) {
   }
 
   return (
-    <span className={cn("truncate", colorMap[node.type])}>
+    <span className={cn("truncate break-all", colorMap[node.type])}>
       {String(node.value)}
     </span>
   )

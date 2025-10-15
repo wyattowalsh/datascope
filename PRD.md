@@ -1,14 +1,14 @@
 # Planning Guide
 
-A professional tool for developers to visualize, explore, and analyze JSON and YAML data with powerful search, filtering, and navigation capabilities.
+A professional, beautiful developer tool for visualizing, exploring, and analyzing JSON and YAML data with powerful search, filtering, formatting, and navigation capabilities.
 
 **Experience Qualities**:
-1. **Efficient** - Instant parsing and responsive interactions that help developers work faster
-2. **Clear** - Visual hierarchy and syntax highlighting make complex data structures immediately understandable
-3. **Powerful** - Advanced features like path copying, type filtering, and deep search without overwhelming the interface
+1. **Efficient** - Instant parsing, responsive interactions, and formatting tools that help developers work faster
+2. **Clear** - Visual hierarchy, syntax highlighting, and adaptive theming make complex data structures immediately understandable
+3. **Powerful** - Advanced features like path copying, type filtering, deep search, formatting/linting, and customization without overwhelming the interface
 
 **Complexity Level**: Light Application (multiple features with basic state)
-  - Multiple coordinated features (parsing, search, filtering, tree navigation) with persistent state for user preferences and current data
+  - Multiple coordinated features (parsing, search, filtering, tree navigation, formatting, theme switching) with persistent state for user preferences and current data
 
 ## Essential Features
 
@@ -47,37 +47,78 @@ A professional tool for developers to visualize, explore, and analyze JSON and Y
 - **Progression**: Parse data → Calculate metrics → Display in stats panel → Update on filter changes
 - **Success criteria**: Accurate counts, instant updates, helpful metrics
 
+### JSON/YAML Formatting & Linting
+- **Functionality**: Format/prettify JSON with customizable indent (2/4 spaces, tabs), minify, validate and show lint errors
+- **Purpose**: Clean up messy data, reduce size, or standardize formatting
+- **Trigger**: Click format/minify buttons in toolbar
+- **Progression**: Click format → Select indent preference → Apply formatting → Update display → Show success toast
+- **Success criteria**: Proper indentation, maintains data integrity, smooth visual update
+
+### Light/Dark Mode Toggle
+- **Functionality**: Switch between light and dark themes with persistent preference
+- **Purpose**: Reduce eye strain and match user's environment/preference
+- **Trigger**: Click theme toggle button in header
+- **Progression**: Click toggle → Theme switches instantly → Save preference → Persist across sessions
+- **Success criteria**: Smooth transition, all colors adapt properly, preference remembered
+
 ## Edge Case Handling
 - **Empty Input**: Show helpful placeholder with example JSON/YAML to get started
 - **Invalid Syntax**: Display detailed error message with line/column numbers and helpful fix suggestions
-- **Very Large Files**: Handle large documents gracefully with virtual scrolling and performance warnings
-- **Deep Nesting**: Limit initial expansion depth, provide expand-all option with warning for deep structures
+- **Very Large Files**: Handle large documents gracefully with virtual scrolling and performance warnings (10k+ nodes)
+- **Deep Nesting**: Limit initial expansion depth, provide expand-all option with warning for deep structures (20+ levels)
 - **Special Characters**: Properly escape and display unicode, emojis, and special chars in values
 - **Circular References**: Detect and display warning (JSON only, as YAML can have anchors/aliases)
+- **Mixed Format**: Auto-detect format and guide user to correct tab
+- **Malformed Formatting**: Provide lint errors with helpful suggestions when formatting fails
+- **Theme Transitions**: Ensure smooth color transitions without flashing on theme change
+- **Mobile Interactions**: Handle touch gestures, prevent zoom on double-tap, optimize for small screens
 
 ## Design Direction
-The design should feel professional, technical, and elegant - like a premium developer tool. Clean, monospace typography for code, with a sophisticated color-coded syntax highlighting system. Minimal but powerful interface where function is immediately visible.
+The design should feel professional, elegant, and adaptive - like a premium developer tool that works beautifully in any lighting condition. Clean, monospace typography for code with sophisticated color-coded syntax highlighting. Smooth theme transitions between light and dark modes. Minimal but powerful interface where function is immediately visible. Modern glassmorphic touches and subtle shadows that adapt to the current theme.
 
 ## Color Selection
-Custom palette with syntax-highlighting inspired colors that feel technical yet refined.
+Dual-palette system with carefully balanced light and dark modes, both featuring syntax-highlighting inspired colors that feel technical yet refined.
 
-- **Primary Color**: Deep Blue (#2563eb) - Professional, trustworthy, represents structure and logic
-- **Secondary Colors**: Muted slate backgrounds for code areas, soft borders for subtle separation
-- **Accent Color**: Electric Cyan (#06b6d4) for interactive elements and highlights - draws attention without being harsh
+**Light Mode Palette:**
+- **Primary Color**: Vibrant Blue (oklch(0.53 0.197 264.05)) - Professional, energetic, represents clarity and structure
+- **Secondary Colors**: Soft slate backgrounds (oklch(0.96 0.002 247.86)) for subtle contrast and visual breathing room
+- **Accent Color**: Bright Cyan (oklch(0.69 0.134 210.42)) for interactive highlights and active states - modern and eye-catching
+- **Background**: Near-white (oklch(0.99 0 0)) with very light warmth for reduced eye strain
 - **Foreground/Background Pairings**:
-  - Background (Light Gray #fafafa): Dark text (#0a0a0a) - Ratio 19.5:1 ✓
-  - Card (White #ffffff): Dark text (#0a0a0a) - Ratio 21:1 ✓
-  - Primary (Deep Blue #2563eb): White text (#ffffff) - Ratio 7.1:1 ✓
-  - Accent (Cyan #06b6d4): White text (#ffffff) - Ratio 4.8:1 ✓
-  - Muted (Light Slate #f1f5f9): Medium text (#475569) - Ratio 7.2:1 ✓
+  - Background (oklch(0.99 0 0)): Dark text (oklch(0.09 0 0)) - Ratio 16.8:1 ✓
+  - Card (oklch(1 0 0)): Dark text (oklch(0.09 0 0)) - Ratio 18.2:1 ✓
+  - Primary (oklch(0.53 0.197 264.05)): White text (oklch(0.99 0 0)) - Ratio 6.8:1 ✓
+  - Accent (oklch(0.69 0.134 210.42)): White text (oklch(0.99 0 0)) - Ratio 4.9:1 ✓
+  - Muted (oklch(0.96 0.002 247.86)): Medium text (oklch(0.48 0.014 252.73)) - Ratio 8.1:1 ✓
 
-**Syntax Highlighting Colors**:
-- String values: Emerald green (#10b981)
-- Number values: Orange (#f59e0b)
-- Boolean values: Purple (#a855f7)
-- Null values: Gray (#6b7280)
-- Keys: Dark blue (#1e40af)
-- Brackets/Braces: Slate (#64748b)
+**Dark Mode Palette:**
+- **Primary Color**: Bright Blue (oklch(0.64 0.25 265.75)) - Luminous against dark, maintains brand identity
+- **Secondary Colors**: Deep slate backgrounds (oklch(0.18 0.01 250)) for rich depth
+- **Accent Color**: Electric Cyan (oklch(0.75 0.15 210)) for vibrant highlights that pop in darkness
+- **Background**: True dark (oklch(0.12 0.01 250)) with slight cool tone for OLED-friendly display
+- **Foreground/Background Pairings**:
+  - Background (oklch(0.12 0.01 250)): Light text (oklch(0.95 0.01 250)) - Ratio 15.2:1 ✓
+  - Card (oklch(0.15 0.01 250)): Light text (oklch(0.95 0.01 250)) - Ratio 13.8:1 ✓
+  - Primary (oklch(0.64 0.25 265.75)): Dark text (oklch(0.12 0.01 250)) - Ratio 7.2:1 ✓
+  - Accent (oklch(0.75 0.15 210)): Dark text (oklch(0.12 0.01 250)) - Ratio 8.6:1 ✓
+  - Muted (oklch(0.18 0.01 250)): Light muted text (oklch(0.62 0.02 250)) - Ratio 7.4:1 ✓
+
+**Syntax Highlighting Colors (Adaptive):**
+- Light Mode:
+  - String values: Emerald (oklch(0.64 0.15 163.23))
+  - Number values: Amber (oklch(0.72 0.16 65.28))
+  - Boolean values: Purple (oklch(0.64 0.19 305.48))
+  - Null values: Slate (oklch(0.54 0.02 247.86))
+  - Keys: Deep blue (oklch(0.42 0.12 264.05))
+  - Brackets: Medium slate (oklch(0.52 0.02 252.73))
+
+- Dark Mode:
+  - String values: Bright emerald (oklch(0.72 0.18 163))
+  - Number values: Bright amber (oklch(0.78 0.18 65))
+  - Boolean values: Bright purple (oklch(0.72 0.22 305))
+  - Null values: Light slate (oklch(0.62 0.03 250))
+  - Keys: Bright blue (oklch(0.68 0.15 265))
+  - Brackets: Light slate (oklch(0.58 0.03 250))
 
 ## Font Selection
 Monospace fonts for code display convey precision and technical accuracy, while clean sans-serif for UI elements maintains readability and modern aesthetics.
@@ -92,10 +133,10 @@ Monospace fonts for code display convey precision and technical accuracy, while 
   - Stats/Meta: Inter Regular/12px/subtle gray
 
 ## Animations
-Subtle, functional animations that provide feedback without slowing down the workflow - drawer slides, smooth tree expansion, and highlight pulses.
+Purposeful, smooth animations that provide visual feedback and guide attention without interrupting workflow - theme transitions, tree expansions, and interactive states.
 
-- **Purposeful Meaning**: Expand/collapse animations communicate hierarchy changes, search highlights pulse briefly to catch attention, copy confirmations fade smoothly
-- **Hierarchy of Movement**: Tree expand/collapse is primary (300ms smooth), search highlights are secondary (200ms), tooltips and hovers are tertiary (100ms)
+- **Purposeful Meaning**: Theme transitions smoothly morph colors (300ms), expand/collapse animations communicate hierarchy changes (250ms), search highlights pulse briefly to catch attention (200ms), copy confirmations fade smoothly (150ms), format changes animate gracefully (200ms)
+- **Hierarchy of Movement**: Theme switch is primary (300ms with easing), tree expand/collapse is secondary (250ms smooth), button interactions and hovers are tertiary (150ms), tooltips appear quickly (100ms)
 
 ## Component Selection
 - **Components**: 
@@ -103,40 +144,51 @@ Subtle, functional animations that provide feedback without slowing down the wor
   - Tabs for JSON/YAML format switching
   - Input/Textarea for data entry with monospace styling
   - Badge for type indicators (string, number, object, array, etc.)
-  - Button for actions (parse, copy, expand all, collapse all)
+  - Button for actions (parse, copy, expand all, collapse all, format, minify)
   - ScrollArea for tree view to handle large documents
   - Alert for error messages with helpful context
   - Separator for visual section division
-  - Tooltip for path previews and keyboard shortcuts
-  - Sheet/Drawer for stats panel on mobile
+  - Tooltip for path previews, keyboard shortcuts, and feature hints
+  - Sheet/Drawer for stats panel and filters on mobile
+  - Dialog for format options (indent size, style preferences)
+  - Switch for theme toggle (light/dark)
+  - DropdownMenu for formatting options
   
 - **Customizations**: 
   - Custom Tree component with recursive rendering
-  - Custom syntax highlighting for values
+  - Custom syntax highlighting for values (theme-aware)
   - Custom path breadcrumb component
   - Copy button with success state animation
+  - Format toolbar with indent options
+  - Theme toggle with smooth transition
   
 - **States**: 
-  - Buttons: Default (with icon), Hover (slight scale + bg change), Active (pressed effect), Disabled (grayed when no data)
-  - Tree Nodes: Collapsed (chevron right), Expanded (chevron down), Matched (highlighted bg), Selected (accent border)
-  - Input: Empty (placeholder), Valid (green border), Invalid (red border + error text)
+  - Buttons: Default (with icon), Hover (slight lift + bg change), Active (pressed effect), Disabled (grayed when no data), Loading (spinner for format operations)
+  - Tree Nodes: Collapsed (chevron right), Expanded (chevron down), Matched (highlighted bg), Selected (accent border), Hover (subtle bg)
+  - Input: Empty (placeholder), Valid (success border), Invalid (error border + message), Formatting (brief overlay)
+  - Theme: Light (bright, high contrast), Dark (rich, deep colors), Transition (smooth 300ms morph)
   
 - **Icon Selection**: 
   - MagnifyingGlass for search
   - Funnel for filters
-  - Copy for path copying
+  - Copy/Check for path copying with success state
   - CaretRight/CaretDown for tree expansion
-  - FileJson for JSON
-  - FileCode for YAML
+  - File/FileCode for JSON/YAML tabs
   - ChartBar for statistics
-  - Check for copy success
+  - Sun/Moon for theme toggle
+  - TextAlignLeft/TextAlignJustify for format/minify
+  - Gear for settings
+  - ArrowsOut/ArrowsIn for expand/collapse all
   
-- **Spacing**: Consistent use of Tailwind spacing - gap-4 for major sections, gap-2 for related elements, p-6 for cards, p-4 for compact areas, p-1 for tight groups
+- **Spacing**: Consistent use of Tailwind spacing - gap-6 for major sections, gap-4 for related groups, gap-2 for tight elements, p-6 for cards, p-4 for compact areas, p-2 for minimal padding
 
 - **Mobile**: 
-  - Stack input and tree view vertically on mobile
-  - Stats panel becomes a bottom sheet/drawer
-  - Reduce tree indentation from 24px to 16px
-  - Larger touch targets (44px min) for expand/collapse
-  - Sticky search bar at top
-  - Collapsible filter chips instead of full filter panel
+  - Stack input and tree view vertically on mobile (<768px)
+  - Stats panel becomes a bottom sheet/drawer with swipe gesture
+  - Reduce tree indentation from 24px to 16px on mobile
+  - Larger touch targets (44px min) for all interactive elements
+  - Sticky header with theme toggle and essential controls
+  - Format options in dropdown menu instead of inline buttons
+  - Collapsible filter chips instead of full filter sheet
+  - Responsive font sizes (14px → 13px for code on mobile)
+  - Bottom toolbar for primary actions (parse, format) on mobile

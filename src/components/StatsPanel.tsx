@@ -1,6 +1,7 @@
 import { DataStats, ValueType } from '@/lib/parser'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { Progress } from '@/components/ui/progress'
 
 interface StatsInfo {
   label: string
@@ -17,6 +18,8 @@ export function StatsPanel({ stats }: { stats: DataStats }) {
       type
     }))
 
+  const totalValues = Object.values(stats.typeCount).reduce((sum, count) => sum + count, 0)
+
   const colorMap: Record<ValueType, string> = {
     string: 'bg-syntax-string/10 text-syntax-string border-syntax-string/20',
     number: 'bg-syntax-number/10 text-syntax-number border-syntax-number/20',
@@ -26,35 +29,55 @@ export function StatsPanel({ stats }: { stats: DataStats }) {
     object: 'bg-accent/10 text-accent border-accent/20'
   }
 
+  const progressColorMap: Record<ValueType, string> = {
+    string: '[&>div]:bg-syntax-string',
+    number: '[&>div]:bg-syntax-number',
+    boolean: '[&>div]:bg-syntax-boolean',
+    null: '[&>div]:bg-syntax-null',
+    array: '[&>div]:bg-primary',
+    object: '[&>div]:bg-accent'
+  }
+
   return (
-    <Card className="p-4">
-      <h3 className="text-sm font-semibold mb-3">Statistics</h3>
+    <Card className="p-4 md:p-6">
+      <h3 className="text-sm font-semibold mb-4">Statistics</h3>
       
-      <div className="space-y-3">
-        <div className="grid grid-cols-2 gap-3">
+      <div className="space-y-4">
+        <div className="grid grid-cols-2 gap-4">
           <div className="space-y-1">
             <p className="text-xs text-muted-foreground">Total Keys</p>
-            <p className="text-2xl font-semibold">{stats.totalKeys}</p>
+            <p className="text-2xl font-semibold tabular-nums">{stats.totalKeys}</p>
           </div>
           
           <div className="space-y-1">
             <p className="text-xs text-muted-foreground">Max Depth</p>
-            <p className="text-2xl font-semibold">{stats.maxDepth}</p>
+            <p className="text-2xl font-semibold tabular-nums">{stats.maxDepth}</p>
           </div>
         </div>
 
-        <div className="space-y-2">
+        <div className="space-y-3">
           <p className="text-xs text-muted-foreground font-medium">Type Distribution</p>
-          <div className="flex flex-wrap gap-2">
-            {typeStats.map(({ label, value, type }) => (
-              <Badge
-                key={label}
-                variant="outline"
-                className={type ? colorMap[type] : ''}
-              >
-                {label}: {value}
-              </Badge>
-            ))}
+          <div className="space-y-2">
+            {typeStats.map(({ label, value, type }) => {
+              const percentage = totalValues > 0 ? (Number(value) / totalValues) * 100 : 0
+              return (
+                <div key={label} className="space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <Badge
+                      variant="outline"
+                      className={type ? colorMap[type] : ''}
+                    >
+                      {label}
+                    </Badge>
+                    <span className="text-sm font-medium tabular-nums">{value}</span>
+                  </div>
+                  <Progress 
+                    value={percentage} 
+                    className={type ? progressColorMap[type] : ''}
+                  />
+                </div>
+              )
+            })}
           </div>
         </div>
       </div>
