@@ -48,6 +48,11 @@ import { DataComparator } from '@/components/DataComparator'
 import { ShortcutsDialog, useKeyboardShortcuts } from '@/components/ShortcutsDialog'
 import { DataHistory, saveToHistory } from '@/components/DataHistory'
 import { StatsPanel, InsightsPanel, PerformanceAnalysis, GraphAnalyticsPanel } from '@/components/analytics'
+import { QuickActionsPanel } from '@/components/QuickActionsPanel'
+import { DataValidator } from '@/components/DataValidator'
+import { QuickViewPanel } from '@/components/QuickViewPanel'
+import { FavoritesPanel } from '@/components/FavoritesPanel'
+import { SmartSuggestionsPanel } from '@/components/SmartSuggestionsPanel'
 import { parseData, buildTree, calculateStats, getPathString, advancedSearchNodes, TreeNode, ValueType, DataFormat } from '@/lib/parser'
 import { formatJSON, minifyJSON, formatYAML, formatJSONL, lintJSON, FormatOptions, LintError } from '@/lib/formatter'
 import { buildGraph, analyzeGraph, GraphData, GraphAnalytics } from '@/lib/graph-analyzer'
@@ -1026,11 +1031,44 @@ function App() {
             <div className="space-y-6">
               {parsedData && (
                 <>
+                  <QuickActionsPanel
+                    onFormat={() => setShowFormatDialog(true)}
+                    onMinify={handleMinify}
+                    onExport={() => setShowExportDialog(true)}
+                    onValidate={handleParse}
+                    onCopyAll={() => {
+                      navigator.clipboard.writeText(inputValue || '')
+                      toast.success('Data copied to clipboard')
+                    }}
+                    hasData={!!parsedData}
+                  />
+
                   <AdvancedSearch 
                     options={searchOptions}
                     onChange={setSearchOptions}
                     resultCount={searchResultCount}
                   />
+
+                  <SmartSuggestionsPanel
+                    parsedData={parsedData}
+                    onSwitchToGraph={() => setViewMode('graph')}
+                    onSearch={() => searchInputRef.current?.focus()}
+                    onTransform={() => setToolsExpanded(true)}
+                    onExport={() => setShowExportDialog(true)}
+                    onShowAnalytics={() => {}}
+                  />
+
+                  <QuickViewPanel 
+                    data={parsedData}
+                    selectedPath={selectedPath}
+                  />
+
+                  <FavoritesPanel
+                    currentPath={selectedPath}
+                    onNavigate={setSelectedPath}
+                  />
+
+                  <DataValidator data={parsedData} />
 
                   {parseMetrics && (
                     <PerformanceAnalysis metrics={parseMetrics} />

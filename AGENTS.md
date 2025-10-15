@@ -2,11 +2,13 @@
 
 ## 📋 Project Overview
 
-**DataScope** is a professional data exploration, visualization, and analytics platform for structured data formats. It's a React/TypeScript web application built with Vite, featuring advanced graph visualizations, multi-format parsing, AI-powered insights, and comprehensive data analytics.
+**DataScope** is a professional, user-friendly data exploration, visualization, and analytics platform for structured data formats. It's a React/TypeScript web application built with Vite, featuring advanced graph visualizations, multi-format parsing, AI-powered insights, comprehensive data analytics, and intelligent user assistance features.
 
 **Live URL**: https://datascope.w4w.dev  
 **Tech Stack**: React 19, TypeScript, Vite, Tailwind CSS v4, D3.js, Three.js, shadcn/ui v4  
-**Purpose**: Parse, visualize, analyze, and transform structured data (JSON, YAML, JSONL, CSV) with professional-grade tools
+**Purpose**: Parse, visualize, analyze, and transform structured data (JSON, YAML, JSONL, CSV) with professional-grade tools and smart suggestions
+
+**Latest Update**: Enhanced with Quick Actions, Smart Suggestions, Data Validation, Quick View, Favorites, and improved user experience
 
 ---
 
@@ -46,13 +48,18 @@ Charts: Recharts for analytics
 │   │   ├── FileInput.tsx          # File/URL data loader
 │   │   ├── ExportDialog.tsx       # Multi-format export
 │   │   ├── FormatOptionsDialog.tsx # Format settings
-│   │   ├── LintErrorsDisplay.tsx  # JSON linting errors
+│   │   ├── LintErrorsDisplay.tsx   # JSON linting errors
 │   │   ├── SchemaExtractor.tsx    # JSON Schema generator
 │   │   ├── DataTransformer.tsx    # JS transformation engine
 │   │   ├── DataComparator.tsx     # Data diff tool
 │   │   ├── DataHistory.tsx        # History management
 │   │   ├── InsightsPanel.tsx      # AI-powered insights
-│   │   └── ShortcutsDialog.tsx    # Keyboard shortcuts
+│   │   ├── ShortcutsDialog.tsx    # Keyboard shortcuts
+│   │   ├── QuickActionsPanel.tsx  # NEW: One-click operations
+│   │   ├── DataValidator.tsx      # NEW: Real-time validation
+│   │   ├── QuickViewPanel.tsx     # NEW: Selected node preview
+│   │   ├── FavoritesPanel.tsx     # NEW: Bookmark paths
+│   │   └── SmartSuggestionsPanel.tsx # NEW: Context-aware tips
 │   ├── hooks/
 │   │   ├── use-mobile.ts          # Mobile breakpoint detection
 │   │   └── use-theme.ts           # Theme management (light/dark)
@@ -78,7 +85,58 @@ Charts: Recharts for analytics
 
 ## 🎯 Core Features & Capabilities
 
-### 1. Multi-Format Data Parsing
+### 1. Quick Actions Panel (NEW)
+- **Functionality**: One-click access to common operations - Prettify, Minify, Validate, Copy All, Export
+- **Purpose**: Streamline workflow with instant access to frequently used actions
+- **Trigger**: Automatically displayed in sidebar when data is parsed
+- **Progression**: Parse data → See quick actions → Click action → Operation executes → See recent action history
+- **Success criteria**: All actions work instantly; visual feedback on each action; maintains history of recent operations; disabled when no data present
+
+**Key Files**:
+- `src/components/QuickActionsPanel.tsx` - Quick actions component with action tracking
+
+### 2. Data Validation (NEW)
+- **Functionality**: Real-time data quality analysis with scoring, issue detection, and actionable suggestions
+- **Purpose**: Help users identify and fix data quality issues before processing
+- **Trigger**: Automatically runs when data is parsed
+- **Progression**: Parse data → Validate structure → Calculate quality score → Identify issues → Show suggestions
+- **Success criteria**: Accurate quality scoring (0-100); detects common issues (empty objects, deep nesting, invalid keys); provides helpful fix suggestions; categorizes issues by severity (error/warning/info)
+
+**Key Files**:
+- `src/components/DataValidator.tsx` - Validation logic and UI
+- Issues detected: empty objects/arrays, deep nesting, duplicate keys, numeric keys, mixed array types, whitespace issues, invalid numbers
+
+### 3. Quick View Panel (NEW)
+- **Functionality**: Live preview of selected node with type info, value display, and copy functionality
+- **Purpose**: Instantly see details of any selected node without expanding the tree
+- **Trigger**: Automatically updates when user selects any node in tree view
+- **Progression**: Select node → View type badge → See value preview → Copy if needed
+- **Success criteria**: Real-time updates on selection; shows appropriate preview for each type; handles strings, numbers, booleans, arrays, objects; displays metadata (length, key count)
+
+**Key Files**:
+- `src/components/QuickViewPanel.tsx` - Selected node preview with type-specific rendering
+
+### 4. Favorites/Bookmarks (NEW)
+- **Functionality**: Save and quickly navigate to frequently accessed data paths
+- **Purpose**: Enable quick access to important paths in complex data structures
+- **Trigger**: Click "Add" button to bookmark current path, or navigate from favorites list
+- **Progression**: Navigate to path → Click Add → Path saved → Access from favorites list → One-click navigation/copy
+- **Success criteria**: Persists favorites between sessions; shows path details; one-click navigation; bulk clear option; visual feedback on duplicate attempts
+
+**Key Files**:
+- `src/components/FavoritesPanel.tsx` - Bookmark management with persistence via useKV
+
+### 5. Smart Suggestions (NEW)
+- **Functionality**: Context-aware recommendations based on data structure and content
+- **Purpose**: Guide users to relevant features and optimal workflows for their specific data
+- **Trigger**: Automatically analyzes data structure and shows relevant suggestions
+- **Progression**: Parse data → Analyze structure → Generate suggestions → Show actionable recommendations
+- **Success criteria**: Suggests graph view for complex structures; recommends search for arrays; suggests transformations for nested data; adapts to data characteristics; maximum 4 suggestions shown
+
+**Key Files**:
+- `src/components/SmartSuggestionsPanel.tsx` - Intelligent recommendation engine
+
+### 6. Multi-Format Data Input & Parsing
 - **Formats Supported**: JSON, YAML, JSONL (line-delimited), CSV, JSON5
 - **Auto-Detection**: Intelligent format detection from content structure
 - **Error Handling**: Detailed parse errors with line/column numbers
@@ -89,7 +147,7 @@ Charts: Recharts for analytics
 - `src/App.tsx` (lines 422-454) - Format detection logic
 - `src/App.tsx` (lines 468-508) - Parse handler
 
-### 2. Dual Visualization Modes
+### 7. Dual Visualization Modes
 
 #### Tree View
 - Recursive collapsible tree structure
@@ -121,7 +179,7 @@ Charts: Recharts for analytics
 - `src/components/Graph3DVisualization.tsx` - 3D visualization
 - `src/lib/graph-analyzer.ts` - Graph construction & metrics
 
-### 3. Advanced Search & Filtering
+### 8. Advanced Search & Filtering
 - **Search Modes**: Text, Regex, Path-based
 - **Options**: Case sensitive, whole word matching
 - **Type Filters**: Filter by object/array/string/number/boolean/null
@@ -132,7 +190,7 @@ Charts: Recharts for analytics
 - `src/lib/parser.ts` - `advancedSearchNodes()` function
 - `src/App.tsx` (lines 664-685) - Search logic
 
-### 4. Data Analytics & Insights
+### 9. Data Analytics & Insights
 
 #### Statistics Panel
 - Total keys, max depth, type distribution
@@ -161,7 +219,7 @@ Charts: Recharts for analytics
 - `src/lib/graph-analyzer.ts` - `analyzeGraph()` function
 - `src/lib/parser.ts` - `calculateStats()` function
 
-### 5. Data Transformation Tools
+### 10. Data Transformation Tools
 
 #### Schema Extractor
 - Auto-generate JSON Schema (Draft-07)
@@ -185,7 +243,7 @@ Charts: Recharts for analytics
 - `src/components/DataTransformer.tsx`
 - `src/components/DataComparator.tsx`
 
-### 6. File I/O & Export
+### 11. File I/O & Export
 
 #### Input Methods
 - **Paste**: Direct text input with auto-format detection
@@ -201,7 +259,7 @@ Charts: Recharts for analytics
 - `src/components/FileInput.tsx` - File/URL loader
 - `src/components/ExportDialog.tsx` - Export functionality
 
-### 7. Formatting & Linting
+### 12. Formatting & Linting
 - JSON prettify with indent options (2/4 spaces, tabs)
 - Alphabetical key sorting
 - Minify JSON/JSONL
@@ -213,7 +271,7 @@ Charts: Recharts for analytics
 - `src/components/FormatOptionsDialog.tsx` - Format settings
 - `src/components/LintErrorsDisplay.tsx` - Error display
 
-### 8. Persistence & History
+### 13. Persistence & History
 - **useKV Hook**: Persistent key-value store (survives page refresh)
 - Input data persisted automatically
 - History of last 10 datasets with timestamps
@@ -225,7 +283,7 @@ Charts: Recharts for analytics
 - `src/components/DataHistory.tsx` - History management
 - Import: `import { useKV } from '@github/spark/hooks'`
 
-### 9. Keyboard Shortcuts
+### 14. Keyboard Shortcuts
 - `Ctrl+P` - Parse data
 - `Ctrl+E` - Export
 - `Ctrl+K` - Focus search
@@ -241,7 +299,7 @@ Charts: Recharts for analytics
 - `src/components/ShortcutsDialog.tsx` - Shortcuts UI & logic
 - `src/App.tsx` (lines 693-705) - Shortcut handlers
 
-### 10. Theme System
+### 15. Theme System
 - **Light Mode**: Bright, clean, professional
 - **Dark Mode**: Rich, deep, luminous accents
 - **Smooth Transitions**: 350ms color morphing
@@ -252,6 +310,41 @@ Charts: Recharts for analytics
 - `src/hooks/use-theme.ts` - Theme management
 - `src/index.css` - Color variables (lines 137-223)
 - `src/main.css` - Dark mode overrides (lines 73-105)
+
+---
+
+## 🆕 Recent Improvements & New Features
+
+### User Experience Enhancements (Latest Update)
+
+#### Quick Actions Panel
+One-click access to the most common operations saves users time and reduces cognitive load. Features action history tracking to show recent operations.
+
+#### Data Validation
+Real-time quality analysis helps users identify and fix issues before they cause problems. Provides a 0-100 quality score with categorized issues (errors, warnings, info) and actionable suggestions for improvement.
+
+#### Quick View Panel
+Eliminates the need to expand nodes to see their values. Shows type-specific previews with relevant metadata (string length, array size, object keys) and provides instant copy functionality.
+
+#### Favorites/Bookmarks
+Users can save important paths for quick access later. Especially useful for large, complex data structures where finding specific paths repeatedly is time-consuming.
+
+#### Smart Suggestions
+Context-aware recommendations guide users to relevant features based on their specific data structure. Helps new users discover functionality and experienced users optimize their workflow.
+
+### Architecture Improvements
+- Enhanced TypeScript type safety across new components
+- Consistent use of useKV for persistent state management
+- Modular component design for easy maintenance
+- Responsive design with mobile-first approach
+- Optimized performance with useMemo for expensive calculations
+
+### Design System Refinements
+- Consistent glassmorphic styling across all new panels
+- Smooth hover animations and transitions
+- Color-coded type indicators for better visual scanning
+- Icon consistency using Phosphor duotone weight
+- Proper spacing and alignment throughout
 
 ---
 
@@ -761,6 +854,11 @@ import logoSvg from '@/assets/images/logo.svg'
 - Theme system with persistence
 - History management
 - Google Analytics integration
+- **Quick Actions Panel** (NEW)
+- **Data Validation with Quality Scoring** (NEW)
+- **Quick View for Selected Nodes** (NEW)
+- **Favorites/Bookmarks System** (NEW)
+- **Smart Suggestions Engine** (NEW)
 
 ### Known Issues 🐛
 - 3D graph performance with large datasets (optimize rendering)
@@ -888,9 +986,9 @@ import logoSvg from '@/assets/images/logo.svg'
 
 ---
 
-**Last Updated**: 2024-01-XX  
-**Agent Version**: 1.0  
-**Project Version**: 2.5.0
+**Last Updated**: 2024-03-21  
+**Agent Version**: 2.0  
+**Project Version**: 2.6.0 (Enhanced UX Update)
 
 ---
 

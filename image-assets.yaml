@@ -212,3 +212,14 @@ style_guidelines:
       - Use appropriate resolution
       - Include @2x variants for retina
       - Maximum 200KB file size
+    svg_requirements:
+      - Remove unnecessary metadata
+      - Optimize paths and shapes
+      - Use viewBox for scalability
+      - Clean readable code
+      - Maximum 50KB file size
+    png_requirements:
+      - Compress with tools like TinyPNG
+      - Use appropriate resolution
+      - Include @2x variants for retina
+      - Maximum 200KB file size
