@@ -1,6 +1,6 @@
 # Planning Guide
 
-A professional, powerful developer tool for exploring, visualizing, and analyzing structured data across multiple formats (JSON, YAML, JSONL, CSV) with advanced graph analytics, multiple layout options, flexible file input methods, interactive exploration, comprehensive search capabilities, beautiful data visualization, AI-powered insights, data transformation engine, schema generation, comparison tools, keyboard shortcuts, and persistent history. Enhanced with premium UI/UX featuring glassmorphic design, sophisticated animations, and delightful micro-interactions. Deployed at https://datascope.w4w.dev
+A professional, powerful developer tool for exploring, visualizing, and analyzing structured data across multiple formats (JSON, YAML, JSONL, CSV) with advanced graph analytics, multiple layout options, flexible file input methods, interactive exploration, comprehensive search capabilities, beautiful data visualization, AI-powered insights, data transformation engine, schema generation, comparison tools, keyboard shortcuts, persistent history, enhanced complexity analysis, performance metrics, and data quality scoring. Enhanced with premium UI/UX featuring glassmorphic design, sophisticated animations, and delightful micro-interactions. Deployed at https://datascope.w4w.dev
 
 **Experience Qualities**:
 1. **Versatile** - Supports JSON, YAML, JSONL, CSV formats with auto-detection, flexible file/URL loading, and intelligent format conversion
@@ -76,11 +76,11 @@ A professional, powerful developer tool for exploring, visualizing, and analyzin
 - **Success criteria**: Instant filtering, accurate regex matching, path-based search, persistent filter state, clear result highlighting
 
 ### Graph Analytics & Metrics
-- **Functionality**: Comprehensive graph analysis including centrality, clustering, density, diameter, branching factor, and depth distribution
-- **Purpose**: Provide deep insights into data structure complexity and relationships
+- **Functionality**: Comprehensive graph analysis including centrality, clustering, density, diameter, branching factor, depth distribution, plus enhanced complexity scoring, data quality analysis, and real-time performance metrics
+- **Purpose**: Provide deep insights into data structure complexity, relationships, quality, and processing performance
 - **Trigger**: Automatic calculation after successful parsing
-- **Progression**: Parse data → Build graph → Calculate metrics → Display analytics → Show depth/type distribution → Rank by centrality
-- **Success criteria**: Accurate mathematical calculations, meaningful visualizations, organized presentation across multiple tabs
+- **Progression**: Parse data → Build graph → Calculate metrics → Display analytics → Show depth/type distribution → Rank by centrality → Analyze complexity → Score quality → Track performance
+- **Success criteria**: Accurate mathematical calculations, meaningful visualizations, organized presentation across multiple tabs, complexity scoring (Simple/Moderate/Complex/Very Complex), quality rating (0-100), performance benchmarking
 
 ### Statistics & Analysis
 - **Functionality**: Real-time stats - total keys, max depth, type distribution with progress bars and percentages
@@ -130,6 +130,13 @@ A professional, powerful developer tool for exploring, visualizing, and analyzin
 - **Trigger**: Automatic analysis when data is parsed successfully
 - **Progression**: Parse data → Analyze structure → Detect patterns/issues → Generate insights → Display categorized recommendations (tips/warnings/info/trends)
 - **Success criteria**: Detects deep nesting, null prevalence, schema consistency, data types, array structures; provides actionable recommendations; color-coded by insight type
+
+### Enhanced Analytics & Intelligence
+- **Functionality**: Advanced complexity analysis with scoring (Simple to Very Complex), data quality assessment (0-100 score), density metrics (branching factor, width distribution), and real-time performance profiling
+- **Purpose**: Provide professional-grade insights into data structure quality, complexity, and processing efficiency
+- **Trigger**: Automatic analysis on successful parse
+- **Progression**: Parse complete → Calculate complexity score → Analyze quality metrics → Measure density patterns → Profile performance → Display insights across tabs
+- **Success criteria**: Accurate complexity classification, meaningful quality scoring with issues/strengths, density visualization, parse time tracking, throughput calculation, actionable recommendations
 
 ### Keyboard Shortcuts
 - **Functionality**: Comprehensive keyboard shortcuts for all major actions with discoverable shortcut panel

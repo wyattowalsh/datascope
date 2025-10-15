@@ -50,6 +50,8 @@ import { DataComparator } from '@/components/DataComparator'
 import { ShortcutsDialog, useKeyboardShortcuts } from '@/components/ShortcutsDialog'
 import { InsightsPanel } from '@/components/InsightsPanel'
 import { DataHistory, saveToHistory } from '@/components/DataHistory'
+import { EnhancedAnalytics } from '@/components/EnhancedAnalytics'
+import { PerformanceAnalysis } from '@/components/PerformanceAnalysis'
 import { parseData, buildTree, calculateStats, getPathString, advancedSearchNodes, TreeNode, ValueType, DataFormat } from '@/lib/parser'
 import { formatJSON, minifyJSON, formatYAML, formatJSONL, lintJSON, FormatOptions, LintError } from '@/lib/formatter'
 import { buildGraph, analyzeGraph, GraphData, GraphAnalytics } from '@/lib/graph-analyzer'
@@ -407,6 +409,7 @@ function App() {
   const [graphAnalytics, setGraphAnalytics] = useState<GraphAnalytics | null>(null)
   const [viewMode, setViewMode] = useState<'tree' | 'graph' | 'graph3d'>('tree')
   const [toolsExpanded, setToolsExpanded] = useState(false)
+  const [parseMetrics, setParseMetrics] = useState<{parseTime: number, dataSize: number, nodeCount: number, edgeCount: number} | null>(null)
   const searchInputRef = useRef<HTMLInputElement>(null)
   const [history, setHistory] = useKV<any[]>('data-history', [])
   const [searchOptions, setSearchOptions] = useState<SearchOptions>({
@@ -466,7 +469,9 @@ function App() {
   }, [])
 
   const handleParse = useCallback(() => {
+    const startTime = performance.now()
     const result = parseData(inputValue || '', detectedFormat)
+    const parseTime = performance.now() - startTime
     
     if (result.success && result.data) {
       setParsedData(result.data)
@@ -480,6 +485,13 @@ function App() {
       
       const analytics = analyzeGraph(graph)
       setGraphAnalytics(analytics)
+      
+      setParseMetrics({
+        parseTime,
+        dataSize: new Blob([inputValue || '']).size,
+        nodeCount: graph.nodes.length,
+        edgeCount: graph.links.length
+      })
       
       if (detectedFormat === 'json') {
         const errors = lintJSON(inputValue || '')
@@ -499,6 +511,7 @@ function App() {
       setTreeNodes([])
       setGraphData(null)
       setGraphAnalytics(null)
+      setParseMetrics(null)
       setError(result.error || 'Failed to parse')
       setLintErrors([])
       setShowLintErrors(false)
@@ -774,56 +787,50 @@ function App() {
         <div className="max-w-[1800px] mx-auto p-4 md:p-6 lg:p-8 relative z-10">
           <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 lg:gap-8">
             <div className="xl:col-span-2 space-y-6">
-              <Card className="p-6 space-y-5 shadow-2xl border-border/50 bg-card/70 backdrop-blur-md transition-all duration-300 hover:shadow-[0_20px_70px_-15px_rgba(0,0,0,0.3)] hover:border-primary/30 hover:bg-card/80 group relative overflow-hidden">
+              <Card className="p-4 md:p-5 space-y-4 shadow-2xl border-border/50 bg-card/70 backdrop-blur-md transition-all duration-300 hover:shadow-[0_20px_70px_-15px_rgba(0,0,0,0.3)] hover:border-primary/30 hover:bg-card/80 group relative overflow-hidden">
                 <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
                 
-                <div className="flex items-center justify-between gap-3 flex-wrap relative z-10">
-                  <div className="flex items-center gap-3 px-4 py-2.5 rounded-xl bg-gradient-to-r from-primary/15 via-accent/15 to-primary/10 border border-primary/30 shadow-lg shadow-primary/10 backdrop-blur-sm hover:shadow-xl hover:shadow-primary/20 transition-all duration-300">
-                    <div className="flex items-center gap-2">
-                      <div className="relative">
-                        <div className="w-2.5 h-2.5 rounded-full bg-primary animate-pulse" />
-                        <div className="absolute inset-0 w-2.5 h-2.5 rounded-full bg-primary animate-ping opacity-75" />
-                      </div>
-                      <span className="text-sm font-semibold text-foreground/90 tracking-wide">Auto-detected:</span>
-                    </div>
-                    <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-primary/20 border border-primary/40 shadow-inner">
-                      {detectedFormat === 'json' && <File size={16} weight="duotone" className="text-primary" />}
-                      {detectedFormat === 'yaml' && <FileCode size={16} weight="duotone" className="text-primary" />}
-                      {detectedFormat === 'jsonl' && <ListBullets size={16} weight="duotone" className="text-primary" />}
-                      {detectedFormat === 'csv' && <FileCsv size={16} weight="duotone" className="text-primary" />}
-                      {detectedFormat === 'json5' && <Table size={16} weight="duotone" className="text-primary" />}
-                      <span className="text-sm font-bold text-primary uppercase tracking-wider">{detectedFormat}</span>
+                <div className="flex items-center justify-between gap-2 flex-wrap relative z-10">
+                  <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gradient-to-r from-primary/15 via-accent/15 to-primary/10 border border-primary/30 shadow-md">
+                      <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+                      {detectedFormat === 'json' && <File size={14} weight="duotone" className="text-primary" />}
+                      {detectedFormat === 'yaml' && <FileCode size={14} weight="duotone" className="text-primary" />}
+                      {detectedFormat === 'jsonl' && <ListBullets size={14} weight="duotone" className="text-primary" />}
+                      {detectedFormat === 'csv' && <FileCsv size={14} weight="duotone" className="text-primary" />}
+                      {detectedFormat === 'json5' && <Table size={14} weight="duotone" className="text-primary" />}
+                      <span className="text-xs font-bold text-primary uppercase tracking-wider">{detectedFormat}</span>
                     </div>
                   </div>
 
-                  <div className="flex gap-2 flex-wrap w-full sm:w-auto justify-end">
+                  <div className="flex gap-1.5 flex-wrap">
                     <DropdownMenu>
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <DropdownMenuTrigger asChild>
-                            <Button size="sm" variant="outline" className="gap-2 hover:border-primary/50 transition-all duration-200 rounded-lg hover:bg-primary/10 hover:shadow-md hover:shadow-primary/20">
-                              <File size={16} weight="duotone" />
-                              <span className="hidden sm:inline">Examples</span>
+                            <Button size="sm" variant="outline" className="h-8 px-3 gap-1.5 hover:border-primary/50 transition-all duration-200 rounded-lg hover:bg-primary/10">
+                              <File size={14} weight="duotone" />
+                              <span className="text-xs">Examples</span>
                             </Button>
                           </DropdownMenuTrigger>
                         </TooltipTrigger>
                         <TooltipContent side="bottom">Load example data</TooltipContent>
                       </Tooltip>
-                      <DropdownMenuContent align="end" className="w-48 shadow-xl rounded-xl">
-                        <DropdownMenuItem onClick={() => loadExample('json')} className="gap-2 cursor-pointer rounded-lg">
-                          <File size={16} weight="duotone" />
+                      <DropdownMenuContent align="end" className="w-44 shadow-xl rounded-xl">
+                        <DropdownMenuItem onClick={() => loadExample('json')} className="gap-2 cursor-pointer rounded-lg text-sm">
+                          <File size={14} weight="duotone" />
                           JSON Example
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => loadExample('yaml')} className="gap-2 cursor-pointer rounded-lg">
-                          <FileCode size={16} weight="duotone" />
+                        <DropdownMenuItem onClick={() => loadExample('yaml')} className="gap-2 cursor-pointer rounded-lg text-sm">
+                          <FileCode size={14} weight="duotone" />
                           YAML Example
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => loadExample('jsonl')} className="gap-2 cursor-pointer rounded-lg">
-                          <ListBullets size={16} weight="duotone" />
+                        <DropdownMenuItem onClick={() => loadExample('jsonl')} className="gap-2 cursor-pointer rounded-lg text-sm">
+                          <ListBullets size={14} weight="duotone" />
                           JSONL Example
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => loadExample('csv')} className="gap-2 cursor-pointer rounded-lg">
-                          <FileCsv size={16} weight="duotone" />
+                        <DropdownMenuItem onClick={() => loadExample('csv')} className="gap-2 cursor-pointer rounded-lg text-sm">
+                          <FileCsv size={14} weight="duotone" />
                           CSV Example
                         </DropdownMenuItem>
                       </DropdownMenuContent>
@@ -833,25 +840,25 @@ function App() {
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <DropdownMenuTrigger asChild>
-                            <Button size="sm" variant="outline" className="gap-2 hover:border-primary/50 transition-all duration-200 rounded-lg hover:bg-primary/10 hover:shadow-md hover:shadow-primary/20">
-                              <Gear size={16} weight="duotone" />
-                              <span className="hidden sm:inline">Tools</span>
+                            <Button size="sm" variant="outline" className="h-8 px-3 gap-1.5 hover:border-primary/50 transition-all duration-200 rounded-lg hover:bg-primary/10">
+                              <Gear size={14} weight="duotone" />
+                              <span className="text-xs">Tools</span>
                             </Button>
                           </DropdownMenuTrigger>
                         </TooltipTrigger>
                         <TooltipContent side="bottom">Formatting tools</TooltipContent>
                       </Tooltip>
-                      <DropdownMenuContent align="end" className="w-52 shadow-xl rounded-xl">
-                        <DropdownMenuItem onClick={() => setShowFormatDialog(true)} className="gap-2 cursor-pointer rounded-lg">
-                          <TextAlignLeft size={16} weight="duotone" />
+                      <DropdownMenuContent align="end" className="w-48 shadow-xl rounded-xl">
+                        <DropdownMenuItem onClick={() => setShowFormatDialog(true)} className="gap-2 cursor-pointer rounded-lg text-sm">
+                          <TextAlignLeft size={14} weight="duotone" />
                           Format & Prettify
                         </DropdownMenuItem>
                         <DropdownMenuItem 
                           onClick={handleMinify}
                           disabled={detectedFormat !== 'json' && detectedFormat !== 'jsonl'}
-                          className="gap-2 cursor-pointer rounded-lg"
+                          className="gap-2 cursor-pointer rounded-lg text-sm"
                         >
-                          <Minus size={16} weight="duotone" />
+                          <Minus size={14} weight="duotone" />
                           Minify
                         </DropdownMenuItem>
                       </DropdownMenuContent>
@@ -862,19 +869,19 @@ function App() {
                         onClick={() => setShowExportDialog(true)} 
                         size="sm"
                         variant="outline"
-                        className="gap-2 hover:border-accent/50 transition-all duration-200 rounded-lg hover:bg-accent/10 hover:shadow-md hover:shadow-accent/20"
+                        className="h-8 px-3 gap-1.5 hover:border-accent/50 transition-all duration-200 rounded-lg hover:bg-accent/10"
                       >
-                        <Download size={16} weight="duotone" />
-                        <span className="hidden sm:inline">Export</span>
+                        <Download size={14} weight="duotone" />
+                        <span className="text-xs">Export</span>
                       </Button>
                     )}
 
                     <Button 
                       onClick={handleParse} 
                       size="sm" 
-                      className="shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 bg-gradient-to-r from-primary via-primary to-primary/80 rounded-lg font-semibold hover:from-primary/90 hover:via-primary hover:to-primary/70"
+                      className="h-8 px-3 shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 bg-gradient-to-r from-primary via-primary to-primary/80 rounded-lg font-semibold text-xs"
                     >
-                      Parse Data
+                      Parse
                     </Button>
                   </div>
                 </div>
@@ -882,16 +889,8 @@ function App() {
                 <Textarea
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}
-                  placeholder={`Paste your ${detectedFormat.toUpperCase()} data here or load from file/URL...
-
-Examples:
-• JSON: {"key": "value", "nested": {"data": true}}
-• YAML: key: value\\n  nested:\\n    data: true
-• JSONL: {"event": "login", "user": 123}\\n{"event": "logout", "user": 123}
-• CSV: name,age,city\\nAlice,30,NYC\\nBob,25,LA
-
-Format will be auto-detected. Click "Parse Data" when ready!`}
-                  className="font-mono text-sm min-h-[240px] md:min-h-[280px] resize-y transition-all duration-200 focus:ring-2 focus:ring-primary/30 border-border/50 hover:border-border/70 rounded-xl bg-muted/40 focus:bg-background shadow-inner hover:shadow-lg"
+                  placeholder={`Paste ${detectedFormat.toUpperCase()} data or load from file/URL...\n\n• JSON: {"key": "value"}\n• YAML: key: value\n• JSONL: {...}\\n{...}\n• CSV: name,age\\nAlice,30`}
+                  className="font-mono text-xs md:text-sm min-h-[180px] md:min-h-[200px] resize-y transition-all duration-200 focus:ring-2 focus:ring-primary/30 border-border/50 hover:border-border/70 rounded-xl bg-muted/40 focus:bg-background shadow-inner hover:shadow-lg"
                 />
 
                 {showLintErrors && lintErrors.length > 0 && (
@@ -903,7 +902,7 @@ Format will be auto-detected. Click "Parse Data" when ready!`}
 
                 {error && !showLintErrors && (
                   <Alert variant="destructive" className="rounded-xl border-destructive/50 bg-destructive/10">
-                    <AlertDescription className="text-sm font-mono">
+                    <AlertDescription className="text-xs md:text-sm font-mono">
                       {error}
                     </AlertDescription>
                   </Alert>
@@ -1037,6 +1036,12 @@ Format will be auto-detected. Click "Parse Data" when ready!`}
                     resultCount={searchResultCount}
                   />
 
+                  {parseMetrics && (
+                    <PerformanceAnalysis metrics={parseMetrics} />
+                  )}
+
+                  {stats && <EnhancedAnalytics stats={stats} data={parsedData} />}
+
                   {stats && <InsightsPanel stats={stats} data={parsedData} />}
 
                   {stats && <StatsPanel stats={stats} />}
@@ -1169,7 +1174,7 @@ Format will be auto-detected. Click "Parse Data" when ready!`}
               Docs
             </a>
             <span>•</span>
-            <span className="font-medium">© 2024 DataScope</span>
+            <span className="font-medium">© {new Date().getFullYear()} DataScope</span>
           </div>
         </div>
       </footer>
