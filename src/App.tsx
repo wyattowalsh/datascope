@@ -22,7 +22,8 @@ import {
   Download,
   Toolbox,
   Keyboard,
-  Cube
+  Cube,
+  Book
 } from '@phosphor-icons/react'
 import logoSvg from '@/assets/images/logo.svg'
 import { Button } from '@/components/ui/button'
@@ -392,7 +393,11 @@ const EXAMPLE_CSV = `userId,username,email,signupDate,subscription,monthlySpend,
 1014,olivia_brown,olivia.b@agency.uk,2023-05-03,premium,89.99,true,UK,2024-03-20T15:22:17Z,267,11.3,2969.67
 1015,pierre_dubois,p.dubois@tech.fr,2023-03-17,enterprise,249.99,true,France,2024-03-20T12:44:29Z,612,28.7,13499.45`
 
-function App() {
+interface AppProps {
+  onNavigateToDocs?: () => void
+}
+
+function App({ onNavigateToDocs }: AppProps = {}) {
   const [inputValue, setInputValue] = useKV('visualizer-input', '')
   const [detectedFormat, setDetectedFormat] = useState<DataFormat>('json')
   const [parsedData, setParsedData] = useState<any>(null)
@@ -745,6 +750,24 @@ function App() {
               </div>
               
               <div className="flex gap-2 items-center">
+                {onNavigateToDocs && (
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={onNavigateToDocs}
+                        className="flex-shrink-0 h-10 w-10 rounded-xl hover:scale-105 transition-all duration-200 hover:border-primary/50 hover:bg-primary/10 hover:shadow-lg hover:shadow-primary/20 group"
+                      >
+                        <Book size={20} weight="duotone" className="transition-transform duration-300 group-hover:scale-110" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom" className="font-medium">
+                      <p>Documentation</p>
+                    </TooltipContent>
+                  </Tooltip>
+                )}
+
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <Button

@@ -1,0 +1,86 @@
+---
+title: Getting Started
+description: Learn how to use DataScope for data exploration and visualization
+---
+
+## Installation & Setup
+
+DataScope is a Spark application built with React and Vite. To run it locally:
+
+```bash
+npm install
+npm run dev
+```
+
+The app will be available at the URL provided by Vite.
+
+## Loading Data
+
+### Paste Data Directly
+Simply paste your JSON, YAML, JSONL, or CSV data into the text area. The format will be automatically detected.
+
+### Load from File
+Use the **File Input** panel on the right sidebar to:
+- Upload files from your computer
+- Load data from URLs
+- Access recent history
+
+### Try Examples
+Click the **Examples** dropdown to load sample data:
+- JSON - Organization structure
+- YAML - Kubernetes deployment
+- JSONL - Application logs
+- CSV - User analytics
+
+## Understanding the Interface
+
+### Main Input Area
+- Large textarea for pasting or editing data
+- Format detection badge showing the detected format
+- Tools dropdown for formatting and minifying
+- Parse button to process the data
+
+### Visualization Panel
+After parsing, you'll see three view modes:
+- **Tree** - Hierarchical structure with expand/collapse
+- **2D Graph** - Interactive force-directed graph
+- **3D Graph** - 3D spatial visualization
+
+### Right Sidebar
+Multiple analysis panels:
+- Quick Actions - Common operations
+- Advanced Search - Regex and type filters  
+- Smart Suggestions - Context-aware recommendations
+- Quick View - Selected node details
+- Favorites - Save important paths
+- Data Validator - Quality checks
+- Performance Metrics
+- Statistics Panel
+- Graph Analytics
+
+## Basic Workflow
+
+1. **Load Data** - Paste, upload, or use examples
+2. **Parse** - Click the Parse button (or press `Cmd/Ctrl + S`)
+3. **Explore** - Navigate the tree or graph visualization
+4. **Search** - Use advanced search to find specific values
+5. **Analyze** - Review statistics and analytics
+6. **Transform** - Apply transformations if needed
+7. **Export** - Download in various formats
+
+## Keyboard Shortcuts
+
+Press `?` to view all keyboard shortcuts. Common ones:
+
+- `Cmd/Ctrl + S` - Parse data
+- `Cmd/Ctrl + /` - Focus search
+- `Cmd/Ctrl + E` - Export data
+- `Cmd/Ctrl + T` - Toggle theme
+- `Cmd/Ctrl + 1` - Switch to Tree view
+- `Cmd/Ctrl + 2` - Switch to Graph view
+
+## Next Steps
+
+- [Learn about Features](/docs/features)
+- [Explore the Architecture](/docs/architecture)
+- [View API Reference](/docs/api)

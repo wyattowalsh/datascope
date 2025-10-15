@@ -1,0 +1,252 @@
+---
+title: Architecture
+description: Technical architecture and design decisions behind DataScope
+---
+
+## Technology Stack
+
+### Core Framework
+- **React 19** - Latest React with concurrent features
+- **TypeScript** - Type-safe development
+- **Vite** - Fast build tooling and HMR
+
+### UI Framework
+- **Tailwind CSS v4** - Utility-first CSS with new engine
+- **shadcn/ui v4** - Composable component library
+- **Radix UI** - Accessible primitives
+- **Phosphor Icons** - Duotone icon system
+
+### Data Processing
+- **YAML** - YAML parsing library
+- **D3.js** - Data visualization and graph layouts
+- **Three.js** - 3D rendering and WebGL
+
+### State Management
+- **React Hooks** - Built-in state management
+- **Spark KV Store** - Persistent key-value storage
+- **useKV Hook** - Reactive persistent state
+
+## Project Structure
+
+```
+spark-template/
+├── src/
+│   ├── App.tsx                 # Main application component
+│   ├── components/
+│   │   ├── ui/                 # shadcn components (40+)
+│   │   ├── TreeView.tsx        # Hierarchical tree visualization
+│   │   ├── GraphVisualization.tsx    # 2D graph with D3
+│   │   ├── Graph3DVisualization.tsx  # 3D graph with Three.js
+│   │   ├── AdvancedSearch.tsx  # Search interface
+│   │   ├── FileInput.tsx       # File loading
+│   │   ├── ExportDialog.tsx    # Export functionality
+│   │   ├── SchemaExtractor.tsx # Schema generation
+│   │   ├── DataTransformer.tsx # Data transformation
+│   │   ├── DataComparator.tsx  # Data comparison
+│   │   ├── DataValidator.tsx   # Validation tools
+│   │   ├── QuickActionsPanel.tsx
+│   │   ├── SmartSuggestionsPanel.tsx
+│   │   ├── FavoritesPanel.tsx
+│   │   └── analytics/          # Analytics components
+│   ├── lib/
+│   │   ├── parser.ts           # Data parsing logic
+│   │   ├── formatter.ts        # Formatting utilities
+│   │   ├── graph-analyzer.ts   # Graph algorithms
+│   │   ├── analytics.ts        # GTM tracking
+│   │   └── utils.ts            # Shared utilities
+│   ├── hooks/
+│   │   ├── use-mobile.ts       # Responsive breakpoint
+│   │   └── use-theme.ts        # Theme management
+│   ├── index.css               # Global styles & theme
+│   └── main.tsx                # Application entry
+├── content/docs/               # Documentation (MDX)
+├── source.config.ts            # Fumadocs configuration
+└── package.json
+```
+
+## Core Components
+
+### App.tsx
+
+Main application orchestrator:
+- State management for parsed data
+- View mode switching (tree/2D/3D)
+- Search and filter coordination
+- History tracking
+- Analytics integration
+
+### Parser (lib/parser.ts)
+
+Multi-format parsing engine:
+- Format detection heuristics
+- JSON/JSON5/JSONL parsing
+- YAML parsing
+- CSV parsing with type inference
+- Tree structure building
+- Statistics calculation
+
+### Graph Analyzer (lib/graph-analyzer.ts)
+
+Graph computation engine:
+- Node and edge extraction
+- Topology metrics (centrality, clustering)
+- Path analysis
+- Connected components
+- Degree distribution
+
+### Formatter (lib/formatter.ts)
+
+Data formatting utilities:
+- JSON pretty printing
+- Minification
+- YAML formatting
+- Lint error detection
+- Configurable options
+
+## State Management
+
+### Local State (useState)
+Used for transient UI state:
+- Current input value
+- View mode selection
+- Dialog visibility
+- Temporary calculations
+
+### Persistent State (useKV)
+Used for cross-session data:
+- Input data
+- User preferences
+- Search history
+- Favorites
+- Data history
+
+Example:
+```typescript
+const [inputValue, setInputValue] = useKV('visualizer-input', '')
+const [history, setHistory] = useKV<any[]>('data-history', [])
+```
+
+## Data Flow
+
+1. **Input** → User pastes/loads data
+2. **Detection** → Format auto-detection
+3. **Parsing** → Parse to internal structure
+4. **Tree Building** → Create hierarchical nodes
+5. **Graph Building** → Extract nodes and edges
+6. **Analytics** → Calculate metrics
+7. **Visualization** → Render in selected view
+8. **Interaction** → User explores/searches
+9. **Storage** → Persist to KV store
+
+## Visualization Architecture
+
+### Tree View
+- Recursive React components
+- Expand/collapse state management
+- Path tracking for selection
+- Syntax highlighting with color coding
+
+### 2D Graph (D3.js)
+- Force simulation for physics
+- Multiple layout algorithms
+- SVG rendering
+- Zoom/pan transforms
+- Interactive node selection
+
+### 3D Graph (Three.js)
+- WebGL rendering
+- 3D force simulation
+- Orbit controls
+- Raycasting for selection
+- Spatial positioning
+
+## Performance Optimizations
+
+### Parsing
+- Early format detection
+- Streaming for large files
+- Worker thread consideration (future)
+
+### Rendering
+- Virtual scrolling for large trees
+- Canvas for 2D graphs at scale
+- LOD (Level of Detail) for 3D
+- Memoization with useMemo/useCallback
+
+### State Updates
+- Batched updates
+- Debounced search
+- Lazy loading of heavy components
+
+## Design System
+
+### Color System (OKLCH)
+- Perceptually uniform color space
+- Consistent contrast ratios
+- Dark/light theme support
+- Semantic color tokens
+
+### Typography
+- Inter for UI text
+- JetBrains Mono for code
+- Clear hierarchy
+- Responsive sizing
+
+### Spacing
+- Tailwind spacing scale
+- Consistent padding/margins
+- Responsive breakpoints
+
+### Animation
+- Framer Motion for complex animations
+- CSS transitions for simple changes
+- 200-300ms timing
+- Purposeful, subtle motion
+
+## Analytics Integration
+
+### Google Tag Manager
+Event tracking for:
+- Data parsing (format, success/fail)
+- File loading (source type)
+- View changes (tree/graph)
+- Search queries (mode, results)
+- Format actions (prettify, minify)
+
+### Performance Monitoring
+- Parse time tracking
+- Render performance
+- Data size metrics
+
+## Accessibility
+
+- ARIA labels on interactive elements
+- Keyboard navigation support
+- Focus management
+- Screen reader friendly
+- High contrast support
+
+## Browser Support
+
+- Modern evergreen browsers
+- ES2022+ features
+- WebGL for 3D visualization
+- LocalStorage/IndexedDB via Spark KV
+
+## Security Considerations
+
+- Client-side only processing
+- No data sent to servers
+- XSS prevention in user data
+- Safe HTML rendering
+- Content Security Policy compatible
+
+## Future Architecture Considerations
+
+### Potential Enhancements
+- Web Workers for parsing large files
+- WebAssembly for performance-critical code
+- Streaming parser for massive datasets
+- Progressive Web App (PWA) features
+- Offline support enhancement
+- Collaborative features (future)

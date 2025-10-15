@@ -1,0 +1,431 @@
+---
+title: API Reference
+description: Complete API documentation for DataScope's core functions and utilities
+---
+
+## Parser API
+
+### parseData()
+
+Parse data from a string into a structured format.
+
+```typescript
+function parseData(
+  data: string,
+  format: DataFormat
+): ParseResult
+
+interface ParseResult {
+  success: boolean
+  data?: any
+  error?: string
+  format?: DataFormat
+}
+
+type DataFormat = 'json' | 'yaml' | 'jsonl' | 'csv' | 'json5' | 'unknown'
+```
+
+**Example:**
+```typescript
+const result = parseData(jsonString, 'json')
+if (result.success) {
+  console.log(result.data)
+}
+```
+
+### buildTree()
+
+Convert parsed data into a hierarchical tree structure.
+
+```typescript
+function buildTree(data: any): TreeNode[]
+
+interface TreeNode {
+  key: string
+  value: any
+  type: ValueType
+  path: string[]
+  isExpanded: boolean
+  children?: TreeNode[]
+}
+
+type ValueType = 'string' | 'number' | 'boolean' | 'null' | 'object' | 'array'
+```
+
+**Example:**
+```typescript
+const nodes = buildTree(parsedData)
+```
+
+### calculateStats()
+
+Calculate statistics about the data structure.
+
+```typescript
+function calculateStats(data: any): DataStats
+
+interface DataStats {
+  totalNodes: number
+  totalKeys: number
+  maxDepth: number
+  types: Record<ValueType, number>
+  arrays: {
+    count: number
+    totalElements: number
+    avgLength: number
+    maxLength: number
+  }
+  objects: {
+    count: number
+    totalProperties: number
+    avgProperties: number
+  }
+}
+```
+
+## Formatter API
+
+### formatJSON()
+
+Format JSON with customizable options.
+
+```typescript
+function formatJSON(
+  data: string,
+  options: FormatOptions
+): FormatResult
+
+interface FormatOptions {
+  indent: number
+  trailingComma: boolean
+  quoteStyle: 'single' | 'double'
+}
+
+interface FormatResult {
+  success: boolean
+  formatted?: string
+  error?: string
+}
+```
+
+**Example:**
+```typescript
+const result = formatJSON(jsonString, {
+  indent: 2,
+  trailingComma: false,
+  quoteStyle: 'double'
+})
+```
+
+### minifyJSON()
+
+Remove all whitespace from JSON.
+
+```typescript
+function minifyJSON(data: string): FormatResult
+```
+
+### lintJSON()
+
+Check JSON for common errors.
+
+```typescript
+function lintJSON(data: string): LintError[]
+
+interface LintError {
+  line: number
+  column: number
+  message: string
+  severity: 'error' | 'warning'
+}
+```
+
+## Graph API
+
+### buildGraph()
+
+Extract graph structure from data.
+
+```typescript
+function buildGraph(data: any): GraphData
+
+interface GraphData {
+  nodes: GraphNode[]
+  links: GraphLink[]
+}
+
+interface GraphNode {
+  id: string
+  label: string
+  type: ValueType
+  value?: any
+  depth: number
+}
+
+interface GraphLink {
+  source: string
+  target: string
+  label?: string
+}
+```
+
+### analyzeGraph()
+
+Perform topology analysis on a graph.
+
+```typescript
+function analyzeGraph(graph: GraphData): GraphAnalytics
+
+interface GraphAnalytics {
+  nodeCount: number
+  edgeCount: number
+  avgDegree: number
+  maxDegree: number
+  density: number
+  clusteringCoefficient: number
+  avgPathLength: number
+  diameter: number
+  connectedComponents: number
+  degreeDistribution: Record<number, number>
+  centralNodes: Array<{
+    id: string
+    degree: number
+    betweenness: number
+  }>
+}
+```
+
+## Search API
+
+### advancedSearchNodes()
+
+Search tree nodes with advanced filters.
+
+```typescript
+function advancedSearchNodes(
+  nodes: TreeNode[],
+  options: SearchOptions
+): TreeNode[]
+
+interface SearchOptions {
+  searchTerm: string
+  searchMode: 'text' | 'regex' | 'path' | 'value'
+  caseSensitive: boolean
+  wholeWord: boolean
+  typeFilters: ValueType[]
+}
+```
+
+**Example:**
+```typescript
+const results = advancedSearchNodes(treeNodes, {
+  searchTerm: 'user',
+  searchMode: 'text',
+  caseSensitive: false,
+  wholeWord: false,
+  typeFilters: ['string']
+})
+```
+
+### getPathString()
+
+Convert a path array to a string representation.
+
+```typescript
+function getPathString(
+  path: string[],
+  notation: 'dot' | 'bracket'
+): string
+```
+
+**Example:**
+```typescript
+getPathString(['user', 'profile', 'name'], 'dot')
+// Returns: "user.profile.name"
+
+getPathString(['users', '0', 'email'], 'bracket')
+// Returns: "users[0].email"
+```
+
+## Spark KV API
+
+### useKV Hook
+
+React hook for persistent reactive state.
+
+```typescript
+function useKV<T>(
+  key: string,
+  defaultValue: T
+): [T, (value: T | ((prev: T) => T)) => void, () => void]
+```
+
+**Example:**
+```typescript
+const [todos, setTodos, deleteTodos] = useKV('todos', [])
+
+// Set with new value
+setTodos([{ id: 1, text: 'New todo' }])
+
+// Update with function
+setTodos(current => [...current, newTodo])
+
+// Delete the key
+deleteTodos()
+```
+
+### Direct KV API
+
+Low-level async API for non-React contexts.
+
+```typescript
+spark.kv.set<T>(key: string, value: T): Promise<void>
+spark.kv.get<T>(key: string): Promise<T | undefined>
+spark.kv.keys(): Promise<string[]>
+spark.kv.delete(key: string): Promise<void>
+```
+
+**Example:**
+```typescript
+await spark.kv.set('preferences', { theme: 'dark' })
+const prefs = await spark.kv.get('preferences')
+```
+
+## Analytics API
+
+### Event Tracking
+
+```typescript
+function gtmDataParsed(format: string, success: boolean): void
+function gtmFileLoaded(source: string, format?: DataFormat): void
+function gtmViewChanged(view: string): void
+function gtmSearchPerformed(mode: string, results: number): void
+function gtmFormatAction(action: string, format: string): void
+```
+
+**Example:**
+```typescript
+gtmDataParsed('json', true)
+gtmViewChanged('graph')
+gtmSearchPerformed('regex', 42)
+```
+
+## Utility Functions
+
+### cn()
+
+Merge Tailwind classes with proper precedence.
+
+```typescript
+function cn(...inputs: ClassValue[]): string
+```
+
+**Example:**
+```typescript
+cn('px-4 py-2', 'bg-primary', isActive && 'font-bold')
+```
+
+## Component Props
+
+### TreeView
+
+```typescript
+interface TreeViewProps {
+  nodes: TreeNode[]
+  onNodeUpdate: (path: string[], isExpanded: boolean) => void
+  selectedPath: string[]
+  onSelectNode: (path: string[]) => void
+}
+```
+
+### GraphVisualization
+
+```typescript
+interface GraphVisualizationProps {
+  data: GraphData
+  onNodeClick: (nodeId: string) => void
+  selectedNodeId?: string
+}
+```
+
+### AdvancedSearch
+
+```typescript
+interface AdvancedSearchProps {
+  options: SearchOptions
+  onChange: (options: SearchOptions) => void
+  resultCount: number
+}
+```
+
+### FileInput
+
+```typescript
+interface FileInputProps {
+  onDataLoaded: (data: string, format?: DataFormat) => void
+}
+```
+
+### ExportDialog
+
+```typescript
+interface ExportDialogProps {
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  data: any
+  currentFormat: DataFormat
+}
+```
+
+## Type Definitions
+
+### Core Types
+
+```typescript
+type ValueType = 'string' | 'number' | 'boolean' | 'null' | 'object' | 'array'
+
+type DataFormat = 'json' | 'yaml' | 'jsonl' | 'csv' | 'json5' | 'unknown'
+
+interface TreeNode {
+  key: string
+  value: any
+  type: ValueType
+  path: string[]
+  isExpanded: boolean
+  children?: TreeNode[]
+}
+```
+
+### Utility Types
+
+```typescript
+type DeepPartial<T> = {
+  [P in keyof T]?: T[P] extends object ? DeepPartial<T[P]> : T[P]
+}
+
+type RequireAtLeastOne<T, Keys extends keyof T = keyof T> =
+  Pick<T, Exclude<keyof T, Keys>> & 
+  {
+    [K in Keys]-?: Required<Pick<T, K>> & Partial<Pick<T, Exclude<Keys, K>>>
+  }[Keys]
+```
+
+## Error Handling
+
+All parsing and formatting functions return result objects with success flags:
+
+```typescript
+if (!result.success) {
+  console.error(result.error)
+  // Handle error
+} else {
+  // Use result.data or result.formatted
+}
+```
+
+## Performance Considerations
+
+- **Large datasets**: Parser is synchronous; consider chunking for >10MB files
+- **Graph rendering**: 2D graphs perform well up to ~1000 nodes
+- **Tree expansion**: Expanding all nodes on large datasets may impact performance
+- **Search**: Regex searches are more expensive than text searches

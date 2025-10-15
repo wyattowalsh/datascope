@@ -1,0 +1,446 @@
+---
+title: Development Guide
+description: Guide for developers contributing to or extending DataScope
+---
+
+## Development Setup
+
+### Prerequisites
+
+- Node.js 18+ 
+- npm 8+
+- Modern browser with ES2022 support
+
+### Installation
+
+```bash
+git clone <repository-url>
+cd spark-template
+npm install
+```
+
+### Development Server
+
+```bash
+npm run dev
+```
+
+Vite will start the dev server with hot module replacement (HMR).
+
+## Project Scripts
+
+```json
+{
+  "dev": "vite",
+  "build": "tsc && vite build",
+  "preview": "vite preview",
+  "lint": "eslint src --ext ts,tsx",
+  "type-check": "tsc --noEmit"
+}
+```
+
+## Code Style
+
+### TypeScript
+
+- Use TypeScript for all new code
+- Enable strict mode
+- Define interfaces for component props
+- Use type inference when obvious
+
+```typescript
+// Good
+interface ButtonProps {
+  onClick: () => void
+  disabled?: boolean
+}
+
+// Type inference
+const [count, setCount] = useState(0)
+```
+
+### React
+
+- Use functional components
+- Prefer hooks over classes
+- Extract custom hooks for reusable logic
+- Memoize expensive computations
+
+```typescript
+// Custom hook example
+function useDataParser(input: string, format: DataFormat) {
+  return useMemo(() => {
+    return parseData(input, format)
+  }, [input, format])
+}
+```
+
+### Naming Conventions
+
+- **Components**: PascalCase (`TreeView`, `DataValidator`)
+- **Functions**: camelCase (`parseData`, `buildGraph`)
+- **Constants**: UPPER_SNAKE_CASE (`MAX_DEPTH`, `DEFAULT_INDENT`)
+- **Types/Interfaces**: PascalCase (`TreeNode`, `GraphData`)
+- **Files**: kebab-case (`data-validator.tsx`, `graph-analyzer.ts`)
+
+## Component Structure
+
+```typescript
+import { useState } from 'react'
+import { Button } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
+
+interface MyComponentProps {
+  title: string
+  onAction: () => void
+}
+
+export function MyComponent({ title, onAction }: MyComponentProps) {
+  const [isActive, setIsActive] = useState(false)
+  
+  return (
+    <div className={cn('p-4', isActive && 'bg-primary/10')}>
+      <h2>{title}</h2>
+      <Button onClick={onAction}>Action</Button>
+    </div>
+  )
+}
+```
+
+## Adding New Features
+
+### 1. New Data Format Support
+
+To add support for a new format:
+
+1. Add format to `DataFormat` type in `lib/parser.ts`
+2. Implement parser function
+3. Add format detection logic
+4. Update format options in UI
+
+```typescript
+// lib/parser.ts
+export type DataFormat = 'json' | 'yaml' | 'jsonl' | 'csv' | 'toml'
+
+function parseTOML(data: string): ParseResult {
+  try {
+    const parsed = TOML.parse(data)
+    return { success: true, data: parsed, format: 'toml' }
+  } catch (error) {
+    return { success: false, error: error.message }
+  }
+}
+```
+
+### 2. New Visualization Mode
+
+To add a new visualization:
+
+1. Create component in `src/components/`
+2. Add view mode to state
+3. Add tab in visualization panel
+4. Implement render logic
+
+```typescript
+// components/RadialVisualization.tsx
+interface RadialVisualizationProps {
+  data: GraphData
+  onNodeClick: (id: string) => void
+}
+
+export function RadialVisualization({ data, onNodeClick }: RadialVisualizationProps) {
+  // Implementation
+}
+```
+
+### 3. New Analysis Panel
+
+To add an analysis panel:
+
+1. Create component in `src/components/`
+2. Add to sidebar in `App.tsx`
+3. Implement analysis logic
+4. Update types if needed
+
+```typescript
+// components/CustomAnalytics.tsx
+interface CustomAnalyticsProps {
+  data: any
+}
+
+export function CustomAnalytics({ data }: CustomAnalyticsProps) {
+  const analysis = useMemo(() => analyzeCustom(data), [data])
+  
+  return (
+    <Card>
+      {/* Analytics UI */}
+    </Card>
+  )
+}
+```
+
+## Working with shadcn/ui
+
+### Adding Components
+
+```bash
+npx shadcn@latest add [component-name]
+```
+
+### Customizing Components
+
+Edit components in `src/components/ui/`. They're designed to be modified.
+
+### Theme Configuration
+
+Edit theme variables in `src/index.css`:
+
+```css
+:root {
+  --primary: oklch(0.56 0.21 264.05);
+  --primary-foreground: oklch(0.99 0 0);
+  /* ... */
+}
+```
+
+## State Management Patterns
+
+### Local UI State
+
+```typescript
+const [isOpen, setIsOpen] = useState(false)
+const [selectedTab, setSelectedTab] = useState('tree')
+```
+
+### Persistent State
+
+```typescript
+const [userPrefs, setUserPrefs] = useKV('preferences', {
+  theme: 'light',
+  fontSize: 14
+})
+```
+
+### Derived State
+
+```typescript
+const filteredNodes = useMemo(
+  () => searchNodes(nodes, searchTerm),
+  [nodes, searchTerm]
+)
+```
+
+## Performance Optimization
+
+### Memoization
+
+```typescript
+const expensiveValue = useMemo(
+  () => computeExpensiveValue(data),
+  [data]
+)
+```
+
+### Callback Stability
+
+```typescript
+const handleClick = useCallback((id: string) => {
+  performAction(id)
+}, [])
+```
+
+### Lazy Loading
+
+```typescript
+const HeavyComponent = lazy(() => import('./HeavyComponent'))
+
+<Suspense fallback={<Loading />}>
+  <HeavyComponent />
+</Suspense>
+```
+
+### Debouncing
+
+```typescript
+const [searchTerm, setSearchTerm] = useState('')
+const debouncedSearch = useMemo(
+  () => debounce((value: string) => performSearch(value), 300),
+  []
+)
+```
+
+## Testing
+
+### Unit Tests
+
+```typescript
+import { describe, it, expect } from 'vitest'
+import { parseData } from './parser'
+
+describe('parseData', () => {
+  it('should parse valid JSON', () => {
+    const result = parseData('{"key": "value"}', 'json')
+    expect(result.success).toBe(true)
+    expect(result.data).toEqual({ key: 'value' })
+  })
+})
+```
+
+### Component Tests
+
+```typescript
+import { render, screen } from '@testing-library/react'
+import { TreeView } from './TreeView'
+
+describe('TreeView', () => {
+  it('renders nodes correctly', () => {
+    const nodes = [{ key: 'test', value: 'value', type: 'string', path: [] }]
+    render(<TreeView nodes={nodes} />)
+    expect(screen.getByText('test')).toBeInTheDocument()
+  })
+})
+```
+
+## Building for Production
+
+```bash
+npm run build
+```
+
+Output will be in `dist/` directory.
+
+### Build Optimization
+
+- Vite automatically code-splits
+- Tree-shaking removes unused code
+- Assets are hashed for caching
+- CSS is minified and extracted
+
+## Debugging
+
+### React DevTools
+
+Install React DevTools browser extension for component inspection.
+
+### Debug Logging
+
+```typescript
+if (import.meta.env.DEV) {
+  console.log('Debug info:', data)
+}
+```
+
+### Performance Profiling
+
+Use React DevTools Profiler to identify slow renders.
+
+### Vite Debugging
+
+Add to `vite.config.ts`:
+
+```typescript
+export default defineConfig({
+  logLevel: 'info',
+  build: {
+    sourcemap: true
+  }
+})
+```
+
+## Git Workflow
+
+### Branching
+
+- `main` - production-ready code
+- `develop` - integration branch
+- `feature/*` - new features
+- `fix/*` - bug fixes
+
+### Commit Messages
+
+Follow conventional commits:
+
+```
+feat: add CSV export functionality
+fix: resolve graph rendering issue
+docs: update API reference
+style: format code with prettier
+refactor: extract graph utilities
+test: add parser unit tests
+```
+
+## Code Review Checklist
+
+- [ ] TypeScript types are accurate
+- [ ] Components are properly memoized
+- [ ] No console errors or warnings
+- [ ] Responsive design works
+- [ ] Accessibility attributes present
+- [ ] Performance is acceptable
+- [ ] Tests pass
+- [ ] Documentation updated
+
+## Common Patterns
+
+### Error Boundaries
+
+```typescript
+<ErrorBoundary fallback={<ErrorFallback />}>
+  <MyComponent />
+</ErrorBoundary>
+```
+
+### Loading States
+
+```typescript
+{isLoading ? <Skeleton /> : <Content data={data} />}
+```
+
+### Conditional Rendering
+
+```typescript
+{showPanel && <AnalyticsPanel />}
+```
+
+### Event Handlers
+
+```typescript
+const handleSubmit = (e: FormEvent) => {
+  e.preventDefault()
+  // Handle submission
+}
+```
+
+## Troubleshooting
+
+### Build Errors
+
+**Issue**: TypeScript errors during build
+**Solution**: Run `npm run type-check` to see all errors
+
+**Issue**: Vite dependency pre-bundling fails
+**Solution**: Clear cache with `rm -rf node_modules/.vite`
+
+### Runtime Errors
+
+**Issue**: Component not updating
+**Solution**: Check if state is being mutated directly
+
+**Issue**: "Cannot read property of undefined"
+**Solution**: Add optional chaining (`?.`) or null checks
+
+### Performance Issues
+
+**Issue**: Slow rendering on large datasets
+**Solution**: Implement virtualization or pagination
+
+**Issue**: Memory leaks
+**Solution**: Clean up effects and event listeners
+
+## Resources
+
+- [React Documentation](https://react.dev)
+- [TypeScript Handbook](https://www.typescriptlang.org/docs/)
+- [Vite Guide](https://vitejs.dev/guide/)
+- [Tailwind CSS](https://tailwindcss.com/docs)
+- [shadcn/ui](https://ui.shadcn.com)
