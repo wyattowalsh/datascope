@@ -139,7 +139,7 @@ Charlie Brown,29,Engineering,82000,true`
 
 function App() {
   const [inputValue, setInputValue] = useKV('visualizer-input', '')
-  const [format, setFormat] = useState<DataFormat>('json')
+  const [detectedFormat, setDetectedFormat] = useState<DataFormat>('json')
   const [parsedData, setParsedData] = useState<any>(null)
   const [error, setError] = useState<string>('')
   const [treeNodes, setTreeNodes] = useState<TreeNode[]>([])
@@ -167,13 +167,52 @@ function App() {
   
   const { theme, toggleTheme } = useTheme()
 
+  const detectFormat = useCallback((data: string): DataFormat => {
+    const trimmed = data.trim()
+    
+    if (!trimmed) return 'json'
+    
+    if (trimmed.split('\n').length > 1 && trimmed.split('\n').every(line => {
+      const l = line.trim()
+      return !l || (l.startsWith('{') && l.endsWith('}'))
+    })) {
+      return 'jsonl'
+    }
+    
+    const lines = trimmed.split('\n')
+    if (lines.length > 1 && lines[0].includes(',')) {
+      const hasConsistentCommas = lines.slice(0, Math.min(5, lines.length)).every(line => 
+        line.includes(',')
+      )
+      if (hasConsistentCommas) return 'csv'
+    }
+    
+    if (trimmed.match(/^[\w-]+:\s*.+/m) && !trimmed.startsWith('{') && !trimmed.startsWith('[')) {
+      return 'yaml'
+    }
+    
+    try {
+      JSON.parse(trimmed)
+      return 'json'
+    } catch {
+      return 'yaml'
+    }
+  }, [])
+
+  useEffect(() => {
+    if (inputValue) {
+      const detected = detectFormat(inputValue)
+      setDetectedFormat(detected)
+    }
+  }, [inputValue, detectFormat])
+
   const handleViewModeChange = useCallback((newMode: 'tree' | 'graph') => {
     setViewMode(newMode)
     gtmViewChanged(newMode)
   }, [])
 
   const handleParse = useCallback(() => {
-    const result = parseData(inputValue || '', format)
+    const result = parseData(inputValue || '', detectedFormat)
     
     if (result.success && result.data) {
       setParsedData(result.data)
@@ -188,7 +227,7 @@ function App() {
       const analytics = analyzeGraph(graph)
       setGraphAnalytics(analytics)
       
-      if (format === 'json') {
+      if (detectedFormat === 'json') {
         const errors = lintJSON(inputValue || '')
         setLintErrors(errors)
         setShowLintErrors(errors.length > 0)
@@ -197,9 +236,9 @@ function App() {
         setShowLintErrors(false)
       }
       
-      saveToHistory(inputValue || '', format, setHistory)
+      saveToHistory(inputValue || '', detectedFormat, setHistory)
       
-      gtmDataParsed(format, true)
+      gtmDataParsed(detectedFormat, true)
       toast.success(`${result.format?.toUpperCase()} parsed successfully`)
     } else {
       setParsedData(null)
@@ -209,10 +248,10 @@ function App() {
       setError(result.error || 'Failed to parse')
       setLintErrors([])
       setShowLintErrors(false)
-      gtmDataParsed(format, false)
+      gtmDataParsed(detectedFormat, false)
       toast.error('Parse failed')
     }
-  }, [inputValue, format, setHistory])
+  }, [inputValue, detectedFormat, setHistory])
 
   const stats = parsedData ? calculateStats(parsedData) : null
 
@@ -292,25 +331,25 @@ function App() {
       unknown: EXAMPLE_JSON
     }
     setInputValue(examples[type] || EXAMPLE_JSON)
-    setFormat(type)
+    setDetectedFormat(type)
   }, [setInputValue])
 
-  const handleFileLoaded = useCallback((data: string, detectedFormat?: DataFormat) => {
+  const handleFileLoaded = useCallback((data: string, detectedFormatFromFile?: DataFormat) => {
     setInputValue(data)
-    if (detectedFormat) {
-      setFormat(detectedFormat)
+    if (detectedFormatFromFile) {
+      setDetectedFormat(detectedFormatFromFile)
     }
-    saveToHistory(data, detectedFormat || format, setHistory)
-    gtmFileLoaded('file', detectedFormat)
-  }, [setInputValue, format, setHistory])
+    saveToHistory(data, detectedFormatFromFile || detectedFormat, setHistory)
+    gtmFileLoaded('file', detectedFormatFromFile)
+  }, [setInputValue, detectedFormat, setHistory])
 
   const handleFormat = useCallback((options: FormatOptions) => {
     let result
-    if (format === 'json' || format === 'json5') {
+    if (detectedFormat === 'json' || detectedFormat === 'json5') {
       result = formatJSON(inputValue || '', options)
-    } else if (format === 'jsonl') {
+    } else if (detectedFormat === 'jsonl') {
       result = formatJSONL(inputValue || '', options)
-    } else if (format === 'yaml') {
+    } else if (detectedFormat === 'yaml') {
       result = formatYAML(inputValue || '', options)
     } else {
       toast.error('Format not supported for this data type')
@@ -319,20 +358,20 @@ function App() {
     
     if (result.success && result.formatted) {
       setInputValue(result.formatted)
-      gtmFormatAction('format', format)
-      toast.success(`${format.toUpperCase()} formatted successfully`)
+      gtmFormatAction('format', detectedFormat)
+      toast.success(`${detectedFormat.toUpperCase()} formatted successfully`)
       handleParse()
     } else {
       toast.error(`Format failed: ${result.error}`)
     }
-  }, [inputValue, format, setInputValue, handleParse])
+  }, [inputValue, detectedFormat, setInputValue, handleParse])
 
   const handleMinify = useCallback(() => {
-    if (format === 'json') {
+    if (detectedFormat === 'json') {
       const result = minifyJSON(inputValue || '')
       if (result.success && result.formatted) {
         setInputValue(result.formatted)
-        gtmFormatAction('minify', format)
+        gtmFormatAction('minify', detectedFormat)
         toast.success('JSON minified successfully')
         handleParse()
       } else {
@@ -341,7 +380,7 @@ function App() {
     } else {
       toast.error('Minify is only available for JSON')
     }
-  }, [inputValue, format, setInputValue, handleParse])
+  }, [inputValue, detectedFormat, setInputValue, handleParse])
 
   const handleGraphNodeClick = useCallback((nodeId: string) => {
     const pathArray = nodeId.replace(/^root\.?/, '').split('.')
@@ -365,7 +404,7 @@ function App() {
 
   const handleHistoryRestore = useCallback((data: string, historyFormat: string) => {
     setInputValue(data)
-    setFormat(historyFormat as DataFormat)
+    setDetectedFormat(historyFormat as DataFormat)
   }, [setInputValue])
 
   const filteredNodes = useMemo(() => {
@@ -413,21 +452,25 @@ function App() {
 
   return (
     <TooltipProvider>
-      <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 transition-all duration-[350ms] ease-out">
-        <header className="sticky top-0 z-20 bg-background/95 backdrop-blur-xl border-b border-border/50 shadow-sm transition-all duration-300">
-          <div className="max-w-[1800px] mx-auto px-4 md:px-6 lg:px-8 py-6">
+      <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/30 transition-all duration-[350ms] ease-out relative overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-primary/5 via-transparent to-transparent pointer-events-none" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_left,_var(--tw-gradient-stops))] from-accent/5 via-transparent to-transparent pointer-events-none" />
+        
+        <header className="sticky top-0 z-20 bg-background/95 backdrop-blur-xl border-b border-border/50 shadow-lg transition-all duration-300 relative">
+          <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-accent/5 to-primary/5 opacity-50" />
+          <div className="max-w-[1800px] mx-auto px-4 md:px-6 lg:px-8 py-6 relative">
             <div className="flex items-center justify-between gap-4">
               <div className="space-y-1.5">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-xl bg-gradient-to-br from-[#f4a261]/20 via-[#f4a261]/15 to-[#f4a261]/10 backdrop-blur-sm shadow-lg shadow-[#f4a261]/10">
-                    <img src={logoSvg} alt="DataScope Logo" className="w-9 h-9" />
+                  <div className="p-2.5 rounded-2xl bg-gradient-to-br from-primary/20 via-accent/15 to-primary/10 backdrop-blur-sm shadow-2xl shadow-primary/20 ring-1 ring-primary/10 hover:scale-105 transition-transform duration-300">
+                    <img src={logoSvg} alt="DataScope Logo" className="w-10 h-10" />
                   </div>
                   <div>
-                    <h1 className="text-xl md:text-2xl lg:text-3xl font-semibold tracking-tight bg-gradient-to-r from-foreground via-primary/90 to-accent/80 bg-clip-text text-transparent">
+                    <h1 className="text-xl md:text-2xl lg:text-3xl font-bold tracking-tight bg-gradient-to-r from-foreground via-primary to-accent bg-clip-text text-transparent">
                       DataScope
                     </h1>
-                    <p className="text-xs md:text-sm text-muted-foreground/90">
-                      Parse, explore, analyze structured data • JSON, YAML, JSONL, CSV
+                    <p className="text-xs md:text-sm text-muted-foreground/90 font-medium">
+                      Parse, explore, analyze structured data • Automatic format detection
                     </p>
                   </div>
                 </div>
@@ -440,9 +483,9 @@ function App() {
                       variant="outline"
                       size="icon"
                       onClick={() => setShowShortcutsDialog(true)}
-                      className="flex-shrink-0 h-10 w-10 rounded-xl hover:scale-105 transition-all duration-200 hover:border-primary/50 hover:bg-primary/10 hover:shadow-lg hover:shadow-primary/20"
+                      className="flex-shrink-0 h-10 w-10 rounded-xl hover:scale-105 transition-all duration-200 hover:border-primary/50 hover:bg-primary/10 hover:shadow-lg hover:shadow-primary/20 group"
                     >
-                      <Keyboard size={20} weight="duotone" className="transition-transform duration-300" />
+                      <Keyboard size={20} weight="duotone" className="transition-transform duration-300 group-hover:scale-110" />
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent side="bottom" className="font-medium">
@@ -456,12 +499,12 @@ function App() {
                       variant="outline"
                       size="icon"
                       onClick={toggleTheme}
-                      className="flex-shrink-0 h-10 w-10 rounded-xl hover:scale-105 transition-all duration-200 hover:border-primary/50 hover:bg-primary/10 hover:shadow-lg hover:shadow-primary/20"
+                      className="flex-shrink-0 h-10 w-10 rounded-xl hover:scale-105 transition-all duration-200 hover:border-primary/50 hover:bg-primary/10 hover:shadow-lg hover:shadow-primary/20 group"
                     >
                       {theme === 'light' ? (
-                        <Moon size={20} weight="duotone" className="transition-transform duration-300" />
+                        <Moon size={20} weight="duotone" className="transition-transform duration-300 group-hover:rotate-12" />
                       ) : (
-                        <Sun size={20} weight="duotone" className="transition-transform duration-300" />
+                        <Sun size={20} weight="duotone" className="transition-transform duration-300 group-hover:rotate-90" />
                       )}
                     </Button>
                   </TooltipTrigger>
@@ -474,35 +517,30 @@ function App() {
           </div>
         </header>
 
-        <div className="max-w-[1800px] mx-auto p-4 md:p-6 lg:p-8">
+        <div className="max-w-[1800px] mx-auto p-4 md:p-6 lg:p-8 relative z-10">
           <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 lg:gap-8">
             <div className="xl:col-span-2 space-y-6">
-              <Card className="p-6 space-y-5 shadow-xl border-border/50 bg-card/60 backdrop-blur-sm transition-all duration-300 hover:shadow-2xl hover:border-border/70 hover:bg-card/70">
-                <div className="flex items-center justify-between gap-3 flex-wrap">
-                  <Tabs value={format} onValueChange={(v) => setFormat(v as DataFormat)} className="w-full sm:w-auto">
-                    <TabsList className="grid grid-cols-2 sm:grid-cols-5 bg-muted/80 p-1 rounded-xl shadow-inner">
-                      <TabsTrigger value="json" className="gap-1.5 data-[state=active]:bg-gradient-to-br data-[state=active]:from-primary/15 data-[state=active]:to-primary/10 data-[state=active]:text-primary data-[state=active]:shadow-md transition-all duration-200 rounded-lg">
-                        <File size={16} weight="duotone" />
-                        <span className="text-xs sm:text-sm font-medium">JSON</span>
-                      </TabsTrigger>
-                      <TabsTrigger value="yaml" className="gap-1.5 data-[state=active]:bg-gradient-to-br data-[state=active]:from-primary/15 data-[state=active]:to-primary/10 data-[state=active]:text-primary data-[state=active]:shadow-md transition-all duration-200 rounded-lg">
-                        <FileCode size={16} weight="duotone" />
-                        <span className="text-xs sm:text-sm font-medium">YAML</span>
-                      </TabsTrigger>
-                      <TabsTrigger value="jsonl" className="gap-1.5 data-[state=active]:bg-gradient-to-br data-[state=active]:from-primary/15 data-[state=active]:to-primary/10 data-[state=active]:text-primary data-[state=active]:shadow-md transition-all duration-200 rounded-lg">
-                        <ListBullets size={16} weight="duotone" />
-                        <span className="text-xs sm:text-sm font-medium">JSONL</span>
-                      </TabsTrigger>
-                      <TabsTrigger value="csv" className="gap-1.5 data-[state=active]:bg-gradient-to-br data-[state=active]:from-primary/15 data-[state=active]:to-primary/10 data-[state=active]:text-primary data-[state=active]:shadow-md transition-all duration-200 rounded-lg">
-                        <FileCsv size={16} weight="duotone" />
-                        <span className="text-xs sm:text-sm font-medium">CSV</span>
-                      </TabsTrigger>
-                      <TabsTrigger value="json5" className="gap-1.5 data-[state=active]:bg-gradient-to-br data-[state=active]:from-primary/15 data-[state=active]:to-primary/10 data-[state=active]:text-primary data-[state=active]:shadow-md transition-all duration-200 rounded-lg">
-                        <Table size={16} weight="duotone" />
-                        <span className="text-xs sm:text-sm font-medium">JSON5</span>
-                      </TabsTrigger>
-                    </TabsList>
-                  </Tabs>
+              <Card className="p-6 space-y-5 shadow-2xl border-border/50 bg-card/70 backdrop-blur-md transition-all duration-300 hover:shadow-[0_20px_70px_-15px_rgba(0,0,0,0.3)] hover:border-primary/30 hover:bg-card/80 group relative overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+                
+                <div className="flex items-center justify-between gap-3 flex-wrap relative z-10">
+                  <div className="flex items-center gap-3 px-4 py-2.5 rounded-xl bg-gradient-to-r from-primary/15 via-accent/15 to-primary/10 border border-primary/30 shadow-lg shadow-primary/10 backdrop-blur-sm hover:shadow-xl hover:shadow-primary/20 transition-all duration-300">
+                    <div className="flex items-center gap-2">
+                      <div className="relative">
+                        <div className="w-2.5 h-2.5 rounded-full bg-primary animate-pulse" />
+                        <div className="absolute inset-0 w-2.5 h-2.5 rounded-full bg-primary animate-ping opacity-75" />
+                      </div>
+                      <span className="text-sm font-semibold text-foreground/90 tracking-wide">Auto-detected:</span>
+                    </div>
+                    <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-primary/20 border border-primary/40 shadow-inner">
+                      {detectedFormat === 'json' && <File size={16} weight="duotone" className="text-primary" />}
+                      {detectedFormat === 'yaml' && <FileCode size={16} weight="duotone" className="text-primary" />}
+                      {detectedFormat === 'jsonl' && <ListBullets size={16} weight="duotone" className="text-primary" />}
+                      {detectedFormat === 'csv' && <FileCsv size={16} weight="duotone" className="text-primary" />}
+                      {detectedFormat === 'json5' && <Table size={16} weight="duotone" className="text-primary" />}
+                      <span className="text-sm font-bold text-primary uppercase tracking-wider">{detectedFormat}</span>
+                    </div>
+                  </div>
 
                   <div className="flex gap-2 flex-wrap w-full sm:w-auto justify-end">
                     <DropdownMenu>
@@ -556,7 +594,7 @@ function App() {
                         </DropdownMenuItem>
                         <DropdownMenuItem 
                           onClick={handleMinify}
-                          disabled={format !== 'json' && format !== 'jsonl'}
+                          disabled={detectedFormat !== 'json' && detectedFormat !== 'jsonl'}
                           className="gap-2 cursor-pointer rounded-lg"
                         >
                           <Minus size={16} weight="duotone" />
@@ -580,7 +618,7 @@ function App() {
                     <Button 
                       onClick={handleParse} 
                       size="sm" 
-                      className="shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 bg-gradient-to-r from-primary via-primary to-primary/80 rounded-lg font-medium hover:from-primary/90 hover:via-primary hover:to-primary/70"
+                      className="shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 bg-gradient-to-r from-primary via-primary to-primary/80 rounded-lg font-semibold hover:from-primary/90 hover:via-primary hover:to-primary/70"
                     >
                       Parse Data
                     </Button>
@@ -590,8 +628,8 @@ function App() {
                 <Textarea
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}
-                  placeholder={`Paste your ${format.toUpperCase()} data here...`}
-                  className="font-mono text-sm min-h-[240px] md:min-h-[280px] resize-y transition-all duration-200 focus:ring-2 focus:ring-primary/30 border-border/50 hover:border-border/70 rounded-xl bg-muted/40 focus:bg-background shadow-inner"
+                  placeholder={`Paste your data here... (${detectedFormat.toUpperCase()} will be auto-detected)`}
+                  className="font-mono text-sm min-h-[240px] md:min-h-[280px] resize-y transition-all duration-200 focus:ring-2 focus:ring-primary/30 border-border/50 hover:border-border/70 rounded-xl bg-muted/40 focus:bg-background shadow-inner hover:shadow-lg"
                 />
 
                 {showLintErrors && lintErrors.length > 0 && (
@@ -612,7 +650,9 @@ function App() {
 
               {parsedData && (
                 <>
-                  <Card className="p-6 space-y-5 shadow-xl border-border/50 bg-card/60 backdrop-blur-sm transition-all duration-300 hover:shadow-2xl hover:border-border/70 hover:bg-card/70">
+                  <Card className="p-6 space-y-5 shadow-2xl border-border/50 bg-card/70 backdrop-blur-md transition-all duration-300 hover:shadow-[0_20px_70px_-15px_rgba(0,0,0,0.3)] hover:border-primary/30 hover:bg-card/80 group relative overflow-hidden">
+                    <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+                    <div className="relative z-10">
                     <div className="flex items-center justify-between gap-3 flex-wrap">
                       <Tabs value={viewMode} onValueChange={(v) => handleViewModeChange(v as 'tree' | 'graph')}>
                         <TabsList className="bg-muted/80 p-1 rounded-xl shadow-inner">
@@ -635,9 +675,9 @@ function App() {
                                 size="sm"
                                 variant="outline"
                                 onClick={handleExpandAll}
-                                className="hover:border-primary/50 transition-all duration-200 hover:scale-105 rounded-lg hover:bg-primary/10 hover:shadow-md hover:shadow-primary/20"
+                                className="hover:border-primary/50 transition-all duration-200 hover:scale-105 rounded-lg hover:bg-primary/10 hover:shadow-md hover:shadow-primary/20 group"
                               >
-                                <ArrowsOut size={16} weight="duotone" />
+                                <ArrowsOut size={16} weight="duotone" className="group-hover:scale-110 transition-transform" />
                                 <span className="hidden sm:inline ml-2">Expand All</span>
                               </Button>
                             </TooltipTrigger>
@@ -650,9 +690,9 @@ function App() {
                                 size="sm"
                                 variant="outline"
                                 onClick={handleCollapseAll}
-                                className="hover:border-primary/50 transition-all duration-200 hover:scale-105 rounded-lg hover:bg-primary/10 hover:shadow-md hover:shadow-primary/20"
+                                className="hover:border-primary/50 transition-all duration-200 hover:scale-105 rounded-lg hover:bg-primary/10 hover:shadow-md hover:shadow-primary/20 group"
                               >
-                                <ArrowsIn size={16} weight="duotone" />
+                                <ArrowsIn size={16} weight="duotone" className="group-hover:scale-90 transition-transform" />
                                 <span className="hidden sm:inline ml-2">Collapse All</span>
                               </Button>
                             </TooltipTrigger>
@@ -708,6 +748,7 @@ function App() {
                         />
                       </div>
                     )}
+                    </div>
                   </Card>
                 </>
               )}
@@ -759,42 +800,45 @@ function App() {
               <DataHistory onRestore={handleHistoryRestore} />
               
               {!parsedData && (
-                <Card className="p-8 space-y-6 shadow-xl border-border/50 bg-gradient-to-br from-card/60 to-muted/40 backdrop-blur-sm">
+                <Card className="p-8 space-y-6 shadow-2xl border-border/50 bg-gradient-to-br from-card/70 to-muted/50 backdrop-blur-md hover:shadow-[0_20px_70px_-15px_rgba(0,0,0,0.3)] transition-all duration-300 relative overflow-hidden group">
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+                  <div className="relative z-10">
                   <div className="flex items-center gap-3 text-foreground/80">
-                    <div className="p-2.5 rounded-xl bg-gradient-to-br from-primary/20 to-accent/20">
-                      <ChartBar size={24} weight="duotone" className="text-primary" />
+                    <div className="p-3 rounded-2xl bg-gradient-to-br from-primary/20 via-accent/20 to-primary/15 shadow-lg shadow-primary/20 ring-1 ring-primary/20">
+                      <ChartBar size={28} weight="duotone" className="text-primary" />
                     </div>
-                    <h3 className="text-lg font-semibold">Quick Start Guide</h3>
+                    <h3 className="text-lg font-bold bg-gradient-to-r from-foreground to-primary/80 bg-clip-text text-transparent">Quick Start Guide</h3>
                   </div>
                   <div className="space-y-3 text-sm text-muted-foreground leading-relaxed">
-                    <div className="flex items-start gap-3 p-4 rounded-xl bg-background/60 border border-border/50 transition-all duration-200 hover:border-primary/40 hover:bg-background/80 hover:shadow-md hover:shadow-primary/10 group">
-                      <span className="text-primary font-bold flex-shrink-0 text-base">1.</span>
-                      <p className="group-hover:text-foreground/80 transition-colors">Load data from file, URL, or paste directly</p>
+                    <div className="flex items-start gap-3 p-4 rounded-xl bg-background/60 border border-border/50 transition-all duration-200 hover:border-primary/40 hover:bg-background/80 hover:shadow-lg hover:shadow-primary/10 hover:scale-[1.02] group/item">
+                      <span className="text-primary font-bold flex-shrink-0 text-base w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center group-hover/item:bg-primary/20 transition-colors">1</span>
+                      <p className="group-hover/item:text-foreground/80 transition-colors">Load data from file, URL, or paste directly</p>
                     </div>
-                    <div className="flex items-start gap-3 p-4 rounded-xl bg-background/60 border border-border/50 transition-all duration-200 hover:border-primary/40 hover:bg-background/80 hover:shadow-md hover:shadow-primary/10 group">
-                      <span className="text-primary font-bold flex-shrink-0 text-base">2.</span>
-                      <p className="group-hover:text-foreground/80 transition-colors">Auto-detection or select format (JSON, YAML, JSONL, CSV)</p>
+                    <div className="flex items-start gap-3 p-4 rounded-xl bg-background/60 border border-border/50 transition-all duration-200 hover:border-primary/40 hover:bg-background/80 hover:shadow-lg hover:shadow-primary/10 hover:scale-[1.02] group/item">
+                      <span className="text-primary font-bold flex-shrink-0 text-base w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center group-hover/item:bg-primary/20 transition-colors">2</span>
+                      <p className="group-hover/item:text-foreground/80 transition-colors">Format automatically detected (JSON, YAML, JSONL, CSV)</p>
                     </div>
-                    <div className="flex items-start gap-3 p-4 rounded-xl bg-background/60 border border-border/50 transition-all duration-200 hover:border-primary/40 hover:bg-background/80 hover:shadow-md hover:shadow-primary/10 group">
-                      <span className="text-primary font-bold flex-shrink-0 text-base">3.</span>
-                      <p className="group-hover:text-foreground/80 transition-colors">Click "Parse Data" to visualize structure & analytics</p>
+                    <div className="flex items-start gap-3 p-4 rounded-xl bg-background/60 border border-border/50 transition-all duration-200 hover:border-primary/40 hover:bg-background/80 hover:shadow-lg hover:shadow-primary/10 hover:scale-[1.02] group/item">
+                      <span className="text-primary font-bold flex-shrink-0 text-base w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center group-hover/item:bg-primary/20 transition-colors">3</span>
+                      <p className="group-hover/item:text-foreground/80 transition-colors">Click "Parse Data" to visualize structure & analytics</p>
                     </div>
-                    <div className="flex items-start gap-3 p-4 rounded-xl bg-background/60 border border-border/50 transition-all duration-200 hover:border-primary/40 hover:bg-background/80 hover:shadow-md hover:shadow-primary/10 group">
-                      <span className="text-primary font-bold flex-shrink-0 text-base">4.</span>
-                      <p className="group-hover:text-foreground/80 transition-colors">Use Tools menu for formatting, minifying, & prettifying</p>
+                    <div className="flex items-start gap-3 p-4 rounded-xl bg-background/60 border border-border/50 transition-all duration-200 hover:border-primary/40 hover:bg-background/80 hover:shadow-lg hover:shadow-primary/10 hover:scale-[1.02] group/item">
+                      <span className="text-primary font-bold flex-shrink-0 text-base w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center group-hover/item:bg-primary/20 transition-colors">4</span>
+                      <p className="group-hover/item:text-foreground/80 transition-colors">Use Tools menu for formatting, minifying, & prettifying</p>
                     </div>
-                    <div className="flex items-start gap-3 p-4 rounded-xl bg-background/60 border border-border/50 transition-all duration-200 hover:border-primary/40 hover:bg-background/80 hover:shadow-md hover:shadow-primary/10 group">
-                      <span className="text-primary font-bold flex-shrink-0 text-base">5.</span>
-                      <p className="group-hover:text-foreground/80 transition-colors">Advanced search with regex, path queries, & type filters</p>
+                    <div className="flex items-start gap-3 p-4 rounded-xl bg-background/60 border border-border/50 transition-all duration-200 hover:border-primary/40 hover:bg-background/80 hover:shadow-lg hover:shadow-primary/10 hover:scale-[1.02] group/item">
+                      <span className="text-primary font-bold flex-shrink-0 text-base w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center group-hover/item:bg-primary/20 transition-colors">5</span>
+                      <p className="group-hover/item:text-foreground/80 transition-colors">Advanced search with regex, path queries, & type filters</p>
                     </div>
-                    <div className="flex items-start gap-3 p-4 rounded-xl bg-background/60 border border-border/50 transition-all duration-200 hover:border-primary/40 hover:bg-background/80 hover:shadow-md hover:shadow-primary/10 group">
-                      <span className="text-primary font-bold flex-shrink-0 text-base">6.</span>
-                      <p className="group-hover:text-foreground/80 transition-colors">Explore multiple graph layouts: force, tree, radial, grid</p>
+                    <div className="flex items-start gap-3 p-4 rounded-xl bg-background/60 border border-border/50 transition-all duration-200 hover:border-primary/40 hover:bg-background/80 hover:shadow-lg hover:shadow-primary/10 hover:scale-[1.02] group/item">
+                      <span className="text-primary font-bold flex-shrink-0 text-base w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center group-hover/item:bg-primary/20 transition-colors">6</span>
+                      <p className="group-hover/item:text-foreground/80 transition-colors">Explore multiple graph layouts: force, tree, radial, grid</p>
                     </div>
-                    <div className="flex items-start gap-3 p-4 rounded-xl bg-background/60 border border-border/50 transition-all duration-200 hover:border-primary/40 hover:bg-background/80 hover:shadow-md hover:shadow-primary/10 group">
-                      <span className="text-primary font-bold flex-shrink-0 text-base">7.</span>
-                      <p className="group-hover:text-foreground/80 transition-colors">Comprehensive analytics, metrics, & insights</p>
+                    <div className="flex items-start gap-3 p-4 rounded-xl bg-background/60 border border-border/50 transition-all duration-200 hover:border-primary/40 hover:bg-background/80 hover:shadow-lg hover:shadow-primary/10 hover:scale-[1.02] group/item">
+                      <span className="text-primary font-bold flex-shrink-0 text-base w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center group-hover/item:bg-primary/20 transition-colors">7</span>
+                      <p className="group-hover/item:text-foreground/80 transition-colors">Comprehensive analytics, metrics, & insights</p>
                     </div>
+                  </div>
                   </div>
                 </Card>
               )}
@@ -812,7 +856,7 @@ function App() {
           open={showExportDialog}
           onOpenChange={setShowExportDialog}
           data={parsedData}
-          currentFormat={format}
+          currentFormat={detectedFormat}
         />
 
         <ShortcutsDialog
@@ -821,20 +865,23 @@ function App() {
         />
       </div>
 
-      <footer className="max-w-[1800px] mx-auto px-4 md:px-6 lg:px-8 py-8 mt-12">
-        <div className="flex flex-col md:flex-row items-center justify-between gap-4 p-6 rounded-2xl bg-gradient-to-br from-muted/50 to-muted/30 border border-border/30">
-          <div className="flex items-center gap-3">
-            <img src={logoSvg} alt="DataScope" className="w-8 h-8 opacity-80" />
+      <footer className="max-w-[1800px] mx-auto px-4 md:px-6 lg:px-8 py-8 mt-12 relative z-10">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-4 p-6 rounded-2xl bg-gradient-to-br from-muted/60 to-muted/40 border border-border/30 shadow-xl backdrop-blur-md hover:shadow-2xl hover:border-primary/20 transition-all duration-300 group relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-accent/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+          <div className="flex items-center gap-3 relative z-10">
+            <div className="p-1.5 rounded-xl bg-gradient-to-br from-primary/20 to-accent/20 group-hover:scale-110 transition-transform duration-300">
+              <img src={logoSvg} alt="DataScope" className="w-8 h-8 opacity-80 group-hover:opacity-100 transition-opacity" />
+            </div>
             <div className="text-sm text-muted-foreground">
-              <strong className="text-foreground">DataScope</strong> • Professional data analytics & visualization
+              <strong className="text-foreground font-bold">DataScope</strong> • Professional data analytics & visualization
             </div>
           </div>
-          <div className="flex items-center gap-4 text-sm text-muted-foreground">
+          <div className="flex items-center gap-4 text-sm text-muted-foreground relative z-10">
             <a 
               href="https://github.com" 
               target="_blank" 
               rel="noopener noreferrer"
-              className="hover:text-primary transition-colors"
+              className="hover:text-primary transition-all duration-200 hover:scale-105 font-medium"
             >
               GitHub
             </a>
@@ -843,12 +890,12 @@ function App() {
               href="https://datascope.w4w.dev" 
               target="_blank" 
               rel="noopener noreferrer"
-              className="hover:text-primary transition-colors"
+              className="hover:text-primary transition-all duration-200 hover:scale-105 font-medium"
             >
               Docs
             </a>
             <span>•</span>
-            <span>© 2024 DataScope</span>
+            <span className="font-medium">© 2024 DataScope</span>
           </div>
         </div>
       </footer>
