@@ -1,0 +1,118 @@
+name: ⚡ Performance Issue
+description: Report slow performance or optimization opportunity
+title: "[Performance]: "
+labels: ["performance", "needs-triage"]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Help us improve DataScope's performance! Please provide details below.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Performance Issue
+      description: Describe the performance problem
+      placeholder: The application becomes slow when...
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to Reproduce
+      description: How to reproduce the performance issue
+      placeholder: |
+        1. Load a dataset with...
+        2. Navigate to...
+        3. Observe slowness when...
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      description: How severe is the performance impact?
+      options:
+        - Critical - Application unusable
+        - High - Significant delays (>5s)
+        - Medium - Noticeable delays (1-5s)
+        - Low - Minor delays (<1s)
+    validations:
+      required: true
+
+  - type: textarea
+    id: dataset-info
+    attributes:
+      label: Dataset Information
+      description: Details about the data causing performance issues
+      placeholder: |
+        - Size: 50MB
+        - Node count: 10,000
+        - Max depth: 15
+        - Format: JSON
+    validations:
+      required: true
+
+  - type: dropdown
+    id: operation
+    attributes:
+      label: Affected Operation
+      description: Which operation is slow?
+      options:
+        - Initial Parse
+        - Tree Rendering
+        - Graph Rendering (2D)
+        - Graph Rendering (3D)
+        - Search
+        - Export
+        - Analytics Calculation
+        - Navigation/Interaction
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: metrics
+    attributes:
+      label: Performance Metrics
+      description: Any measurements (load time, FPS, memory usage)
+      placeholder: |
+        - Parse time: 15 seconds
+        - Memory usage: 2GB
+        - FPS: 15-20
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: System specifications
+      placeholder: |
+        - Browser: Chrome 120
+        - OS: macOS 14.2
+        - CPU: M1 Pro
+        - RAM: 16GB
+    validations:
+      required: true
+
+  - type: textarea
+    id: profiling
+    attributes:
+      label: Profiling Data
+      description: Chrome DevTools Performance profile or screenshots
+      placeholder: Attach profiling screenshots or data
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Checklist
+      options:
+        - label: I have tested with the latest version
+          required: true
+        - label: This issue persists across page refreshes
+          required: true
+        - label: I have checked browser console for errors
+          required: true

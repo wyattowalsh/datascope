@@ -1,0 +1,102 @@
+---
+title: Project Structure
+description: Codebase organization and architecture
+---
+
+# Project Structure
+
+DataScope follows a modern, feature-based architecture for scalability and maintainability.
+
+## Root Directory
+
+```
+datascope/
+├── .github/                # GitHub infrastructure
+├── config/                 # Application configuration
+├── content/docs/           # MDX documentation (this site!)
+├── public/                 # Static assets
+├── src/                    # Source code
+├── AGENTS.md               # AI agent reference
+├── CONTRIBUTING.md         # Contributing guidelines (symlink to docs)
+├── SECURITY.md             # Security policy (symlink to docs)
+├── README.md               # Project overview
+└── package.json            # Dependencies
+```
+
+## Source Directory
+
+```
+src/
+├── components/             # React components
+│   ├── ui/                 # shadcn/ui components (45+)
+│   └── analytics/          # Analytics subcomponents
+├── lib/                    # Utilities & core logic
+├── hooks/                  # Custom React hooks
+├── workers/                # Web Workers
+├── features/               # Feature modules (planned)
+├── types/                  # TypeScript definitions (planned)
+├── constants/              # App constants (planned)
+└── App.tsx                 # Main application
+```
+
+## Feature-Based Architecture (Planned)
+
+```
+src/features/
+├── analytics/              # Data analysis
+├── visualization/          # Graphs & trees
+├── data-operations/        # Parse, validate, transform
+├── search/                 # Search & queries
+└── ui-features/            # History, favorites, etc.
+```
+
+## File Naming Conventions
+
+- **Components**: PascalCase (e.g., `TreeView.tsx`)
+- **Utilities**: camelCase (e.g., `parser.ts`)
+- **Hooks**: camelCase with `use` prefix (e.g., `use-theme.ts`)
+
+## Import Conventions
+
+```typescript
+// ✅ Use @ alias for src imports
+import { Button } from '@/components/ui/button'
+import { parseData } from '@/lib/parser'
+import { useTheme } from '@/hooks/use-theme'
+
+// ❌ Don't use relative paths
+import { Button } from '../../../components/ui/button'
+```
+
+## Key Dependencies
+
+- **React 19** - UI framework
+- **TypeScript 5.7** - Type safety
+- **Vite 6.3** - Build tool
+- **Tailwind CSS v4** - Styling
+- **D3.js v7** - 2D visualization
+- **Three.js v0.175** - 3D visualization
+- **Radix UI** - Accessible components
+- **shadcn/ui** - UI component library
+
+## Configuration Files
+
+- `config/tailwind.config.js` - Tailwind customization
+- `config/components.json` - shadcn/ui configuration
+- `tsconfig.json` - TypeScript compiler options
+- `vite.config.ts` - Vite build configuration (DO NOT EDIT)
+
+## Documentation
+
+All documentation is integrated into this site (`content/docs/`):
+- Getting Started
+- Features
+- Architecture
+- API Reference
+- Development/Contributing
+- Security Policy
+- Changelog
+
+---
+
+**Last Updated:** October 18, 2025

@@ -1,13 +1,39 @@
 # DataScope - Professional Data Visualization & Analytics
 
-**Version 2.6.0** - Enhanced UX Update  
+**Version 2.7.0** - Enterprise Features & Documentation Overhaul  
 Live at: https://datascope.w4w.dev
 
 ## 🎯 What is DataScope?
 
-DataScope is a powerful, user-friendly web application for exploring, visualizing, and analyzing structured data. It supports JSON, YAML, JSONL, and CSV formats with intelligent parsing, interactive visualizations, and comprehensive analytics.
+DataScope is a powerful, enterprise-grade web application for exploring, visualizing, and analyzing structured data. It supports JSON, YAML, JSONL, and CSV formats with intelligent parsing, Web Worker-based async processing, interactive visualizations, JSONPath queries, and comprehensive analytics—all with complete, integrated documentation.
 
 ## ✨ Key Features
+
+### 🆕 NEW in v2.7.0 - Enterprise Features
+
+#### 🔒 Crash Recovery & Error Boundaries
+- **Automatic state persistence**: Auto-save every 3 seconds
+- **Crash recovery**: Restore last session after browser crash
+- **Error boundaries**: Graceful error handling with recovery UI
+- **User-friendly fallbacks**: Continue working even when errors occur
+
+#### ⚡ Web Worker Parsing
+- **Off-thread processing**: Parse large datasets without freezing UI
+- **Async/await**: Non-blocking data processing
+- **Progress feedback**: Real-time parsing status
+- **Better performance**: Handles massive JSON/YAML files smoothly
+
+#### 🔍 JSONPath Query Engine
+- **Query panel**: Interactive JSONPath query interface
+- **Live results**: Real-time filtering as you type
+- **Syntax highlighting**: Clear query visualization
+- **Multiple queries**: Save and reuse common queries
+
+#### 📊 Virtualized Tree View
+- **Smart virtualization**: Renders only visible nodes
+- **1000+ node optimization**: Automatic virtualization trigger
+- **Smooth scrolling**: Handles massive datasets effortlessly
+- **Memory efficient**: Reduces browser memory footprint
 
 ### Core Functionality
 - **Multi-Format Support**: JSON, YAML, JSONL (line-delimited), CSV with automatic format detection
@@ -77,13 +103,17 @@ Context-aware recommendations:
 ## 🛠️ Technology Stack
 
 - **Frontend**: React 19 + TypeScript 5.7
-- **Build Tool**: Vite 6.3
+- **Build Tool**: Vite 6.3 with Web Worker support
 - **Styling**: Tailwind CSS v4 with custom theme
 - **UI Components**: shadcn/ui v4 (Radix UI)
 - **Visualizations**: D3.js v7 (2D graphs), Three.js (3D graphs)
 - **Icons**: Phosphor Icons (duotone)
 - **Animations**: Framer Motion + custom CSS
-- **Data Parsing**: Native JSON, yaml library, custom JSONL/CSV parsers
+- **Data Parsing**: Web Workers, Native JSON, yaml library, custom JSONL/CSV parsers
+- **Query Engine**: JSONPath for advanced data filtering
+- **Documentation**: Integrated MDX documentation with marked renderer
+- **State Management**: React hooks + KV persistence + auto-save
+- **Error Recovery**: Error boundaries + state recovery hooks
 
 ## 🚀 Getting Started
 
@@ -105,7 +135,21 @@ npm run preview
 
 ## 📖 Documentation
 
+### Integrated Documentation (NEW in v2.7!)
+- **Access**: Click the Book icon in the app header or navigate to `/docs` route
+- **Content**: Comprehensive guides for all features, API reference, architecture details
+- **Format**: MDX documentation rendered inline with the main app
+- **Features**:
+  - Welcome page with v2.7 highlights
+  - Quick start guide (5-minute setup)
+  - Complete feature documentation
+  - Technical architecture overview
+  - API reference with examples
+  - Contributing guidelines
+  
+### Developer Documentation
 - **AGENTS.md**: Comprehensive developer guide for AI agents and developers
+- **DOCUMENTATION_COMPLETE.md**: v2.7 implementation and docs overhaul summary
 - **PRD.md**: Product requirements and design specifications  
 - **DEPLOYMENT.md**: Deployment configuration and instructions
 - **SECURITY.md**: Security policies and guidelines

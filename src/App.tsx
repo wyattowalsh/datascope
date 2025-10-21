@@ -38,30 +38,15 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
-import { TreeView } from '@/components/TreeView'
-import { VirtualizedTree } from '@/components/VirtualizedTree'
-import { FormatOptionsDialog } from '@/components/FormatOptionsDialog'
-import { LintErrorsDisplay } from '@/components/LintErrorsDisplay'
-import { GraphVisualization } from '@/components/GraphVisualization'
-import { CanvasGraphVisualization } from '@/components/CanvasGraphVisualization'
-import { Graph3DVisualization } from '@/components/Graph3DVisualization'
-import { AdvancedSearch, SearchOptions } from '@/components/AdvancedSearch'
-import { FileInput } from '@/components/FileInput'
-import { ExportDialog } from '@/components/ExportDialog'
-import { SchemaExtractor } from '@/components/SchemaExtractor'
-import { DataTransformer } from '@/components/DataTransformer'
-import { DataComparator } from '@/components/DataComparator'
-import { ShortcutsDialog, useKeyboardShortcuts } from '@/components/ShortcutsDialog'
-import { DataHistory, saveToHistory } from '@/components/DataHistory'
+import { DataScopeErrorBoundary, GraphErrorBoundary } from '@/components/layout'
+import { FileInput, DataValidator, FormatOptionsDialog } from '@/components/data-input'
+import { TreeView, VirtualizedTreeView, GraphVisualization, Graph3DVisualization, LintErrorsDisplay } from '@/components/data-display'
+import { QueryPanel, DataTransformer, DataComparator, SchemaExtractor, ExportDialog } from '@/components/data-tools'
+import { QuickActionsPanel, QuickViewPanel, SmartSuggestionsPanel, FavoritesPanel, DataHistory, saveToHistory } from '@/components/panels'
+import { AdvancedSearch, SearchOptions } from '@/components/search'
+import { ShortcutsDialog, useKeyboardShortcuts } from '@/components/dialogs'
 import { StatsPanel, InsightsPanel, PerformanceAnalysis, GraphAnalyticsPanel } from '@/components/analytics'
-import { QuickActionsPanel } from '@/components/QuickActionsPanel'
-import { DataValidator } from '@/components/DataValidator'
-import { QuickViewPanel } from '@/components/QuickViewPanel'
-import { FavoritesPanel } from '@/components/FavoritesPanel'
-import { SmartSuggestionsPanel } from '@/components/SmartSuggestionsPanel'
-import { QueryPanel } from '@/components/QueryPanel'
-import { ErrorBoundary } from '@/components/ErrorBoundary'
+import { STORAGE_KEYS } from '@/constants/storage-keys'
 import { parseData, buildTree, calculateStats, getPathString, advancedSearchNodes, TreeNode, ValueType, DataFormat } from '@/lib/parser'
 import { formatJSON, minifyJSON, formatYAML, formatJSONL, lintJSON, FormatOptions, LintError } from '@/lib/formatter'
 import { buildGraph, analyzeGraph, GraphData, GraphAnalytics } from '@/lib/graph-analyzer'
@@ -679,7 +664,7 @@ interface AppProps {
 }
 
 function App({ onNavigateToDocs }: AppProps = {}) {
-  const [inputValue, setInputValue] = useKV('visualizer-input', '')
+  const [inputValue, setInputValue] = useKV(STORAGE_KEYS.INPUT, '')
   const [detectedFormat, setDetectedFormat] = useState<DataFormat>('json')
   const [parsedData, setParsedData] = useState<any>(null)
   const [error, setError] = useState<string>('')
@@ -700,7 +685,7 @@ function App({ onNavigateToDocs }: AppProps = {}) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [queryResults, setQueryResults] = useState<any[]>([])
   const searchInputRef = useRef<HTMLInputElement>(null)
-  const [history, setHistory] = useKV<any[]>('data-history', [])
+  const [history, setHistory] = useKV<any[]>(STORAGE_KEYS.HISTORY, [])
   const [searchOptions, setSearchOptions] = useState<SearchOptions>({
     searchTerm: '',
     searchMode: 'text',
@@ -1036,7 +1021,7 @@ function App({ onNavigateToDocs }: AppProps = {}) {
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-primary/5 via-transparent to-transparent pointer-events-none" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_left,_var(--tw-gradient-stops))] from-accent/5 via-transparent to-transparent pointer-events-none" />
         
-        <header className="sticky top-0 z-20 bg-background/95 backdrop-blur-xl border-b border-border/50 shadow-lg transition-all duration-300 relative">
+        <header className="sticky top-0 z-20 bg-background/95 backdrop-blur-xl border-b border-border/50 shadow-lg transition-all duration-300">
           <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-accent/5 to-primary/5 opacity-50" />
           <div className="max-w-[1800px] mx-auto px-4 md:px-6 lg:px-8 py-6 relative">
             <div className="flex items-center justify-between gap-4">

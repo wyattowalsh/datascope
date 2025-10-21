@@ -1,19 +1,17 @@
-# 🤖 AI Agent Context - DataScope Project
+# AGENTS.md
 
-**Quick Reference for AI/LLM Agents working on the DataScope codebase**
+DataScope is a professional data exploration, visualization, and analytics platform for structured data. This file provides context and instructions for AI coding agents.
 
-| Property | Value |
-|----------|-------|
-| **Live URL** | https://datascope.w4w.dev |
-| **Version** | 3.0.0 (Stability & Performance Update) |
-| **Tech Stack** | React 19, TypeScript 5.7, Vite 6.3, Tailwind CSS v4 |
-| **UI Components** | shadcn/ui v4, Radix UI, Phosphor Icons |
-| **Visualizations** | D3.js v7 (2D), Three.js v0.175 (3D), Canvas (large datasets) |
-| **State Management** | React Hooks + useKV (persistent storage) + Auto-save |
-| **Workers** | Web Workers for parsing/querying |
-| **Error Handling** | Error Boundaries with telemetry |
+## Project overview
 
-## 📋 Project Overview
+- **Live URL**: <https://datascope.w4w.dev\>
+- **Version**: 2.7.0
+- **Tech**: React 19, TypeScript 5.7, Vite 6.3, Tailwind CSS v4
+- **UI**: shadcn/ui v4, Radix UI, Phosphor Icons
+- **Viz**: D3.js v7 (2D), Three.js v0.175 (3D)
+- **State**: useKV (IndexedDB)
+- **Workers**: Off-thread parsing
+- **Query**: JSONPath
 
 **DataScope** is a professional-grade data exploration, visualization, and analytics platform for structured data formats. Built with React 19, TypeScript, and Vite, it provides multi-format parsing (JSON, YAML, XML, TOML, INI, JSONL, CSV), interactive visualizations (Tree, 2D/3D graphs), comprehensive analytics, intelligent user assistance, and advanced querying with JSONPath/jq-compatible syntax.
 
@@ -188,9 +186,54 @@ JSON/YAML prettify, minify, alphabetical sorting, lint errors
 └── CHANGELOG.md, FEATURES.md, etc.
 ```
 
-### State Management Patterns
+## Package management
 
-#### ✅ Persistent State (useKV)
+- ❌ **NEVER** manually edit `package.json`
+- ✅ **ALWAYS** use `npm install <package>`
+- ✅ **CHECK** installed packages: `npm list --depth=0`
+- ✅ **VERIFY** browser compatibility (no Node-only packages)
+
+## File restrictions
+
+**DO NOT EDIT** these files (structural):
+
+- `src/main.tsx`
+- `src/main.css`
+- `vite.config.ts`
+
+**SAFE TO EDIT** (application code):
+
+- `src/App.tsx`
+- `src/index.css`
+- All files in `src/components/`
+- All files in `src/lib/`
+- All files in `src/pages/`
+
+## Code style
+
+### TypeScript
+
+- Strict mode enabled
+- Explicit types for parameters
+- No `any` types
+- ESLint: Zero warnings/errors
+
+### React patterns
+
+- Functional components only
+- React hooks for state
+- Memoization for expensive computations
+- Callbacks for event handlers
+
+### Naming conventions
+
+- Components: `PascalCase` (TreeView.tsx)
+- Functions: `camelCase` (parseData)
+- Constants: `UPPER_SNAKE_CASE` (EXAMPLE_JSON)
+- CSS: `kebab-case` or Tailwind classes
+
+### Imports
+
 ```typescript
 // For data that survives page refresh
 const [input, setInput] = useKV('visualizer-input', '')
@@ -570,7 +613,6 @@ npm list --depth=0
 ```typescript
 // ✅ Correct asset imports
 import logoSvg from '@/assets/images/logo.svg'
-<img src={logoSvg} alt="Logo" />
 
 // ❌ Wrong (string paths)
 <img src="/src/assets/images/logo.svg" alt="Logo" />

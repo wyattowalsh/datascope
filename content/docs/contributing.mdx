@@ -1,0 +1,128 @@
+---
+title: Contributing Guide
+description: How to contribute to DataScope
+---
+
+# Contributing to DataScope
+
+Thank you for your interest in contributing! 🎉
+
+## Getting Started
+
+### Fork & Clone
+```bash
+git clone https://github.com/YOUR_USERNAME/datascope.git
+cd datascope
+npm install
+```
+
+### Development
+```bash
+npm run dev              # Start dev server (localhost:5000)
+npm run build            # Build for production
+npm run preview          # Preview production build
+```
+
+## Making Changes
+
+### Create a Branch
+```bash
+git checkout -b feature/add-xml-support
+git checkout -b fix/graph-memory-leak
+```
+
+### Key Guidelines
+
+**Package Management:**
+- ✅ Always use `npm install <package>`
+- ❌ Never manually edit package.json
+
+**Import Conventions:**
+```typescript
+// ✅ Use @ alias
+import { parseData } from '@/lib/parser'
+import { Button } from '@/components/ui/button'
+```
+
+**State Management:**
+```typescript
+// ✅ Persistent state with useKV
+const [data, setData] = useKV('key', defaultValue)
+setData(current => [...current, newItem])
+
+// ✅ Temporary UI state
+const [isOpen, setIsOpen] = useState(false)
+```
+
+## Testing Checklist
+
+- [ ] Works in Chrome, Firefox, Safari
+- [ ] Responsive on mobile (<768px)
+- [ ] Light and dark themes work
+- [ ] No console errors
+- [ ] Performance acceptable
+
+## Submitting Changes
+
+1. **Update your branch:**
+   ```bash
+   git fetch upstream
+   git rebase upstream/main
+   ```
+
+2. **Push to your fork:**
+   ```bash
+   git push origin feature/your-feature
+   ```
+
+3. **Create Pull Request** on GitHub
+   - Use the PR template
+   - Link related issues
+   - Add screenshots for UI changes
+
+## Style Guidelines
+
+### TypeScript
+```typescript
+// ✅ Explicit types for parameters
+function parseData(input: string, format: DataFormat): ParsedData {}
+
+// ✅ Interfaces for objects
+interface UserData {
+  id: string
+  name: string
+}
+```
+
+### React Components
+```typescript
+interface Props {
+  data: any
+  onUpdate: (value: any) => void
+}
+
+export const Component = ({ data, onUpdate }: Props) => {
+  const [state, setState] = useState()
+  return (...)
+}
+```
+
+## Commit Messages
+
+Use [Conventional Commits](https://www.conventionalcommits.org/):
+
+```
+feat: add XML data format support
+fix: resolve graph memory leak
+docs: update API documentation
+perf: optimize tree rendering
+```
+
+**Types:** `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `chore`
+
+## Questions?
+
+- 💬 [Discussions](https://github.com/wyattowalsh/datascope/discussions)
+- 📚 [Documentation](https://datascope.w4w.dev)
+
+Thank you for contributing! 🙌
