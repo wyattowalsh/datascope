@@ -1,0 +1,5 @@
+export { QuickActionsPanel } from './QuickActionsPanel'
+export { QuickViewPanel } from './QuickViewPanel'
+export { SmartSuggestionsPanel } from './SmartSuggestionsPanel'
+export { FavoritesPanel } from './FavoritesPanel'
+export { DataHistory, saveToHistory } from './DataHistory'

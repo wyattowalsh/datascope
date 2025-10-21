@@ -1,6 +1,7 @@
 import { parse as parseYAML } from 'yaml'
+import { parseXML, parseTOML, parseINI, parseProperties, detectDataFormat as detectFormat2 } from './data-parsers'
 
-export type DataFormat = 'json' | 'yaml' | 'jsonl' | 'json5' | 'csv' | 'unknown'
+export type DataFormat = 'json' | 'yaml' | 'jsonl' | 'json5' | 'csv' | 'xml' | 'toml' | 'ini' | 'properties' | 'unknown'
 
 export interface ParseResult {
   success: boolean
@@ -19,6 +20,12 @@ export function detectFormat(input: string): DataFormat {
   
   const trimmed = input.trim()
   if (!trimmed) return 'unknown'
+  
+  // Use enhanced detection from data-parsers
+  const detected = detectFormat2(trimmed)
+  if (detected !== 'unknown') {
+    return detected as DataFormat
+  }
   
   const lines = trimmed.split('\n').filter(l => l.trim())
   
@@ -207,6 +214,86 @@ export function parseData(input: string, format?: DataFormat): ParseResult {
         success: false,
         error: `YAML Error: ${yamlError.message}`,
         format: 'yaml'
+      }
+    }
+  }
+
+  // Try XML
+  if (detectedFormat === 'xml') {
+    try {
+      const data = parseXML(input)
+      const parseTime = performance.now() - startTime
+      return {
+        success: true,
+        data,
+        format: 'xml',
+        stats: { parseTime }
+      }
+    } catch (error: any) {
+      return {
+        success: false,
+        error: `XML Error: ${error.message}`,
+        format: 'xml'
+      }
+    }
+  }
+
+  // Try TOML
+  if (detectedFormat === 'toml') {
+    try {
+      const data = parseTOML(input)
+      const parseTime = performance.now() - startTime
+      return {
+        success: true,
+        data,
+        format: 'toml',
+        stats: { parseTime }
+      }
+    } catch (error: any) {
+      return {
+        success: false,
+        error: `TOML Error: ${error.message}`,
+        format: 'toml'
+      }
+    }
+  }
+
+  // Try INI
+  if (detectedFormat === 'ini') {
+    try {
+      const data = parseINI(input)
+      const parseTime = performance.now() - startTime
+      return {
+        success: true,
+        data,
+        format: 'ini',
+        stats: { parseTime }
+      }
+    } catch (error: any) {
+      return {
+        success: false,
+        error: `INI Error: ${error.message}`,
+        format: 'ini'
+      }
+    }
+  }
+
+  // Try Properties
+  if (detectedFormat === 'properties') {
+    try {
+      const data = parseProperties(input)
+      const parseTime = performance.now() - startTime
+      return {
+        success: true,
+        data,
+        format: 'properties',
+        stats: { parseTime }
+      }
+    } catch (error: any) {
+      return {
+        success: false,
+        error: `Properties Error: ${error.message}`,
+        format: 'properties'
       }
     }
   }

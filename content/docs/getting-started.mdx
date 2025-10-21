@@ -1,33 +1,292 @@
 ---
-title: Getting Started
-description: Learn how to use DataScope for data exploration and visualization
+title: Getting Started with DataScope
+description: Get up and running in 5 minutes - comprehensive quick start guide
 ---
 
-## Installation & Setup
+# Getting Started
 
-DataScope is a Spark application built with React and Vite. To run it locally:
+Get up and running with Data Scope in **under 5 minutes**. This guide covers loading, parsing, and visualizing your data.
+
+## 🌐 Online (No Installation)
+
+The fastest way to use DataScope:
+
+### Step 1: Visit the Live App
+Go to **[datascope.w4w.dev](https://datascope.w4w.dev)** - no sign-up required!
+
+### Step 2: Load Your Data
+Choose one of three methods:
+
+**Paste**: Copy and paste data directly into the input area
+- Best for: Quick tests, small files (< 1MB)
+- All formats supported
+- Auto-detection enabled
+
+**Upload**: Drag & drop or click to browse
+- Best for: Large files (> 1MB)
+- Supports: `.json`, `.yaml`, `.yml`, `.jsonl`, `.csv`, `.json5`
+- Progress feedback for large files
+
+**URL**: Load from a public URL
+- Best for: APIs, remote datasets
+- Enter any URL returning text
+- 30-second timeout
+
+### Step 3: Start Exploring
+DataScope auto-detects format and parses immediately:
+- View data in **Tree View** (default)
+- Switch to **2D Graph** or **3D Graph**
+- Run analytics and quality checks
+- Execute JSONPath queries
+- Export in any format
+
+> **Privacy Note**: Your data never leaves your browser. All processing is 100% client-side.
+
+## 💻 Local Development
+
+To run DataScope locally:
+
+### Prerequisites
+- **Node.js**: v18.0.0 or higher
+- **npm**: v9.0.0 or higher
+- **Modern browser**: Chrome 90+, Firefox 88+, Safari 14+
+
+### Installation Steps
 
 ```bash
+# 1. Clone repository
+git clone https://github.com/wyattowalsh/datascope.git
+cd datascope
+
+# 2. Install dependencies
 npm install
+
+# 3. Start dev server
 npm run dev
+
+# 4. Open browser
+# Navigate to http://localhost:5000
 ```
 
-The app will be available at the URL provided by Vite.
+The dev server includes hot module replacement (HMR) - changes reflect instantly!
 
-## Loading Data
+### Build for Production
 
-### Paste Data Directly
-Simply paste your JSON, YAML, JSONL, or CSV data into the text area. The format will be automatically detected.
+```bash
+# Build optimized version
+npm run build
 
-### Load from File
-Use the **File Input** panel on the right sidebar to:
-- Upload files from your computer
-- Load data from URLs
-- Access recent history
+# Preview production build
+npm run preview
+```
 
-### Try Examples
-Click the **Examples** dropdown to load sample data:
-- JSON - Organization structure
+## 📝 Your First Analysis
+
+Let's walk through a complete example:
+
+### 1. Load Example Data
+Click **Examples** → **JSON Example** to load sample user data.
+
+### 2. Explore Tree View
+The tree view shows your data structure:
+- **Expand/Collapse**: Click arrows to navigate
+- **Syntax Highlighting**: Colors indicate data types
+- **Path Selection**: Click nodes to select paths
+- **Copy Values**: Click copy icon on any node
+
+### 3. Switch to Graph View
+Click **Graph** tab to see visual relationships:
+- **Nodes**: Each data element
+- **Links**: Relationships between elements
+- **Layouts**: Try Force, Tree, Radial, or Grid
+- **Zoom**: Scroll to zoom, drag to pan
+- **Select**: Click nodes to highlight
+
+### 4. Run Analytics
+Scroll down to view automatic analytics:
+- **Statistics**: Total keys, max depth, type distribution
+- **Quality Score**: 0-100 rating with issues flagged
+- **Graph Metrics**: Centrality, clustering, density
+- **Performance**: Parse time, data size, node count
+
+### 5. Try JSONPath Queries
+Use the Query Panel to filter data:
+
+```jsonpath
+# Find all users
+$.users[*]
+
+# Users over 30
+$.users[?(@.age > 30)]
+
+# All email addresses
+$..email
+```
+
+Results appear instantly with live preview!
+
+### 6. Export Results
+Click **Export** and choose format:
+- JSON (formatted or minified)
+- YAML
+- CSV
+- JSONL
+- TypeScript interfaces
+- Plain text
+
+## 🎯 Common Workflows
+
+### Debugging API Responses
+
+1. Copy response from browser DevTools
+2. Paste into DataScope
+3. View parsed structure in tree
+4. Check for missing fields or type issues
+5. Use Data Validator for quality check
+
+### Converting Data Formats
+
+1. Load source data (e.g., JSON)
+2. Verify it parses correctly
+3. Click **Export**
+4. Select target format (e.g., YAML)
+5. Download converted file
+
+### Analyzing Large Datasets
+
+1. Upload large file (drag & drop)
+2. Wait for Web Worker parsing
+3. Use Advanced Search to filter
+4. Virtualization auto-enables for 1000+ nodes
+5. Run analytics for insights
+
+### Schema Discovery
+
+1. Load your data
+2. Open **Advanced Tools** section
+3. Click **Schema Extractor**
+4. Review generated JSON Schema
+5. Copy or export schema
+
+## ⌨️ Keyboard Shortcuts
+
+Speed up your workflow:
+
+| Shortcut | Action |
+|----------|--------|
+| `Ctrl/Cmd + P` | Parse data |
+| `Ctrl/Cmd + E` | Export data |
+| `Ctrl/Cmd + K` | Focus search |
+| `Ctrl/Cmd + F` | Format/Prettify |
+| `Ctrl/Cmd + M` | Minify |
+| `?` | Show all shortcuts |
+
+Press `?` anytime to see the complete list!
+
+## 📊 Supported Formats
+
+### JSON (JavaScript Object Notation)
+```json
+{
+  "name": "DataScope",
+  "version": "2.7.0",
+  "features": ["parsing", "visualization", "analytics"]
+}
+```
+
+### YAML (YAML Ain't Markup Language)
+```yaml
+name: DataScope
+version: 2.7.0
+features:
+  - parsing
+  - visualization
+  - analytics
+```
+
+### JSONL (JSON Lines)
+```jsonl
+{"id": 1, "name": "Alice"}
+{"id": 2, "name": "Bob"}
+```
+
+### CSV (Comma-Separated Values)
+```csv
+id,name,age
+1,Alice,30
+2,Bob,25
+```
+
+### JSON5 (JSON for Humans)
+```json5
+{
+  // Comments allowed
+  name: 'DataScope',  // Unquoted keys
+  version: '2.7.0',
+  trailing: 'comma',  // OK
+}
+```
+
+## 💡 Tips for Best Results
+
+### Performance Tips
+- For files > 10MB, use file upload (not paste)
+- Virtualization activates automatically for 1000+ nodes
+- Use Advanced Search to filter before expanding large trees
+- Canvas mode auto-enables for graphs with 5000+ nodes
+
+### Format Tips
+- **JSON**: Must be valid (no trailing commas, proper quotes)
+- **YAML**: Use spaces for indentation (not tabs)
+- **JSONL**: One JSON object per line, no commas between
+- **CSV**: First row must be headers, consistent columns
+
+## 🐛 Troubleshooting
+
+### Parse Errors
+**Problem**: "Failed to parse" error
+
+**Solutions**:
+- Check for syntax errors
+- Verify format matches selected tab
+- Look for special characters or encoding issues
+- Try pasting a smaller sample first
+
+### Performance Issues
+**Problem**: App feels slow
+
+**Solutions**:
+- Use file upload for large datasets
+- Wait for Web Worker parsing
+- Close other browser tabs
+- Clear browser cache and reload
+
+### Visualization Not Showing
+**Problem**: Graph or tree is blank
+
+**Solutions**:
+- Verify data parsed successfully
+- Try refreshing the page
+- Switch between visualization modes
+- Check browser console for errors
+
+## 🚀 Next Steps
+
+Now that you're familiar with the basics:
+
+- **[Features Documentation](/docs/features)** - Master all features
+- **[Architecture Guide](/docs/architecture)** - Understand the codebase
+- **[API Reference](/docs/api)** - Developer documentation
+
+## 🆘 Need Help?
+
+- **[GitHub Issues](https://github.com/wyattowalsh/datascope/issues)** - Report bugs
+- **[GitHub Discussions](https://github.com/wyattowalsh/datascope/discussions)** - Ask questions
+- **[Full Documentation](/docs)** - Complete guides
+
+---
+
+**Congratulations!** You're ready to use DataScope effectively. Explore the feature guides to unlock its full potential
 - YAML - Kubernetes deployment
 - JSONL - Application logs
 - CSV - User analytics

@@ -6,6 +6,11 @@
     "features",
     "architecture",
     "api",
-    "development"
+    "development",
+    "agents-guide",
+    "changelog",
+    "contributing",
+    "security",
+    "project-structure"
   ]
 }

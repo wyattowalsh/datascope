@@ -1,0 +1,116 @@
+---
+title: Security Policy
+description: Security guidelines and vulnerability reporting
+---
+
+# Security Policy
+
+## Supported Versions
+
+| Version | Supported          |
+| ------- | ------------------ |
+| 2.7.x   | ✅ Yes |
+| 2.6.x   | ✅ Yes |
+| < 2.0   | ❌ No |
+
+## Reporting a Vulnerability
+
+**Do not report security vulnerabilities through public GitHub issues.**
+
+### Preferred Method
+
+Report privately through [GitHub Security Advisories](https://github.com/wyattowalsh/datascope/security/advisories/new)
+
+### Alternative
+
+Email: opensource-security@github.com
+
+### What to Include
+
+- Type of issue (XSS, injection, etc.)
+- Source file paths
+- Location (tag/branch/commit)
+- Steps to reproduce
+- Proof-of-concept code
+- Impact assessment
+
+### Response Timeline
+
+- **Initial Response:** Within 48 hours
+- **Status Update:** Within 1 week
+- **Fix Timeline:**
+  - Critical: 7 days
+  - High: 14 days
+  - Medium: 30 days
+
+## Security Best Practices
+
+### For Users
+
+**Data Privacy:**
+- All processing happens in your browser
+- No server storage
+- Uses IndexedDB for persistence
+- No data analytics
+
+**Safe Usage:**
+- Only load data from trusted sources
+- Avoid pasting credentials or API keys
+- Be cautious with untrusted URLs
+- Keep browser updated
+
+### For Developers
+
+**Input Validation:**
+```typescript
+// ✅ Sanitize user input
+const sanitized = DOMPurify.sanitize(userInput)
+
+// ✅ Validate URLs
+if (!/^https?:\/\//.test(url)) throw new Error('Invalid URL')
+
+// ✅ Limit data size
+if (data.length > MAX_SIZE) throw new Error('Data too large')
+```
+
+**Dependencies:**
+- Regular `npm audit` checks
+- Automated updates via GitHub Actions
+- Browser-compatible packages only
+
+## Known Security Considerations
+
+### Client-Side Processing
+- No data transmitted to servers
+- User controls all data
+- No backend attack surface
+
+### Browser Storage
+- IndexedDB persists across sessions
+- Not encrypted at rest
+- Clear on shared devices
+
+## Vulnerability Disclosure
+
+We follow coordinated disclosure:
+1. Private report
+2. Acknowledgment within 48 hours
+3. Investigation and fix
+4. Coordinated public release
+
+### Recognition
+
+Responsible researchers will be:
+- Acknowledged in advisories
+- Listed in SECURITY_ACKNOWLEDGMENTS.md
+- Thanked in release notes
+
+## Contact
+
+- **Security Issues:** [GitHub Security Advisories](https://github.com/wyattowalsh/datascope/security/advisories/new)
+- **General Questions:** [Discussions](https://github.com/wyattowalsh/datascope/discussions)
+- **Bugs:** [GitHub Issues](https://github.com/wyattowalsh/datascope/issues)
+
+---
+
+**Last Updated:** October 18, 2025

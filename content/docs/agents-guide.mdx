@@ -1,0 +1,172 @@
+---
+title: "AGENTS.md Guide"
+description: "Understanding and using AGENTS.md files in DataScope"
+---
+
+# AGENTS.md Guide
+
+DataScope uses the [AGENTS.md standard](https://agents.md) to provide context and instructions for AI coding agents.
+
+## What is AGENTS.md?
+
+AGENTS.md is an open standard (used by 20k+ GitHub repositories) that provides a predictable, machine-readable way to guide AI coding agents. Think of it as a **README for agents**: a dedicated place to provide the context and instructions that help AI work on your project.
+
+## File structure
+
+DataScope has three AGENTS.md files:
+
+### Root AGENTS.md
+
+**Location**: `/AGENTS.md`  
+**Purpose**: Essential project context and universal rules  
+**Size**: ~4.6 KB (streamlined)
+
+**Contains**:
+- Project overview (tech stack, live URL)
+- Setup commands (npm install, dev, build)
+- Package management rules
+- File restrictions (DO NOT EDIT vs SAFE TO EDIT)
+- Code style (TypeScript, React, naming, imports, state)
+- Testing instructions
+- Key architecture
+- Common tasks
+- **Documentation rules** (enforces docs site usage)
+
+### Documentation AGENTS.md
+
+**Location**: `/content/docs/AGENTS.md`  
+**Purpose**: Context for working with MDX documentation  
+**Size**: ~2.5 KB
+
+**Contains**:
+- Documentation structure (10 MDX files)
+- MDX conventions (frontmatter, code blocks, links)
+- Navigation system (meta.json)
+- Rendering system (Docs.tsx, marked, FumadocsLayout)
+- Adding new documentation pages
+- Common issues and solutions
+- Style guide
+
+### Application AGENTS.md
+
+**Location**: `/src/AGENTS.md`  
+**Purpose**: Context for React components and application code  
+**Size**: ~7.2 KB
+
+**Contains**:
+- Component architecture
+- Component organization (analytics/, ui/, features)
+- Component patterns (useKV, structure templates)
+- Library files (parser.ts, formatter.ts, analytics.ts)
+- Custom hooks (use-kv, use-theme, use-mobile)
+- Visualization components
+- Common tasks (adding features, analytics, parser formats)
+- Performance optimization
+- Testing checklist
+- Common pitfalls with solutions
+
+## Key principles
+
+### 1. Simple, open format
+
+Plain Markdown with clear sections and code examples. No proprietary syntax or meta-prompting.
+
+### 2. Machine-readable instructions
+
+Clear do/don't lists with examples:
+
+```typescript
+// ✅ CORRECT - functional update
+setHistory(current => [...current, newItem])
+
+// ❌ WRONG - stale closure
+setHistory([...history, newItem])
+```
+
+### 3. Hierarchical context
+
+Root file provides universal context. Nested files provide subsystem-specific details. Agents read the nearest AGENTS.md in the directory tree.
+
+### 4. Documentation enforcement
+
+**ALL documentation must go in `content/docs/`** - no ad-hoc `.md` files allowed. This keeps documentation centralized, discoverable, and maintainable.
+
+## Benefits
+
+### For AI coding agents
+
+- ✅ Predictable structure across 20k+ repos
+- ✅ Clear do/don't guidance prevents common mistakes
+- ✅ Subsystem context prevents information overload
+- ✅ Step-by-step tasks enable autonomous work
+- ✅ Testing checklists ensure quality
+
+### For human developers
+
+- ✅ Quick reference for project setup
+- ✅ Style guide for consistent code
+- ✅ Common tasks documented
+- ✅ Architecture overview
+- ✅ Security and deployment info
+
+### For project maintenance
+
+- ✅ Single source of truth for agent instructions
+- ✅ Easier to update than scattered comments
+- ✅ Standard format works with all major AI coding assistants
+- ✅ Nested files keep subsystem context focused
+
+## Compatible tools
+
+AGENTS.md works with all major AI coding assistants:
+
+- **OpenAI Codex** - General-purpose CLI tooling
+- **Jules from Google** - Google's coding agent
+- **GitHub Copilot** - Coding agent feature
+- **Cursor** - AI-first code editor
+- **VS Code** - With Copilot extension
+- **Aider** - AI pair programming in terminal
+- **Zed**, **Warp**, **Amp**, **RooCode** - Other AI coding tools
+
+## Best practices
+
+### Keep it minimal
+
+Focus on essential context and actionable instructions. Move detailed feature documentation to regular docs.
+
+### Use do/don't examples
+
+Show both correct and incorrect patterns with clear labels:
+
+```typescript
+// ✅ Correct asset imports
+import logoSvg from '@/assets/images/logo.svg'
+
+// ❌ Wrong (string paths)
+<img src="/src/assets/images/logo.svg" alt="Logo" />
+```
+
+### Update regularly
+
+AGENTS.md is living documentation. Update it as the project evolves.
+
+### Enforce subsystem files
+
+Create nested AGENTS.md for major subsystems (docs, src, etc.) to keep context focused.
+
+### Review like code
+
+AGENTS.md changes should go through code review to ensure accuracy and clarity.
+
+## References
+
+- [agents.md standard](https://agents.md)
+- [GitHub examples](https://github.com/search?q=path%3AAGENTS.md&type=code)
+- [OpenAI Codex](https://github.com/openai/codex)
+- [Builder.io blog: "Stop re-prompting. Put the rules in AGENTS.md"](https://www.builder.io/blog/agents-md)
+- InfoQ news: "Used by more than 20,000 repositories on GitHub"
+
+---
+
+**Last Updated**: 2025-01-16  
+**Version**: 5.0 (Community Best Practices)

@@ -35,25 +35,15 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
-import { TreeView } from '@/components/TreeView'
-import { FormatOptionsDialog } from '@/components/FormatOptionsDialog'
-import { LintErrorsDisplay } from '@/components/LintErrorsDisplay'
-import { GraphVisualization } from '@/components/GraphVisualization'
-import { Graph3DVisualization } from '@/components/Graph3DVisualization'
-import { AdvancedSearch, SearchOptions } from '@/components/AdvancedSearch'
-import { FileInput } from '@/components/FileInput'
-import { ExportDialog } from '@/components/ExportDialog'
-import { SchemaExtractor } from '@/components/SchemaExtractor'
-import { DataTransformer } from '@/components/DataTransformer'
-import { DataComparator } from '@/components/DataComparator'
-import { ShortcutsDialog, useKeyboardShortcuts } from '@/components/ShortcutsDialog'
-import { DataHistory, saveToHistory } from '@/components/DataHistory'
+import { DataScopeErrorBoundary, GraphErrorBoundary } from '@/components/layout'
+import { FileInput, DataValidator, FormatOptionsDialog } from '@/components/data-input'
+import { TreeView, VirtualizedTreeView, GraphVisualization, Graph3DVisualization, LintErrorsDisplay } from '@/components/data-display'
+import { QueryPanel, DataTransformer, DataComparator, SchemaExtractor, ExportDialog } from '@/components/data-tools'
+import { QuickActionsPanel, QuickViewPanel, SmartSuggestionsPanel, FavoritesPanel, DataHistory, saveToHistory } from '@/components/panels'
+import { AdvancedSearch, SearchOptions } from '@/components/search'
+import { ShortcutsDialog, useKeyboardShortcuts } from '@/components/dialogs'
 import { StatsPanel, InsightsPanel, PerformanceAnalysis, GraphAnalyticsPanel } from '@/components/analytics'
-import { QuickActionsPanel } from '@/components/QuickActionsPanel'
-import { DataValidator } from '@/components/DataValidator'
-import { QuickViewPanel } from '@/components/QuickViewPanel'
-import { FavoritesPanel } from '@/components/FavoritesPanel'
-import { SmartSuggestionsPanel } from '@/components/SmartSuggestionsPanel'
+import { STORAGE_KEYS } from '@/constants/storage-keys'
 import { parseData, buildTree, calculateStats, getPathString, advancedSearchNodes, TreeNode, ValueType, DataFormat } from '@/lib/parser'
 import { formatJSON, minifyJSON, formatYAML, formatJSONL, lintJSON, FormatOptions, LintError } from '@/lib/formatter'
 import { buildGraph, analyzeGraph, GraphData, GraphAnalytics } from '@/lib/graph-analyzer'
@@ -393,12 +383,141 @@ const EXAMPLE_CSV = `userId,username,email,signupDate,subscription,monthlySpend,
 1014,olivia_brown,olivia.b@agency.uk,2023-05-03,premium,89.99,true,UK,2024-03-20T15:22:17Z,267,11.3,2969.67
 1015,pierre_dubois,p.dubois@tech.fr,2023-03-17,enterprise,249.99,true,France,2024-03-20T12:44:29Z,612,28.7,13499.45`
 
+const EXAMPLE_XML = `<?xml version="1.0" encoding="UTF-8"?>
+<catalog>
+  <product id="prod_001">
+    <name>DataScope Pro</name>
+    <category>Analytics</category>
+    <price currency="USD">49.99</price>
+    <features>
+      <feature>Multi-format support</feature>
+      <feature>Real-time visualization</feature>
+      <feature>Advanced analytics</feature>
+    </features>
+    <specs>
+      <memory>4GB</memory>
+      <storage>100GB</storage>
+      <users>unlimited</users>
+    </specs>
+  </product>
+  <product id="prod_002">
+    <name>DataScope Enterprise</name>
+    <category>Analytics</category>
+    <price currency="USD">249.99</price>
+    <features>
+      <feature>Everything in Pro</feature>
+      <feature>SSO integration</feature>
+      <feature>Dedicated support</feature>
+    </features>
+  </product>
+</catalog>`
+
+const EXAMPLE_TOML = `# DataScope Configuration
+title = "DataScope Settings"
+version = "2.5.0"
+
+[server]
+host = "localhost"
+port = 3000
+debug = true
+max_connections = 100
+
+[database]
+host = "db.datascope.local"
+port = 5432
+name = "datascope_prod"
+pool_size = 20
+
+[cache]
+enabled = true
+ttl = 3600
+provider = "redis"
+
+[cache.redis]
+host = "cache.datascope.local"
+port = 6379
+db = 0
+
+[features]
+graph_3d = true
+exports = ["json", "csv", "yaml", "xml"]
+max_file_size = 104857600
+
+[logging]
+level = "info"
+format = "json"
+output = "stdout"`
+
+const EXAMPLE_INI = `; DataScope Application Settings
+[Application]
+Name = DataScope
+Version = 2.5.0
+Environment = production
+
+[Server]
+Host = localhost
+Port = 3000
+SSL = true
+Timeout = 30
+
+[Database]
+Provider = PostgreSQL
+Host = db.datascope.local
+Port = 5432
+Database = datascope_prod
+MaxConnections = 50
+
+[Cache]
+Enabled = true
+TTL = 3600
+Provider = Redis
+Host = cache.datascope.local
+
+[Features]
+GraphVisualization = true
+3DMode = true
+ExportFormats = JSON,CSV,YAML,XML
+MaxFileSize = 100MB`
+
+const EXAMPLE_PROPERTIES = `# DataScope Application Properties
+app.name=DataScope
+app.version=2.5.0
+app.environment=production
+
+# Server Configuration
+server.host=localhost
+server.port=3000
+server.ssl.enabled=true
+server.timeout=30
+
+# Database Settings
+db.provider=PostgreSQL
+db.host=db.datascope.local
+db.port=5432
+db.name=datascope_prod
+db.pool.size=20
+db.pool.min=5
+db.pool.max=50
+
+# Cache Configuration
+cache.enabled=true
+cache.ttl=3600
+cache.provider=redis
+cache.redis.host=cache.datascope.local
+cache.redis.port=6379
+
+# Feature Flags
+features.graph.enabled=true
+features.graph.3d=true
+features.export.formats=json,csv,yaml,xml
+features.upload.maxSize=104857600`
+
 interface AppProps {
   onNavigateToDocs?: () => void
 }
 
 function App({ onNavigateToDocs }: AppProps = {}) {
-  const [inputValue, setInputValue] = useKV('visualizer-input', '')
+  const [inputValue, setInputValue] = useKV(STORAGE_KEYS.INPUT, '')
   const [detectedFormat, setDetectedFormat] = useState<DataFormat>('json')
   const [parsedData, setParsedData] = useState<any>(null)
   const [error, setError] = useState<string>('')
@@ -417,7 +536,7 @@ function App({ onNavigateToDocs }: AppProps = {}) {
   const [toolsExpanded, setToolsExpanded] = useState(false)
   const [parseMetrics, setParseMetrics] = useState<{parseTime: number, dataSize: number, nodeCount: number, edgeCount: number} | null>(null)
   const searchInputRef = useRef<HTMLInputElement>(null)
-  const [history, setHistory] = useKV<any[]>('data-history', [])
+  const [history, setHistory] = useKV<any[]>(STORAGE_KEYS.HISTORY, [])
   const [searchOptions, setSearchOptions] = useState<SearchOptions>({
     searchTerm: '',
     searchMode: 'text',
@@ -600,6 +719,10 @@ function App({ onNavigateToDocs }: AppProps = {}) {
       yaml: EXAMPLE_YAML,
       jsonl: EXAMPLE_JSONL,
       csv: EXAMPLE_CSV,
+      xml: EXAMPLE_XML,
+      toml: EXAMPLE_TOML,
+      ini: EXAMPLE_INI,
+      properties: EXAMPLE_PROPERTIES,
       json5: EXAMPLE_JSON,
       unknown: EXAMPLE_JSON
     }
@@ -729,7 +852,7 @@ function App({ onNavigateToDocs }: AppProps = {}) {
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-primary/5 via-transparent to-transparent pointer-events-none" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_left,_var(--tw-gradient-stops))] from-accent/5 via-transparent to-transparent pointer-events-none" />
         
-        <header className="sticky top-0 z-20 bg-background/95 backdrop-blur-xl border-b border-border/50 shadow-lg transition-all duration-300 relative">
+        <header className="sticky top-0 z-20 bg-background/95 backdrop-blur-xl border-b border-border/50 shadow-lg transition-all duration-300">
           <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-accent/5 to-primary/5 opacity-50" />
           <div className="max-w-[1800px] mx-auto px-4 md:px-6 lg:px-8 py-6 relative">
             <div className="flex items-center justify-between gap-4">

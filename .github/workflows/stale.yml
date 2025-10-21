@@ -1,0 +1,71 @@
+name: Stale Issue Management
+
+on:
+  schedule:
+    # Run daily at midnight UTC
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+
+jobs:
+  stale:
+    name: Mark Stale Issues
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      pull-requests: write
+    
+    steps:
+      - uses: actions/stale@v9
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          
+          # Issue settings
+          stale-issue-message: |
+            👋 This issue has been automatically marked as stale because it has not had recent activity.
+            
+            It will be closed in 7 days if no further activity occurs.
+            
+            If this issue is still relevant, please:
+            - Comment to keep it open
+            - Add the `keep-open` label
+            - Provide additional context or updates
+            
+            Thank you for your contribution! 🙏
+          
+          close-issue-message: |
+            🔒 This issue has been automatically closed due to inactivity.
+            
+            If you believe this issue should be reopened, please create a new issue with:
+            - Reference to this closed issue
+            - Updated context and information
+            - Current reproducibility status
+          
+          stale-issue-label: 'stale'
+          days-before-issue-stale: 60
+          days-before-issue-close: 7
+          exempt-issue-labels: 'keep-open,in-progress,pinned,security,bug'
+          
+          # PR settings
+          stale-pr-message: |
+            👋 This pull request has been automatically marked as stale because it has not had recent activity.
+            
+            It will be closed in 7 days if no further activity occurs.
+            
+            To keep this PR active:
+            - Push new commits
+            - Request review
+            - Add the `keep-open` label
+            - Comment with an update
+          
+          close-pr-message: |
+            🔒 This pull request has been automatically closed due to inactivity.
+            
+            If you'd like to continue this work, please:
+            - Reopen with updated changes
+            - Create a new PR
+            - Reference this PR number
+          
+          stale-pr-label: 'stale'
+          days-before-pr-stale: 30
+          days-before-pr-close: 7
+          exempt-pr-labels: 'keep-open,in-progress,work-in-progress'

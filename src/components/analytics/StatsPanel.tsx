@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, memo } from 'react'
 import { DataStats, ValueType } from '@/lib/parser'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -35,7 +35,7 @@ function AnimatedNumber({ value, className }: { value: number; className?: strin
   return <span className={className}>{displayValue}</span>
 }
 
-export function StatsPanel({ stats }: { stats: DataStats }) {
+export const StatsPanel = memo(function StatsPanel({ stats }: { stats: DataStats }) {
   const typeStats: StatsInfo[] = (Object.entries(stats.typeCount) as [ValueType, number][])
     .filter(([_, count]) => count > 0)
     .map(([type, count]) => ({
@@ -138,4 +138,4 @@ export function StatsPanel({ stats }: { stats: DataStats }) {
       </div>
     </Card>
   )
-}
+})

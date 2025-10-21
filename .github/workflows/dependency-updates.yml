@@ -1,0 +1,60 @@
+name: Dependency Updates
+
+on:
+  schedule:
+    # Run every Monday at 9 AM UTC
+    - cron: '0 9 * * 1'
+  workflow_dispatch:
+
+jobs:
+  update-dependencies:
+    name: Update Dependencies
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18.x'
+          cache: 'npm'
+      
+      - name: Check for outdated packages
+        run: |
+          npm outdated > outdated.txt || true
+          cat outdated.txt
+      
+      - name: Update patch versions
+        run: npm update
+      
+      - name: Run tests
+        run: npm test
+        continue-on-error: true
+      
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: 'chore: update dependencies (automated)'
+          title: '🔄 Automated Dependency Updates'
+          body: |
+            ## Automated Dependency Updates
+            
+            This PR updates patch versions of dependencies.
+            
+            ### Changes
+            - Updated patch versions to latest
+            - Ran automated tests
+            
+            ### Review Checklist
+            - [ ] Verify all tests pass
+            - [ ] Check for breaking changes in CHANGELOG files
+            - [ ] Test critical functionality manually
+            
+            **Note:** This is an automated PR. Please review carefully before merging.
+          branch: chore/dependency-updates
+          labels: dependencies, automated

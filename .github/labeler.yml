@@ -1,0 +1,106 @@
+# Label configuration for PR auto-labeling
+
+# Documentation
+documentation:
+  - changed-files:
+    - any-glob-to-any-file: 
+      - 'docs/**/*'
+      - '*.md'
+      - 'AGENTS.md'
+      - 'README.md'
+      - 'CHANGELOG.md'
+      - 'CONTRIBUTING.md'
+      - 'SECURITY.md'
+
+# Features
+feature:
+  - changed-files:
+    - any-glob-to-any-file: 
+      - 'src/features/**/*'
+
+# Components
+ui:
+  - changed-files:
+    - any-glob-to-any-file: 
+      - 'src/components/ui/**/*'
+
+# Visualization
+visualization:
+  - changed-files:
+    - any-glob-to-any-file: 
+      - 'src/features/visualization/**/*'
+      - 'src/components/Graph*.tsx'
+      - 'src/components/TreeView.tsx'
+      - 'src/components/Virtualized*.tsx'
+
+# Analytics
+analytics:
+  - changed-files:
+    - any-glob-to-any-file: 
+      - 'src/features/analytics/**/*'
+      - 'src/components/analytics/**/*'
+      - 'src/lib/graph-analyzer.ts'
+
+# Performance
+performance:
+  - changed-files:
+    - any-glob-to-any-file: 
+      - 'src/workers/**/*'
+      - 'src/lib/worker-manager.ts'
+      - 'src/lib/state-recovery.ts'
+
+# Search
+search:
+  - changed-files:
+    - any-glob-to-any-file: 
+      - 'src/features/search/**/*'
+      - 'src/components/AdvancedSearch.tsx'
+      - 'src/components/QueryPanel.tsx'
+      - 'src/lib/query-engine.ts'
+
+# Data Operations
+data-operations:
+  - changed-files:
+    - any-glob-to-any-file: 
+      - 'src/features/data-operations/**/*'
+      - 'src/lib/parser.ts'
+      - 'src/lib/formatter.ts'
+
+# Styling
+styling:
+  - changed-files:
+    - any-glob-to-any-file: 
+      - 'src/**/*.css'
+      - 'src/styles/**/*'
+      - 'config/tailwind.config.js'
+
+# Configuration
+config:
+  - changed-files:
+    - any-glob-to-any-file: 
+      - 'config/**/*'
+      - '*.config.*'
+      - 'tsconfig.json'
+      - 'package.json'
+
+# Dependencies
+dependencies:
+  - changed-files:
+    - any-glob-to-any-file: 
+      - 'package.json'
+      - 'package-lock.json'
+
+# CI/CD
+cicd:
+  - changed-files:
+    - any-glob-to-any-file: 
+      - '.github/workflows/**/*'
+      - '.github/**/*'
+
+# Tests
+tests:
+  - changed-files:
+    - any-glob-to-any-file: 
+      - '**/*.test.*'
+      - '**/*.spec.*'
+      - 'tests/**/*'
