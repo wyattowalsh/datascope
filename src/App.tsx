@@ -401,6 +401,279 @@ const EXAMPLE_CSV = `userId,username,email,signupDate,subscription,monthlySpend,
 1014,olivia_brown,olivia.b@agency.uk,2023-05-03,premium,89.99,true,UK,2024-03-20T15:22:17Z,267,11.3,2969.67
 1015,pierre_dubois,p.dubois@tech.fr,2023-03-17,enterprise,249.99,true,France,2024-03-20T12:44:29Z,612,28.7,13499.45`
 
+const EXAMPLE_XML = `<?xml version="1.0" encoding="UTF-8"?>
+<dataScope>
+  <application>
+    <name>DataScope Analytics Platform</name>
+    <version>3.0.0</version>
+    <releaseDate>2024-03-20</releaseDate>
+    <description>Professional data visualization and analytics tool</description>
+  </application>
+  <features>
+    <feature id="1" priority="high">
+      <name>Multi-Format Parsing</name>
+      <status>stable</status>
+      <formats>
+        <format>JSON</format>
+        <format>YAML</format>
+        <format>XML</format>
+        <format>TOML</format>
+        <format>INI</format>
+        <format>CSV</format>
+        <format>JSONL</format>
+      </formats>
+      <performance>
+        <avgParseTime unit="ms">45</avgParseTime>
+        <maxFileSize unit="MB">100</maxFileSize>
+      </performance>
+    </feature>
+    <feature id="2" priority="high">
+      <name>3D Visualization</name>
+      <status>stable</status>
+      <engine>Three.js</engine>
+      <maxNodes>50000</maxNodes>
+      <features>
+        <item>Level of Detail (LOD)</item>
+        <item>Orbit Controls</item>
+        <item>Node Clustering</item>
+      </features>
+    </feature>
+    <feature id="3" priority="medium">
+      <name>Query Engine</name>
+      <status>stable</status>
+      <languages>
+        <language>JSONPath</language>
+        <language>jq-compatible</language>
+      </languages>
+      <performance>
+        <workerBased>true</workerBased>
+        <asyncExecution>true</asyncExecution>
+      </performance>
+    </feature>
+  </features>
+  <analytics>
+    <tracking enabled="true">
+      <provider>Google Tag Manager</provider>
+      <id>GTM-KDKW33HQ</id>
+    </tracking>
+    <metrics>
+      <metric name="parseCount" value="15780"/>
+      <metric name="avgFileSize" value="2.4" unit="MB"/>
+      <metric name="userSatisfaction" value="4.8" max="5.0"/>
+    </metrics>
+  </analytics>
+  <deployment>
+    <platform>Vercel</platform>
+    <region>Global Edge Network</region>
+    <cdn enabled="true"/>
+    <ssl type="automatic"/>
+  </deployment>
+</dataScope>`
+
+const EXAMPLE_TOML = `# DataScope Configuration
+
+title = "DataScope Analytics Platform"
+version = "3.0.0"
+release_date = 2024-03-20T00:00:00Z
+
+[application]
+name = "DataScope"
+description = "Professional data visualization and analytics tool"
+author = "DataScope Team"
+license = "MIT"
+
+[application.features]
+multi_format = true
+real_time_parsing = true
+worker_based = true
+crash_recovery = true
+
+[server]
+host = "0.0.0.0"
+port = 3000
+max_file_size_mb = 100
+timeout_seconds = 30
+
+[server.cors]
+enabled = true
+origins = ["https://datascope.w4w.dev", "http://localhost:3000"]
+methods = ["GET", "POST", "PUT", "DELETE"]
+
+[database]
+type = "IndexedDB"
+name = "datascope_v3"
+version = 3
+
+[database.stores]
+history = { keyPath = "id", autoIncrement = true }
+favorites = { keyPath = "id", autoIncrement = true }
+queries = { keyPath = "id", autoIncrement = true }
+
+[visualization]
+default_view = "tree"
+max_nodes = 50000
+enable_3d = true
+enable_canvas = true
+
+[visualization.graph]
+layout = "force"
+node_size = 8
+edge_width = 1.5
+collision_radius = 15
+
+[visualization.tree]
+virtualized_threshold = 10000
+row_height = 28
+indent_size = 20
+
+[performance]
+web_workers = true
+virtualization = true
+level_of_detail = true
+debounce_ms = 300
+
+[performance.thresholds]
+small_dataset = 1000
+medium_dataset = 10000
+large_dataset = 50000
+
+[analytics]
+enabled = true
+provider = "Google Tag Manager"
+tracking_id = "GTM-KDKW33HQ"
+
+[[formats]]
+name = "JSON"
+extension = ".json"
+mime_type = "application/json"
+supported = true
+
+[[formats]]
+name = "YAML"
+extension = ".yaml"
+mime_type = "text/yaml"
+supported = true
+
+[[formats]]
+name = "XML"
+extension = ".xml"
+mime_type = "application/xml"
+supported = true
+
+[[formats]]
+name = "TOML"
+extension = ".toml"
+mime_type = "application/toml"
+supported = true
+
+[[formats]]
+name = "INI"
+extension = ".ini"
+mime_type = "text/plain"
+supported = true
+
+[[formats]]
+name = "CSV"
+extension = ".csv"
+mime_type = "text/csv"
+supported = true`
+
+const EXAMPLE_INI = `; DataScope Configuration File
+; Version 3.0.0
+; Last Updated: 2024-03-20
+
+[Application]
+Name=DataScope Analytics Platform
+Version=3.0.0
+Description=Professional data visualization and analytics tool
+Author=DataScope Team
+License=MIT
+ReleaseDate=2024-03-20
+
+[Server]
+Host=0.0.0.0
+Port=3000
+MaxFileSizeMB=100
+TimeoutSeconds=30
+EnableCompression=true
+EnableCaching=true
+
+[Server.CORS]
+Enabled=true
+Origins=https://datascope.w4w.dev,http://localhost:3000
+Methods=GET,POST,PUT,DELETE
+AllowCredentials=true
+
+[Database]
+Type=IndexedDB
+Name=datascope_v3
+Version=3
+AutoUpgrade=true
+
+[Visualization]
+DefaultView=tree
+MaxNodes=50000
+Enable3D=true
+EnableCanvas=true
+EnableVirtualization=true
+
+[Visualization.Graph]
+Layout=force
+NodeSize=8
+EdgeWidth=1.5
+CollisionRadius=15
+ChargeStrength=-300
+LinkDistance=50
+
+[Visualization.Tree]
+VirtualizedThreshold=10000
+RowHeight=28
+IndentSize=20
+ExpandByDefault=false
+
+[Performance]
+WebWorkers=true
+Virtualization=true
+LevelOfDetail=true
+DebounceMsGraph capabilities enabled
+ParseThresholdMs=200
+
+[Performance.Thresholds]
+SmallDataset=1000
+MediumDataset=10000
+LargeDataset=50000
+
+[Analytics]
+Enabled=true
+Provider=Google Tag Manager
+TrackingID=GTM-KDKW33HQ
+AnonymizeIP=true
+TrackExports=true
+TrackFormats=true
+
+[Features]
+MultiFormat=true
+RealTimeParsing=true
+WorkerBased=true
+CrashRecovery=true
+AutoSave=true
+QueryEngine=true
+AdvancedSearch=true
+
+[Export]
+DefaultFormat=JSON
+IndentSize=2
+SortKeys=false
+IncludeMetadata=false
+FlattenNested=false
+
+[UI]
+Theme=auto
+PrimaryColor=#5668e8
+AccentColor=#66b8ff
+FontFamily=Inter
+CodeFontFamily=JetBrains Mono`
+
 interface AppProps {
   onNavigateToDocs?: () => void
 }
@@ -631,6 +904,9 @@ function App({ onNavigateToDocs }: AppProps = {}) {
       yaml: EXAMPLE_YAML,
       jsonl: EXAMPLE_JSONL,
       csv: EXAMPLE_CSV,
+      xml: EXAMPLE_XML,
+      toml: EXAMPLE_TOML,
+      ini: EXAMPLE_INI,
       json5: EXAMPLE_JSON,
       unknown: EXAMPLE_JSON
     }
@@ -854,6 +1130,9 @@ function App({ onNavigateToDocs }: AppProps = {}) {
                       {detectedFormat === 'jsonl' && <ListBullets size={14} weight="duotone" className="text-primary" />}
                       {detectedFormat === 'csv' && <FileCsv size={14} weight="duotone" className="text-primary" />}
                       {detectedFormat === 'json5' && <Table size={14} weight="duotone" className="text-primary" />}
+                      {detectedFormat === 'xml' && <Code size={14} weight="duotone" className="text-primary" />}
+                      {detectedFormat === 'toml' && <FileCode size={14} weight="duotone" className="text-primary" />}
+                      {detectedFormat === 'ini' && <FileCode size={14} weight="duotone" className="text-primary" />}
                       <span className="text-xs font-bold text-primary uppercase tracking-wider">{detectedFormat}</span>
                     </div>
                   </div>
@@ -879,6 +1158,18 @@ function App({ onNavigateToDocs }: AppProps = {}) {
                         <DropdownMenuItem onClick={() => loadExample('yaml')} className="gap-2 cursor-pointer rounded-lg text-sm">
                           <FileCode size={14} weight="duotone" />
                           YAML Example
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => loadExample('xml')} className="gap-2 cursor-pointer rounded-lg text-sm">
+                          <Code size={14} weight="duotone" />
+                          XML Example
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => loadExample('toml')} className="gap-2 cursor-pointer rounded-lg text-sm">
+                          <FileCode size={14} weight="duotone" />
+                          TOML Example
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => loadExample('ini')} className="gap-2 cursor-pointer rounded-lg text-sm">
+                          <FileCode size={14} weight="duotone" />
+                          INI Example
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => loadExample('jsonl')} className="gap-2 cursor-pointer rounded-lg text-sm">
                           <ListBullets size={14} weight="duotone" />
@@ -944,7 +1235,7 @@ function App({ onNavigateToDocs }: AppProps = {}) {
                 <Textarea
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}
-                  placeholder={`Paste ${detectedFormat.toUpperCase()} data or load from file/URL...\n\n• JSON: {"key": "value"}\n• YAML: key: value\n• JSONL: {...}\\n{...}\n• CSV: name,age\\nAlice,30`}
+                  placeholder={`Paste ${detectedFormat.toUpperCase()} data or load from file/URL...\n\n• JSON: {"key": "value"}\n• YAML: key: value\n• XML: <root><item/></root>\n• TOML: [section]\nkey = "value"\n• INI: [section]\nkey=value\n• JSONL: {...}\\n{...}\n• CSV: name,age\\nAlice,30`}
                   className="font-mono text-xs md:text-sm min-h-[180px] md:min-h-[200px] resize-y transition-all duration-200 focus:ring-2 focus:ring-primary/30 border-border/50 hover:border-border/70 rounded-xl bg-muted/40 focus:bg-background shadow-inner hover:shadow-lg"
                 />
 
@@ -1238,7 +1529,7 @@ function App({ onNavigateToDocs }: AppProps = {}) {
                     </div>
                     <div className="flex items-start gap-3 p-4 rounded-xl bg-background/60 border border-border/50 transition-all duration-200 hover:border-primary/40 hover:bg-background/80 hover:shadow-lg hover:shadow-primary/10 hover:scale-[1.02] group/item">
                       <span className="text-primary font-bold flex-shrink-0 text-base w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center group-hover/item:bg-primary/20 transition-colors">2</span>
-                      <p className="group-hover/item:text-foreground/80 transition-colors">Format automatically detected (JSON, YAML, JSONL, CSV)</p>
+                      <p className="group-hover/item:text-foreground/80 transition-colors">Format automatically detected (JSON, YAML, XML, TOML, INI, JSONL, CSV)</p>
                     </div>
                     <div className="flex items-start gap-3 p-4 rounded-xl bg-background/60 border border-border/50 transition-all duration-200 hover:border-primary/40 hover:bg-background/80 hover:shadow-lg hover:shadow-primary/10 hover:scale-[1.02] group/item">
                       <span className="text-primary font-bold flex-shrink-0 text-base w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center group-hover/item:bg-primary/20 transition-colors">3</span>

@@ -1,6 +1,9 @@
 import { parse as parseYAML } from 'yaml'
+import { XMLParser } from 'fast-xml-parser'
+import * as TOML from '@iarna/toml'
+import * as INI from 'ini'
 
-export type DataFormat = 'json' | 'yaml' | 'jsonl' | 'json5' | 'csv' | 'unknown'
+export type DataFormat = 'json' | 'yaml' | 'jsonl' | 'json5' | 'csv' | 'xml' | 'toml' | 'ini' | 'unknown'
 
 export interface ParseResult {
   success: boolean
@@ -22,6 +25,19 @@ export function detectFormat(input: string): DataFormat {
   
   const lines = trimmed.split('\n').filter(l => l.trim())
   
+  if (trimmed.startsWith('<?xml') || trimmed.startsWith('<') && trimmed.includes('</')) {
+    return 'xml'
+  }
+  
+  if (trimmed.startsWith('[') && trimmed.includes(']') && trimmed.includes('=')) {
+    return 'ini'
+  }
+  
+  if (lines.some(line => line.trim().startsWith('['))) {
+    const hasEquals = lines.some(line => line.includes('=') && !line.trim().startsWith('#'))
+    if (hasEquals) return 'toml'
+  }
+  
   if (lines.length > 1) {
     const possibleJsonl = lines.every(line => {
       const trimmedLine = line.trim()
@@ -39,7 +55,7 @@ export function detectFormat(input: string): DataFormat {
   
   if (lines.length > 0) {
     const firstLine = lines[0]
-    if (firstLine.includes(',') && !firstLine.startsWith('{')) {
+    if (firstLine.includes(',') && !firstLine.startsWith('{') && !firstLine.startsWith('<')) {
       const commaCount = (firstLine.match(/,/g) || []).length
       if (commaCount > 0) {
         return 'csv'
@@ -145,6 +161,108 @@ export function parseCSV(input: string): ParseResult {
   }
 }
 
+export function parseXML(input: string): ParseResult {
+  const startTime = performance.now()
+  try {
+    if (!input || typeof input !== 'string') {
+      return {
+        success: false,
+        error: 'XML Error: Input must be a string',
+        format: 'xml'
+      }
+    }
+
+    const parser = new XMLParser({
+      ignoreAttributes: false,
+      attributeNamePrefix: '@_',
+      textNodeName: '#text',
+      parseAttributeValue: true,
+      parseTagValue: true,
+      trimValues: true
+    })
+
+    const data = parser.parse(input)
+    const parseTime = performance.now() - startTime
+
+    return {
+      success: true,
+      data,
+      format: 'xml',
+      stats: {
+        parseTime
+      }
+    }
+  } catch (error: any) {
+    return {
+      success: false,
+      error: `XML Error: ${error.message}`,
+      format: 'xml'
+    }
+  }
+}
+
+export function parseTOML(input: string): ParseResult {
+  const startTime = performance.now()
+  try {
+    if (!input || typeof input !== 'string') {
+      return {
+        success: false,
+        error: 'TOML Error: Input must be a string',
+        format: 'toml'
+      }
+    }
+
+    const data = TOML.parse(input)
+    const parseTime = performance.now() - startTime
+
+    return {
+      success: true,
+      data,
+      format: 'toml',
+      stats: {
+        parseTime
+      }
+    }
+  } catch (error: any) {
+    return {
+      success: false,
+      error: `TOML Error: ${error.message}`,
+      format: 'toml'
+    }
+  }
+}
+
+export function parseINI(input: string): ParseResult {
+  const startTime = performance.now()
+  try {
+    if (!input || typeof input !== 'string') {
+      return {
+        success: false,
+        error: 'INI Error: Input must be a string',
+        format: 'ini'
+      }
+    }
+
+    const data = INI.parse(input)
+    const parseTime = performance.now() - startTime
+
+    return {
+      success: true,
+      data,
+      format: 'ini',
+      stats: {
+        parseTime
+      }
+    }
+  } catch (error: any) {
+    return {
+      success: false,
+      error: `INI Error: ${error.message}`,
+      format: 'ini'
+    }
+  }
+}
+
 export function parseData(input: string, format?: DataFormat): ParseResult {
   const startTime = performance.now()
   
@@ -164,6 +282,18 @@ export function parseData(input: string, format?: DataFormat): ParseResult {
 
   if (detectedFormat === 'csv') {
     return parseCSV(input)
+  }
+
+  if (detectedFormat === 'xml') {
+    return parseXML(input)
+  }
+
+  if (detectedFormat === 'toml') {
+    return parseTOML(input)
+  }
+
+  if (detectedFormat === 'ini') {
+    return parseINI(input)
   }
 
   if (detectedFormat === 'json' || detectedFormat === 'json5' || detectedFormat === 'unknown') {
