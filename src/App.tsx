@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect, useMemo, useRef } from 'react'
 import { useKV } from '@github/spark/hooks'
 import { useTheme } from '@/hooks/use-theme'
+import { useAutoSave } from '@/hooks/use-auto-save'
 import { 
   Copy, 
   Check, 
@@ -23,7 +24,9 @@ import {
   Toolbox,
   Keyboard,
   Cube,
-  Book
+  Book,
+  Sidebar as SidebarIcon,
+  Code
 } from '@phosphor-icons/react'
 import logoSvg from '@/assets/images/logo.svg'
 import { Button } from '@/components/ui/button'
@@ -32,7 +35,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Separator } from '@/components/ui/separator'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { DataScopeErrorBoundary, GraphErrorBoundary } from '@/components/layout'
@@ -535,6 +538,8 @@ function App({ onNavigateToDocs }: AppProps = {}) {
   const [viewMode, setViewMode] = useState<'tree' | 'graph' | 'graph3d'>('tree')
   const [toolsExpanded, setToolsExpanded] = useState(false)
   const [parseMetrics, setParseMetrics] = useState<{parseTime: number, dataSize: number, nodeCount: number, edgeCount: number} | null>(null)
+  const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [queryResults, setQueryResults] = useState<any[]>([])
   const searchInputRef = useRef<HTMLInputElement>(null)
   const [history, setHistory] = useKV<any[]>(STORAGE_KEYS.HISTORY, [])
   const [searchOptions, setSearchOptions] = useState<SearchOptions>({
@@ -546,6 +551,27 @@ function App({ onNavigateToDocs }: AppProps = {}) {
   })
   
   const { theme, toggleTheme } = useTheme()
+  const { savedState, clearAutoSave } = useAutoSave(inputValue || '', viewMode, selectedPath)
+
+  useEffect(() => {
+    if (savedState && savedState.timestamp) {
+      const timeSince = Date.now() - savedState.timestamp
+      if (timeSince < 3600000 && !inputValue) {
+        toast.info('Previous session recovered', {
+          description: 'Your last unsaved work has been restored',
+          action: {
+            label: 'Dismiss',
+            onClick: () => clearAutoSave()
+          }
+        })
+        if (savedState.inputValue) {
+          setInputValue(savedState.inputValue)
+        }
+        setViewMode(savedState.viewMode as 'tree' | 'graph' | 'graph3d')
+        setSelectedPath(savedState.selectedPath)
+      }
+    }
+  }, [])
 
   const detectFormat = useCallback((data: string): DataFormat => {
     if (!data || typeof data !== 'string') return 'json'
@@ -1138,35 +1164,84 @@ function App({ onNavigateToDocs }: AppProps = {}) {
 
                         <Separator className="bg-gradient-to-r from-transparent via-border/60 to-transparent" />
 
-                        <ScrollArea className="h-[500px] md:h-[560px] rounded-xl border border-border/30 shadow-inner">
-                          <div className="p-2">
-                            <TreeView
-                              nodes={filteredNodes}
-                              onNodeUpdate={handleNodeUpdate}
-                              selectedPath={selectedPath}
-                              onSelectNode={setSelectedPath}
-                            />
-                          </div>
-                        </ScrollArea>
+                        <ErrorBoundary 
+                          context={{ viewMode, nodeCount: treeNodes.length }}
+                          onError={(error) => {
+                            toast.error('Tree view error', {
+                              description: 'An error occurred in the tree view. Your data is safe.',
+                            })
+                          }}
+                        >
+                          {treeNodes.length > 10000 ? (
+                            <div className="rounded-xl border border-border/30">
+                              <VirtualizedTree
+                                nodes={filteredNodes}
+                                onNodeUpdate={handleNodeUpdate}
+                                selectedPath={selectedPath}
+                                onSelectNode={setSelectedPath}
+                                height={560}
+                              />
+                            </div>
+                          ) : (
+                            <ScrollArea className="h-[500px] md:h-[560px] rounded-xl border border-border/30 shadow-inner">
+                              <div className="p-2">
+                                <TreeView
+                                  nodes={filteredNodes}
+                                  onNodeUpdate={handleNodeUpdate}
+                                  selectedPath={selectedPath}
+                                  onSelectNode={setSelectedPath}
+                                />
+                              </div>
+                            </ScrollArea>
+                          )}
+                        </ErrorBoundary>
                       </>
                     )}
 
                     {viewMode === 'graph' && graphData && (
-                      <div className="rounded-xl border border-border/30 overflow-hidden shadow-inner">
-                        <GraphVisualization 
+                      <ErrorBoundary 
+                        context={{ viewMode, nodeCount: graphData.nodes.length }}
+                        onError={(error) => {
+                          toast.error('Graph view error', {
+                            description: 'An error occurred in the graph view. Your data is safe.',
+                          })
+                        }}
+                      >
+                        <div className="rounded-xl border border-border/30 overflow-hidden shadow-inner">
+                          {graphData.nodes.length > 5000 ? (
+                            <CanvasGraphVisualization 
+                              data={graphData}
+                              onNodeClick={handleGraphNodeClick}
+                              selectedNodeId={selectedPath.length > 0 ? `root.${selectedPath.join('.')}` : 'root'}
+                              width={800}
+                              height={600}
+                            />
+                          ) : (
+                            <GraphVisualization 
+                              data={graphData}
+                              onNodeClick={handleGraphNodeClick}
+                              selectedNodeId={selectedPath.length > 0 ? `root.${selectedPath.join('.')}` : 'root'}
+                            />
+                          )}
+                        </div>
+                      </ErrorBoundary>
+                    )}
+
+                    {viewMode === 'graph3d' && graphData && (
+                      <ErrorBoundary 
+                        context={{ viewMode, nodeCount: graphData.nodes.length }}
+                        onError={(error) => {
+                          toast.error('3D graph view error', {
+                            description: 'An error occurred in the 3D view. Your data is safe.',
+                          })
+                        }}
+                      >
+                        <Graph3DVisualization 
                           data={graphData}
                           onNodeClick={handleGraphNodeClick}
                           selectedNodeId={selectedPath.length > 0 ? `root.${selectedPath.join('.')}` : 'root'}
                         />
-                      </div>
-                    )}
-
-                    {viewMode === 'graph3d' && graphData && (
-                      <Graph3DVisualization 
-                        data={graphData}
-                        onNodeClick={handleGraphNodeClick}
-                        selectedNodeId={selectedPath.length > 0 ? `root.${selectedPath.join('.')}` : 'root'}
-                      />
+                      </ErrorBoundary>
                     )}
                     </div>
                   </Card>
@@ -1193,6 +1268,16 @@ function App({ onNavigateToDocs }: AppProps = {}) {
                     options={searchOptions}
                     onChange={setSearchOptions}
                     resultCount={searchResultCount}
+                  />
+
+                  <QueryPanel 
+                    data={parsedData}
+                    onResultsUpdate={setQueryResults}
+                    onExportResults={(results) => {
+                      const exportData = { queryResults: results }
+                      setParsedData(exportData)
+                      setShowExportDialog(true)
+                    }}
                   />
 
                   <SmartSuggestionsPanel
